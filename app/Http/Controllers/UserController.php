@@ -11,7 +11,7 @@ class UserController extends Controller
 {
     public function create()
     {
-        return view('auth.registration');
+        return view('auth.register');
     }
 
     public function store(Request $request)
@@ -46,6 +46,8 @@ class UserController extends Controller
         $user->status = $request->status;
         $user->save();
 
-        return response()->json(['message' => 'User registered successfully'], 200);
+        return redirect('/')->with('message', 'User registered successfully');
+
+        // return response()->json(['message' => 'User registered successfully'], 200);
     }
 }
