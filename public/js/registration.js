@@ -139,7 +139,42 @@ $(document).ready(function() {
 
         // If form is valid, submit it
         if (isValid) {
-            this.submit();
+            $.ajax({
+                url: $(this).attr('action'),
+                method: $(this).attr('method'),
+                data: $(this).serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: response.message, // Assuming your API returns a message
+                            showConfirmButton: true,
+                        }).then(function() {
+                            // Redirect to the desired URL
+                            window.location.href = '/'; // Replace with your desired URL
+                        });
+                    }else{
+                        var errors = response.errors;
+                        var errorMessage = '';
+                        Object.keys(errors).forEach(function(key) {
+                            errorMessage += key + ': ' + errors[key][0] + '<br>';
+                        });
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Registration Failed',
+                            html: errorMessage
+                        });
+                    }
+                    
+                   
+                },
+                error: function(xhr, status, error) {
+                    // Handle errors if any
+                    console.error(xhr.responseText);
+                    // You can show an error message here if needed
+                }
+            });
         }
     });
 
@@ -157,8 +192,8 @@ $(document).ready(function() {
         return phoneRegex.test(phoneNumber);
     }
 
-
-    
 });
+
+
 
 

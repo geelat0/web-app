@@ -30,7 +30,7 @@ class UserController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return response()->json(['success' => false,'errors' => $validator->errors()], 200);
         }
 
         $user = new User();
@@ -46,8 +46,6 @@ class UserController extends Controller
         $user->status = $request->status;
         $user->save();
 
-        return redirect('/')->with('message', 'User registered successfully');
-
-        // return response()->json(['message' => 'User registered successfully'], 200);
+        return response()->json(['success' => true, 'message' => 'User registered successfully'], 200);
     }
 }
