@@ -19,6 +19,7 @@ class UserSeeder extends Seeder
                 'first_name' => 'angelica',
                 'middle_name' => 'lianko',
                 'last_name' => 'bonganay',
+                'user_name' => 'A.Bong',
                 'province' => 'albay',
                 'position' => 'Developer',
                 'mobile_number' => '09123456789',

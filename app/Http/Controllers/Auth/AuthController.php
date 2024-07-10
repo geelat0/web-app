@@ -60,12 +60,12 @@ class AuthController extends Controller
             } else {
                 // User status is not 'Active', logout and show an error message
                 auth()->logout();
-                return response()->json(['success' => false, 'message' => 'Your account is not active , Please contact the Admin.'], 401);
+                return response()->json(['success' => false, 'message' => 'Your account is not active , Please contact the Admin.']);
             }
 
         }
 
-        return response()->json(['success' => false, 'message' => 'Invalid credentials'], 401);
+        return response()->json(['success' => false, 'message' => 'Invalid credentials']);
 
     }
 
@@ -115,5 +115,14 @@ class AuthController extends Controller
         return $status === Password::PASSWORD_RESET
                     ? redirect()->route('/')->with('status', __($status))
                     : back()->withErrors(['email' => [__($status)]]);
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/');
     }
 }

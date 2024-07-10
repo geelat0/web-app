@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('last_name');
             $table->string('middle_name');
+            $table->string('user_name');
             $table->string('province');
             $table->string('position');
             $table->string('mobile_number');

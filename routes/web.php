@@ -9,18 +9,35 @@ use Illuminate\Support\Facades\Route;
 //     return view('welcome');
 // });
 
-Route::get('/', [AuthController::class, 'index']);
-Route::post('/login', [AuthController::class, 'login'])->name('login');
 
-Route::get('/dash-home', [DashboardController::class, 'index']);
-
+Route::get('user', [UserController::class, 'user_create']);
 Route::get('user/create', [UserController::class, 'create']);
 Route::post('user/store', [UserController::class, 'store'])->name('user.store');
+Route::get('users/data', [UserController::class, 'getData'])->name('user.data');
 
-Route::get('forgot-password', [AuthController::class, 'showLinkRequestForm'])->name('password.request');
-Route::post('forgot-password', [AuthController::class, 'sendResetLinkEmail'])->name('password.email');
-Route::get('reset-password/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
-Route::post('reset-password', [AuthController::class, 'reset'])->name('password.update');
+
+Route::get('dash-home', [DashboardController::class, 'index']);
+Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+
+
+
+Route::middleware(['guest'])->group(function () {
+
+    Route::get('/', [AuthController::class, 'index']);
+    Route::post('login', [AuthController::class, 'login'])->name('login');
+    
+    Route::get('forgot-password', [AuthController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('forgot-password', [AuthController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::get('reset-password/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
+    Route::post('reset-password', [AuthController::class, 'reset'])->name('password.update');
+    
+});
+
+
+
+
+
+
 
 
 
