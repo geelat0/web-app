@@ -11281,7 +11281,7 @@ textarea.is-invalid.tt-hint, .select2-container--default .select2-selection--sin
   cursor: pointer;
   user-select: none;
   border: var(--bs-btn-border-width) solid var(--bs-btn-border-color);
-  border-radius: var(--bs-btn-border-radius);
+  /* border-radius: var(--bs-btn-border-radius); */
   background-color: var(--bs-btn-bg);
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
@@ -21593,7 +21593,7 @@ code {
   font-size: 0.875rem;
   line-height: 1;
   font-weight: 400;
-  border-radius: 15px;
+  border-radius: 5px;
   /* Buttons with only icons */
   /* Buttons with icon and text */
 }

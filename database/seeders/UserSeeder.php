@@ -16,17 +16,18 @@ class UserSeeder extends Seeder
     {
         User::create(
             [
-                'first_name' => 'angelica',
-                'middle_name' => 'lianko',
-                'last_name' => 'bonganay',
-                'user_name' => 'A.Bong',
-                'province' => 'albay',
+                'first_name' => 'Angelica',
+                'middle_name' => 'Lianko',
+                'last_name' => 'Bonganay',
+                'user_name' => 'A.bong',
+                'province' => 'Albay',
                 'position' => 'Developer',
                 'mobile_number' => '09123456789',
                 'email' => 'angelicamae.bonganay@gmail.com',
-                'role' => 'admin',
-                'status' => 'active',
+                'role_id' => '1',
+                'status' => 'Active',
                 'password' => Hash::make('123456'),
+                'created_by' => 'A.bong',
             ]
           );
     }

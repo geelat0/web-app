@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -13,7 +14,12 @@ use Illuminate\Support\Facades\Route;
 Route::get('user', [UserController::class, 'user_create']);
 Route::get('user/create', [UserController::class, 'create']);
 Route::post('user/store', [UserController::class, 'store'])->name('user.store');
+Route::post('users/store', [UserController::class, 'UserStore'])->name('users.store');
+Route::post('users/update', [UserController::class, 'update'])->name('users.update');
 Route::get('users/data', [UserController::class, 'getData'])->name('user.data');
+
+Route::get('role/data', [RoleController::class, 'getRole'])->name('get.role');
+
 
 
 Route::get('dash-home', [DashboardController::class, 'index']);

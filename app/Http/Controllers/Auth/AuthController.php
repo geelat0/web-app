@@ -34,22 +34,22 @@ class AuthController extends Controller
 
         if (auth()->attempt($credentials)) {
 
-            if (auth()->user()->status == 'active') {
+            // if (auth()->user()->status == 'Active') {
 
-                // Get the current day of the week (1 to 7, where 1 represents Monday)
-                $currentDayOfWeek = Carbon::now()->dayOfWeekIso;
+            //     // Get the current day of the week (1 to 7, where 1 represents Monday)
+            //     $currentDayOfWeek = Carbon::now()->dayOfWeekIso;
 
-                    $loginS = new LoginModel();
-                    $loginS->date_time_in = now();
-                    $loginS->status = 'Logged In';
-                    // Associate the post with the authenticated user
-                    $loginS->user_id =  Auth::id();
-                    $loginS->save();
-                    return response()->json(['success' => true]);
-            }
+            //         $loginS = new LoginModel();
+            //         $loginS->date_time_in = now();
+            //         $loginS->status = 'Logged In';
+            //         // Associate the post with the authenticated user
+            //         $loginS->user_id =  Auth::id();
+            //         $loginS->save();
+            //         return response()->json(['success' => true]);
+            // }
 
             // Check if the user status is 'Active'
-            if (auth()->user()->status == 'active') {
+            if (auth()->user()->status == 'Active') {
                 $loginS = new LoginModel();
                 $loginS->date_time_in = now();
                 $loginS->status = 'Logged In';

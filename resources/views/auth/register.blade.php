@@ -41,8 +41,8 @@
                                 @csrf
                                 <div class="row mb-3">
 
-                                    <input type="hidden" name="status" class="form-control capitalize" name="status" value="active" aria-describedby="">
-                                    <input type="hidden" name="role" class="form-control capitalize" name="role" value="user" aria-describedby="">
+                                    <input type="hidden" name="status" class="form-control capitalize" name="status" value="Active" aria-describedby="">
+                                    <input type="hidden" name="role_id" class="form-control capitalize" name="role_id" value="2" aria-describedby="">
 
                                     
 

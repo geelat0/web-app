@@ -16,7 +16,6 @@
 
     <!-- Bootstrap Icon -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{asset('css/registration.css')}}">
 
 
@@ -77,6 +76,7 @@
     </div>
 
     <!-- Optional JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha512-+NqPlbbtM1QqiK8ZAo4Yrj2c4lNQoGv8P79DPtKzj++l5jnN39rHA/xsqn8zE9l0uSoxaCdrOgFs6yjyfbBxSg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     {{-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script> --}}
@@ -104,7 +104,7 @@
                         Swal.fire({
                             icon: 'error',
                             title: 'Failed!',
-                            text: response.message, // Assuming your API returns a message
+                            text: response.message,
                             showConfirmButton: true,
                         })
                         // alert('Invalid credentials');
@@ -114,7 +114,7 @@
                     Swal.fire({
                             icon: 'error',
                             title: 'Failed!',
-                            text: 'Please fill out the required fields.', // Assuming your API returns a message
+                            text: 'Soemthing went wrong.',
                             showConfirmButton: true,
                         })
                     // alert('Error logging in');

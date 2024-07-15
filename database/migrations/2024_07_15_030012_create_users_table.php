@@ -20,13 +20,16 @@ return new class extends Migration
             $table->string('province');
             $table->string('position');
             $table->string('mobile_number');
-            $table->string('role');
+            $table->unsignedBigInteger('role_id');
             $table->string('email')->unique();
             $table->string('password');
             $table->date('last_date_change')->nullable();
             $table->rememberToken();
             $table->string('status');
+            $table->string('created_by');
             $table->timestamps();
+
+            $table->foreign('role_id')->references('id')->on('role');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

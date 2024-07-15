@@ -64,6 +64,13 @@ $(document).ready(function() {
             isValid = false;
         }
 
+        let role = $('#rolesDropdown').val();
+        if (role === '') {
+            $('#rolesDropdown').addClass('is-invalid');
+            $('#RoleError').text('Please select a role.');
+            isValid = false;
+        }
+
         // // Validate Department Required field
         // let department = $('#department').val();
         // if (department === '') {
