@@ -56,6 +56,44 @@
                     className: 'btn btn-success user_btn',
                     action: function (e, dt, node, config) {
                         $('#createUserModal').modal('show');
+
+                        $('#createUserForm').one('submit', function(e) {
+                            e.preventDefault();
+                            // Handle form submission, e.g., via AJAX
+                            var formData = $(this).serialize();
+                            $.ajax({
+                                url: '{{ route('users.store') }}', 
+                                method: 'POST',
+                                data: formData,
+                                success: function(response) {
+                                    if (response.success) {
+                                        $('#createUserModal').modal('hide');
+                                            Swal.fire({
+                                                icon: 'success',
+                                                title: 'Success!',
+                                                text: response.message,
+                                                showConfirmButton: true,
+                                            })
+                                            table.ajax.reload();
+                                        }
+                                        else{
+                                            
+                                            var errors = response.errors;
+                                            Object.keys(errors).forEach(function(key) {
+                                                var inputField = $('#createUserForm [name=' + key + ']');
+                                                inputField.addClass('is-invalid');
+                                                $('#createUserForm #' + key + 'Error').text(errors[key][0]);
+                                            });
+                                            
+                                        }
+                                    
+                                },
+                                error: function(xhr) {
+                                    // Handle error
+                                    console.log(xhr.responseText);
+                                }
+                            });
+                        });
                     }
                 },
                 {
@@ -77,6 +115,41 @@
                         $('#edit_role').val(selectedData.role_id).change();
 
                         $('#editUserModal').modal('show');
+
+                        $('#editUserForm').one('submit', function(e) {
+                                e.preventDefault();
+                                var formData = $(this).serialize();
+                                $.ajax({
+                                    url: '{{ route('users.update') }}', 
+                                    method: 'POST',
+                                    data: formData,
+                                    success: function(response) {
+                                        if (response.success) {
+                                            $('#editUserModal').modal('hide');
+                                            
+                                            Swal.fire({
+                                                icon: 'success',
+                                                title: 'Success!',
+                                                text: response.message,
+                                                showConfirmButton: true,
+                                            })
+
+                                            table.ajax.reload();
+                                           
+                                        } else {
+                                            var errors = response.errors;
+                                            Object.keys(errors).forEach(function(key) {
+                                                var inputField = $('#editUserForm [name=' + key + ']');
+                                                inputField.addClass('is-invalid');
+                                                $('#editUserForm #' + key + 'Error').text(errors[key][0]);
+                                            });
+                                        }
+                                    },
+                                    error: function(xhr) {
+                                        console.log(xhr.responseText);
+                                    }
+                            });
+                        });
                     }
                 },
                 {
@@ -99,6 +172,7 @@
                         $('#view_role').val(selectedData.role_id).change();
 
                         $('#viewUserModal').modal('show');
+                        
                     }
                 },
                 {
@@ -106,13 +180,59 @@
                     className: 'btn btn-danger user_btn',
                     enabled: false,
                     action: function (e, dt, node, config) {
-                        alert('Delete Activated!');
+                        //alert('Delete Activated!');
+
+                        var selectedUserId = table.row({ selected: true }).data().id; // Assuming you have selected a user row
+
+                        Swal.fire({
+                            title: 'Are you sure?',
+                            text: "You won't be able to revert this!",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Yes, delete it!'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $.ajax({
+                                    url: '{{ route('users.destroy') }}',
+                                    method: 'POST',
+                                    data: {
+                                        _token: '{{ csrf_token() }}',
+                                        id: selectedUserId
+                                    },
+                                    success: function(response) {
+                                        if (response.success) {
+                                            Swal.fire(
+                                                'Deleted!',
+                                                'User has been deleted.',
+                                                'success'
+                                            );
+                                            table.ajax.reload();
+                                        } else {
+                                            var errorMessage = '';
+                                            Object.keys(response.errors).forEach(function(key) {
+                                                errorMessage += response.errors[key][0] + '<br>';
+                                            });
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Deletion Failed',
+                                                html: errorMessage
+                                            });
+                                        }
+                                    },
+                                    error: function(xhr) {
+                                        console.log(xhr.responseText);
+                                    }
+                                });
+                            }
+                        });
                     }
                 }
             ],
 
             columns: [
-                // { data: 'id', name: 'id', title: 'ID' },
+                { data: 'id', name: 'id', title: 'ID', visible: false },
                 { data: 'user_name', name: 'user_name', title: 'User Name' },
                 { data: 'name', name: 'name', title: 'Name' },
                 { data: 'email', name: 'email', title: 'Email' },
@@ -138,85 +258,13 @@
             table.buttons(['.btn-primary', '.btn-info', '.btn-danger']).enable(selectedRows > 0);
         });
 
-        $('#createUserModal').on('hidden.bs.modal', function () {
-            $('#createUserForm')[0].reset();
+        $('#createUserModal, #editUserModal').on('hidden.bs.modal', function() {
+            $(this).find('form')[0].reset(); // Reset form fields
+            $(this).find('.is-invalid').removeClass('is-invalid'); // Remove validation error classes
+            $(this).find('.invalid-feedback').text(''); // Clear error messages
         });
-    });
 
-    $('#createUserForm').on('submit', function(e) {
-        e.preventDefault();
-        // Handle form submission, e.g., via AJAX
-        var formData = $(this).serialize();
-        $.ajax({
-            url: '{{ route('users.store') }}', 
-            method: 'POST',
-            data: formData,
-            success: function(response) {
-
-                 if (response.success) {
-                    $('#createUserModal').modal('hide');
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: response.message, // Assuming your API returns a message
-                            showConfirmButton: true,
-                        })
-                        table.ajax.reload();
-                    }else{
-                        var errors = response.errors;
-                        var errorMessage = '';
-                        Object.keys(errors).forEach(function(key) {
-                            errorMessage += key + ': ' + errors[key][0] + '<br>';
-                        });
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Registration Failed',
-                            html: errorMessage
-                        });
-                    }
-                
-            },
-            error: function(xhr) {
-                // Handle error
-                console.log(xhr.responseText);
-            }
-        });
-    });
-
-    $('#editUserForm').on('submit', function(e) {
-            e.preventDefault();
-            var formData = $(this).serialize();
-            $.ajax({
-                url: '{{ route('users.update') }}', 
-                method: 'POST',
-                data: formData,
-                success: function(response) {
-                    if (response.success) {
-                        $('#editUserModal').modal('hide');
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: response.message,
-                            showConfirmButton: true,
-                        })
-                        table.ajax.reload();
-                    } else {
-                        var errors = response.errors;
-                        var errorMessage = '';
-                        Object.keys(errors).forEach(function(key) {
-                            errorMessage += key + ': ' + errors[key][0] + '<br>';
-                        });
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Update Failed',
-                            html: errorMessage
-                        });
-                    }
-                },
-                error: function(xhr) {
-                    console.log(xhr.responseText);
-                }
-         });
+       
     });
 
 

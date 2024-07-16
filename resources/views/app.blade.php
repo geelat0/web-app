@@ -7,12 +7,12 @@
 
     <link rel="stylesheet" href="{{asset('assets/vendors/feather/feather.css')}}">
     <link rel="stylesheet" href="{{asset('assets/vendors/ti-icons/css/themify-icons.css')}}">
-    <link rel="stylesheet" href="{{asset('assets/vendors/css/vendor.bundle.base.css')}}">
+    {{-- <link rel="stylesheet" href="{{asset('assets/vendors/css/vendor.bundle.base.css')}}"> --}}
     <link rel="stylesheet" href="{{asset('assets/vendors/font-awesome/css/font-awesome.min.css')}}">
     <link rel="stylesheet" href="{{asset('assets/vendors/mdi/css/materialdesignicons.min.css')}}">
     <link rel="stylesheet" href="{{asset('assets/vendors/ti-icons/css/themify-icons.css')}}">
     <link rel="stylesheet" href="{{asset('assets/css/style.css')}}">
-    <link rel="stylesheet" href="{{asset('css/custom.css')}}">
+    {{-- <link rel="stylesheet" href="{{asset('css/custom.css')}}"> --}}
     <link href="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-2.0.8/af-2.7.0/b-3.0.2/b-colvis-3.0.2/b-html5-3.0.2/b-print-3.0.2/cr-2.0.3/date-1.5.2/fc-5.0.1/fh-4.0.1/kt-2.12.1/r-3.0.2/rg-1.5.0/rr-1.5.0/sc-2.4.3/sb-1.7.1/sp-2.3.1/sl-2.0.3/sr-1.4.1/datatables.min.css" rel="stylesheet">
   
   </head>

@@ -21,13 +21,14 @@ return new class extends Migration
             $table->string('position');
             $table->string('mobile_number');
             $table->unsignedBigInteger('role_id');
-            $table->string('email')->unique();
-            $table->string('password');
+            $table->string('email');
+            $table->string('password')->nullable();
             $table->date('last_date_change')->nullable();
             $table->rememberToken();
             $table->string('status');
             $table->string('created_by');
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('role_id')->references('id')->on('role');
         });
