@@ -23,7 +23,6 @@
 @endsection
 
 @section('scripts')
-<script src="{{ asset('js/registration.js') }}"></script>
 <script>
     $(document).ready(function() {
 
@@ -57,7 +56,7 @@
                     action: function (e, dt, node, config) {
                         $('#createUserModal').modal('show');
 
-                        $('#createUserForm').one('submit', function(e) {
+                        $('#createUserForm').on('submit', function(e) {
                             e.preventDefault();
                             // Handle form submission, e.g., via AJAX
                             var formData = $(this).serialize();
@@ -101,6 +100,7 @@
                     className: 'btn btn-primary user_btn',
                     enabled: false,
                     action: function (e, dt, node, config) {
+                        $('#editUserModal').modal('show');
 
                         var selectedData = dt.row({ selected: true }).data();
                         $('#edit_user_id').val(selectedData.id);
@@ -113,8 +113,6 @@
                         $('#edit_position').val(selectedData.position);
                         $('#edit_province').val(selectedData.province);
                         $('#edit_role').val(selectedData.role_id).change();
-
-                        $('#editUserModal').modal('show');
 
                         $('#editUserForm').one('submit', function(e) {
                                 e.preventDefault();
@@ -228,7 +226,58 @@
                             }
                         });
                     }
+                },
+                {
+
+                    extend: 'collection',
+                    text: 'Actions',
+                    enabled: false,
+                    className: 'btn btn-secondary user_btn',
+                    buttons: [
+                        {
+                            text: 'Temporary Password',
+                            action: function (e, dt, node, config) {
+
+                                var selectedData = dt.row({ selected: true }).data();
+
+                                $.ajax({
+                                    url: '{{ route('users.temp-password') }}', 
+                                    method: 'POST',
+                                    data: {
+                                        id: selectedData.id,
+                                        _token: '{{ csrf_token() }}'
+                                    },
+                                    success: function(response) {
+                                        if (response.success) {
+                                            
+                                            Swal.fire({
+                                                icon: 'success',
+                                                title: 'Success!',
+                                                text: response.message,
+                                                showConfirmButton: true,
+                                            })
+                                           
+                                        } else {
+                                            var errors = response.errors;
+                                            Object.keys(errors).forEach(function(key) {
+                                                var inputField = $('#editUserForm [name=' + key + ']');
+                                                inputField.addClass('is-invalid');
+                                                $('#editUserForm #' + key + 'Error').text(errors[key][0]);
+                                            });
+                                        }
+                                    },
+                                    error: function(xhr) {
+                                        console.log(xhr.responseText);
+                                    }
+                            });
+                                console.log(selectedData.id);
+                                
+                            }
+                        }
+                    ]
+
                 }
+                
             ],
 
             columns: [
@@ -255,7 +304,7 @@
 
         table.on('select deselect', function() {
             var selectedRows = table.rows({ selected: true }).count();
-            table.buttons(['.btn-primary', '.btn-info', '.btn-danger']).enable(selectedRows > 0);
+            table.buttons(['.btn-primary', '.btn-info', '.btn-danger', '.btn-secondary']).enable(selectedRows > 0);
         });
 
         $('#createUserModal, #editUserModal').on('hidden.bs.modal', function() {

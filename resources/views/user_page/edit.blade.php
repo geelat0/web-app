@@ -13,7 +13,7 @@
                         <div class="col-md-6">
                             <input type="hidden" name="id" id="edit_user_id">
                             <div class="form-group">
-                                <label for="edit_firtsname" class="required">First Name</label>
+                                <label for="edit_firtsname" class="required capitalize">First Name</label>
                                 <input type="text" class="form-control" id="edit_firtsname" name="first_name">
                                 <div class="invalid-feedback" id="first_nameError"></div>
                             </div>

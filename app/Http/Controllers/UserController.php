@@ -3,14 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use App\Mail\TempPasswordMail;
+use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
@@ -37,6 +39,10 @@ class UserController extends Controller
         $users = User::with('role')->whereNull('deleted_at')->get();
         //dd($users->password);// Eager load the role relationship
         return DataTables::of($users)
+            ->addColumn('id', function($user) {
+                return Crypt::encrypt($user->id);
+                
+            })
             ->addColumn('name', function($user) {
                 return ucfirst($user->first_name) . ' ' . ucfirst($user->last_name);
             })
@@ -91,6 +97,7 @@ class UserController extends Controller
 
     public function UserStore(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -102,14 +109,14 @@ class UserController extends Controller
                             'string',
                             
                             'max:255',
-                            Rule::unique('users')->whereNull('deleted_at')->ignore($request->id),
+                            Rule::unique('users')->whereNull('deleted_at'),
                         ],
             'email' => [
                             'required',
                             'string',
                             'email',
                             'max:255',
-                            Rule::unique('users')->whereNull('deleted_at')->ignore($request->id),
+                            Rule::unique('users')->whereNull('deleted_at'),
                         ],
             'role_id' => 'required',
         ],[
@@ -142,8 +149,10 @@ class UserController extends Controller
 
     public function update(Request $request)
     {
+        $id = Crypt::decrypt($request->id);
+        // dd($id);
         $validator = Validator::make($request->all(), [
-            'id' => 'required|exists:users,id',
+            // 'id' => 'required|exists:users,id',
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'middle_name' => 'required|string|max:255',
@@ -154,14 +163,14 @@ class UserController extends Controller
                             'string',
                             
                             'max:255',
-                            Rule::unique('users')->whereNull('deleted_at')->ignore($request->id),
+                            Rule::unique('users')->whereNull('deleted_at')->ignore($id),
                         ],
             'email' => [
                             'required',
                             'string',
                             'email',
                             'max:255',
-                            Rule::unique('users')->whereNull('deleted_at')->ignore($request->id),
+                            Rule::unique('users')->whereNull('deleted_at')->ignore($id),
                         ],
             // 'password' => 'required|string|min:8',
             'role_id' => 'required|exists:role,id',
@@ -173,7 +182,7 @@ class UserController extends Controller
             return response()->json(['success' => false, 'errors' => $validator->errors()], 200);
         }
     
-        $user = User::findOrFail($request->id);
+        $user = User::findOrFail($id);
     
         $user->first_name = ucfirst($request->first_name);
         $user->last_name = ucfirst($request->last_name);
@@ -195,17 +204,32 @@ class UserController extends Controller
     public function destroy(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'id' => 'required|exists:users,id',
+            // 'id' => 'required|exists:users,id',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['success' => false, 'errors' => $validator->errors()], 200);
         }
 
-        $user = User::findOrFail($request->id);
+        $user = User::findOrFail(Crypt::decrypt($request->id));
         $user->delete();
 
         return response()->json(['success' => true, 'message' => 'User deleted successfully']);
+    }
+
+    public function temp_password(Request $request){
+
+        $user = User::findOrFail(Crypt::decrypt($request->id));
+
+        $randomString = Str::random(10);
+
+        $user->password = Hash::make($randomString);
+        $user->save();
+
+        // Send the temporary password to the user's email
+        Mail::to($user->email)->send(new TempPasswordMail($randomString));
+
+        return response()->json(['data' => $randomString, 'success' => true, 'message' => 'Successfully created a temporary password.']);
     }
 
 

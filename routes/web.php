@@ -18,6 +18,7 @@ Route::post('users/store', [UserController::class, 'UserStore'])->name('users.st
 Route::post('users/update', [UserController::class, 'update'])->name('users.update');
 Route::get('users/data', [UserController::class, 'getData'])->name('user.data');
 Route::post('/users/destroy', [UserController::class, 'destroy'])->name('users.destroy');
+Route::post('/temp-password', [UserController::class, 'temp_password'])->name('users.temp-password');
 
 Route::get('role/data', [RoleController::class, 'getRole'])->name('get.role');
 

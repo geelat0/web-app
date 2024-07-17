@@ -164,6 +164,8 @@
     <script src="assets/js/template.js"></script>
     <script src="assets/js/settings.js"></script>
     <script src="assets/js/todolist.js"></script>
+
+    <script src="{{ asset('js/registration.js') }}"></script>
     
     @yield('scripts') 
 
