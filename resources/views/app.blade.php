@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="{{asset('assets/vendors/feather/feather.css')}}">
     <link rel="stylesheet" href="{{asset('assets/vendors/ti-icons/css/themify-icons.css')}}">
     {{-- <link rel="stylesheet" href="{{asset('assets/vendors/css/vendor.bundle.base.css')}}"> --}}
-    <link rel="stylesheet" href="{{asset('assets/vendors/font-awesome/css/font-awesome.min.css')}}">
     <link rel="stylesheet" href="{{asset('assets/vendors/mdi/css/materialdesignicons.min.css')}}">
     <link rel="stylesheet" href="{{asset('assets/vendors/ti-icons/css/themify-icons.css')}}">
     <link rel="stylesheet" href="{{asset('assets/css/style.css')}}">
@@ -112,7 +111,7 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/user">
-                        <i class="mdi mdi-account-outline menu-icon"></i>
+                        <i class="fas fa-users fa-2x menu-icon"></i>
                         <span class="menu-title">User</span>
                         {{-- <i class="menu-arrow"></i> --}}
                     </a>
@@ -127,6 +126,14 @@
                         <li class="nav-item"> <a class="nav-link" href="pages/ui-features/dropdowns.html">Sample</a></li>
                         </ul>
                     </div> --}}
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/roles">
+                        <i class="fas fa-user-tag fa-2x menu-icon"></i>
+                        <span class="menu-title">Role</span>
+                        {{-- <i class="menu-arrow"></i> --}}
+                    </a>
+                   
                 </li>
                
             </ul>
@@ -151,6 +158,7 @@
       <!-- page-body-wrapper ends -->
     </div>
     <!-- container-scroller -->
+    <script src="https://kit.fontawesome.com/971994a15b.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('assets/vendors/js/vendor.bundle.base.js') }}"></script>
     <script src="{{ asset('assets/js/jquery.cookie.js') }}" type="text/javascript"></script>

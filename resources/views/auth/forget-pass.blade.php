@@ -49,46 +49,6 @@
             <button type="submit">Reset Password</button>
         </form>
     </div>
-    {{-- <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">Reset Password</div>
-                    <div class="card-body">
-                        <form method="POST" action="{{ route('password.update') }}">
-                            @csrf
-                            <input type="hidden" name="token" value="{{ $token }}">
-
-                            <div class="form-group">
-                                <label for="email">Email address</label>
-                                <input type="email" class="form-control" id="email" name="email" required>
-                                @error('email')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-
-                            <div class="form-group">
-                                <label for="password">Password</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
-                                @error('password')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-
-                            <div class="form-group">
-                                <label for="password_confirmation">Confirm Password</label>
-                                <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required>
-                                @error('password_confirmation')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-
-                            <button type="submit" class="btn btn-primary">Reset Password</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> --}}
+  
 </body>
 </html>

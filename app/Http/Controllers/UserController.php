@@ -34,7 +34,7 @@ class UserController extends Controller
        
     }
 
-    public function getData()
+    public function list()
     {
         $users = User::with('role')->whereNull('deleted_at')->get();
         //dd($users->password);// Eager load the role relationship

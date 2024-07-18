@@ -1,71 +1,56 @@
 @extends('app')
 
 @section('content')
+<div class="container">
     <h1 class="mt-4">Dashboard</h1>
     <p>Welcome to your dashboard, {{ $user->user_name }}</p>
     
     <div class="row">
-        <div class="col-md-6">
-            <div class="card">
+        <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+            <div class="card h-100 shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title">Chart Title</h5>
-                    <canvas id="myChart" width="400" height="400"></canvas>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="card-title">Users</h2>
+                            <h3>{{ $userCount }}</h3>
+                        </div>
+                        <div>
+                            <i class="fas fa-users fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <a href="/user" class="text-primary">View Details</a>
+                    <a href="/user" class="text-primary"><i class="fas fa-arrow-circle-right text-primary"></i></a>
+                   
                 </div>
             </div>
         </div>
         
-        <div class="col-md-6">
-            <div class="card">
+        <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+            <div class="card h-100 shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title">KPI Title</h5>
-                    <p>KPI Value: <span id="kpiValue">-</span></p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="card-title">Roles</h2>
+                            <h3>{{ $roleCount }}</h3>
+                        </div>
+                        <div>
+                            <i class="fas fa-user-tag fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <a href="/roles" class="text-success">View Details</a>
+                    <a href="/roles" class="text-success"><i class="fas fa-arrow-circle-right text-success"></i></a>
+                    
                 </div>
             </div>
         </div>
     </div>
+</div>
 @endsection
 
 @section('scripts')
-    <script>
-        // Chart.js code
-        var ctx = document.getElementById('myChart').getContext('2d');
-        var myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-                datasets: [{
-                    label: '# of Rates',
-                    data: [12, 19, 3, 5, 2, 3],
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(255, 159, 64, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-
-        // Example KPI calculation
-        var kpiValue = 123; // Replace with actual KPI calculation
-        document.getElementById('kpiValue').innerText = kpiValue;
-    </script>
+{{-- <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script> --}}
 @endsection
