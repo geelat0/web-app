@@ -232,6 +232,19 @@ class UserController extends Controller
         return response()->json(['data' => $randomString, 'success' => true, 'message' => 'Successfully created a temporary password.']);
     }
 
+    public function changeStatus(Request $request)
+    {
+        $user = User::findOrFail(Crypt::decrypt($request->id));
+        if ($user) {
+            $user->status = $request->status;
+            $user->save();
+
+            return response()->json(['success' => true, 'message' => 'User status updated successfully']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'User not found']);
+    }
+
 
     
 }

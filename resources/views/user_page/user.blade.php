@@ -38,7 +38,7 @@
             ordering: false,
             scrollY: 400,
             select: {
-                style: 'single' // Allow only single row selection
+                style: 'single',
             },
             ajax: '{{ route('user.list') }}',
 
@@ -46,6 +46,7 @@
                 {
                     text: 'Reload',
                     className: 'btn btn-warning user_btn',
+                    enabled: true,
                     action: function ( e, dt, node, config ) {
                         dt.ajax.reload();
                     }
@@ -53,6 +54,7 @@
                 {
                     text: 'Add',
                     className: 'btn btn-success user_btn',
+                    enabled: true,
                     action: function (e, dt, node, config) {
                         $('#createUserModal').modal('show');
 
@@ -97,7 +99,7 @@
                 },
                 {
                     text: 'Edit',
-                    className: 'btn btn-primary user_btn',
+                    className: 'btn btn-info user_btn',
                     enabled: false,
                     action: function (e, dt, node, config) {
                         $('#editUserModal').modal('show');
@@ -152,7 +154,7 @@
                 },
                 {
                     text: 'View',
-                    className: 'btn btn-info user_btn',
+                    className: 'btn btn-primary user_btn',
                     enabled: false,
                     action: function (e, dt, node, config) {
                         //alert('View Activated!');
@@ -232,7 +234,7 @@
                     extend: 'collection',
                     text: 'Actions',
                     enabled: false,
-                    className: 'btn btn-secondary user_btn',
+                    className: 'btn btn-primary user_btn',
                     buttons: [
                         {
                             text: 'Temporary Password',
@@ -273,6 +275,66 @@
                                 console.log(selectedData.id);
                                 
                             }
+                        },
+
+                        {
+                            text: 'Change Status',
+                            action: function(e, dt, node, config) {
+                                var selectedData = dt.row({ selected: true }).data();
+                                Swal.fire({
+                                    title: 'Change Status',
+                                    input: 'select',
+                                    inputOptions: {
+                                        'Active': 'Active',
+                                        'Inactive': 'Inactive',
+                                        'Blocked': 'Blocked',
+                                    },
+                                    inputPlaceholder: 'Select a status',
+                                    showCancelButton: true,
+                                    inputValidator: (value) => {
+                                        return new Promise((resolve) => {
+                                            if (value) {
+                                                resolve();
+                                            } else {
+                                                resolve('You need to select a status');
+                                            }
+                                        });
+                                    }
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        $.ajax({
+                                            url: '{{ route('users.change-status') }}',
+                                            method: 'POST',
+                                            data: {
+                                                id: selectedData.id,
+                                                status: result.value,
+                                                _token: '{{ csrf_token() }}'
+                                            },
+                                            success: function(response) {
+                                                if (response.success) {
+                                                    Swal.fire({
+                                                        icon: 'success',
+                                                        title: 'Success!',
+                                                        text: response.message,
+                                                        showConfirmButton: true
+                                                    });
+                                                    table.ajax.reload();
+                                                } else {
+                                                    Swal.fire({
+                                                        icon: 'error',
+                                                        title: 'Error!',
+                                                        text: response.message,
+                                                        showConfirmButton: true
+                                                    });
+                                                }
+                                            },
+                                            error: function(xhr) {
+                                                console.log(xhr.responseText);
+                                            }
+                                        });
+                                    }
+                                });
+                            }
                         }
                     ]
 
@@ -305,7 +367,7 @@
 
         table.on('select deselect', function() {
             var selectedRows = table.rows({ selected: true }).count();
-            table.buttons(['.btn-primary', '.btn-info', '.btn-danger', '.btn-secondary']).enable(selectedRows > 0);
+            table.buttons(['.btn-primary', '.btn-info', '.btn-danger']).enable(selectedRows > 0);
         });
 
         $('#createUserModal, #editUserModal').on('hidden.bs.modal', function() {

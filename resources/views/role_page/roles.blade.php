@@ -1,27 +1,31 @@
-@extends('app')
+@extends('app')  {{-- Main blade File --}}
 
+
+{{-- Content of Pages --}}
 @section('content')
-<div class="container">
-    <div class="card">
-        <div class="card-header">
-            <h2 class="mb-0">Roles</h2>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table id="roles-table" class="table table-striped table-bordered" style="width:100%">
-                    <tbody>
-                    </tbody>
-                </table>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">Roles</h2>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="roles-table" class="table table-striped table-bordered" style="width:100%">
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-@include('role_page.create')
-@include('role_page.edit')
-@include('role_page.view')
+    @include('role_page.create')
+    @include('role_page.edit')
+    @include('role_page.view')
 @endsection
 
+
+{{-- JS of Pages --}}
 @section('scripts')
 <script>
     $(document).ready(function() {
@@ -97,7 +101,7 @@
                 },
                 {
                     text: 'Edit',
-                    className: 'btn btn-primary user_btn',
+                    className: 'btn btn-info user_btn',
                     enabled: false,
                     action: function (e, dt, node, config) {
                         $('#editRoleModal').modal('show');
@@ -145,7 +149,7 @@
                 },
                 {
                     text: 'View',
-                    className: 'btn btn-info user_btn',
+                    className: 'btn btn-primary user_btn',
                     enabled: false,
                     action: function (e, dt, node, config) {
                         //alert('View Activated!');
@@ -235,7 +239,7 @@
 
         table.on('select deselect', function() {
             var selectedRows = table.rows({ selected: true }).count();
-            table.buttons(['.btn-primary', '.btn-info', '.btn-danger', '.btn-secondary']).enable(selectedRows > 0);
+            table.buttons(['.btn-primary', '.btn-info', '.btn-danger']).enable(selectedRows > 0);
         });
 
         $('#createRoleModal, #editRoleModal').on('hidden.bs.modal', function() {
@@ -271,5 +275,4 @@
 
 
 </script>
-
 @endsection

@@ -6,23 +6,33 @@
     <p>Welcome to your dashboard, {{ $user->user_name }}</p>
     
     <div class="row mb-4 justify-content-center">
-        <div class="col-lg-6 col-md-8 col-sm-10">
-            <div class="input-group">
-                <input type="text" id="start_date" class="form-control" placeholder="Start Date">
-                <input type="text" id="end_date" class="form-control" placeholder="End Date">
-                <select id="month" class="form-select">
-                    <option value="">Select Month</option>
-                    @for ($i = 1; $i <= 12; $i++)
-                        <option value="{{ $i }}">{{ date('F', mktime(0, 0, 0, $i, 10)) }}</option>
-                    @endfor
-                </select>
-                <select id="year" class="form-select">
-                    <option value="">Select Year</option>
-                    @for ($i = date('Y'); $i >= 2000; $i--)
-                        <option value="{{ $i }}">{{ $i }}</option>
-                    @endfor
-                </select>
-                <button class="btn btn-primary" id="filterBtn">Filter</button>
+        <div class="col-lg-10 col-md-12 col-sm-12">
+            <div class="row">
+                <div class="col-lg-3 col-md-6 col-sm-12 mb-2">
+                    <input type="text" id="start_date" class="form-control" placeholder="Start Date">
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-12 mb-2">
+                    <input type="text" id="end_date" class="form-control" placeholder="End Date">
+                </div>
+                <div class="col-lg-2 col-md-4 col-sm-12 mb-2">
+                    <select id="month" class="form-select">
+                        <option value="">Select Month</option>
+                        @for ($i = 1; $i <= 12; $i++)
+                            <option value="{{ $i }}">{{ date('F', mktime(0, 0, 0, $i, 10)) }}</option>
+                        @endfor
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-4 col-sm-12 mb-2">
+                    <select id="year" class="form-select">
+                        <option value="">Select Year</option>
+                        @for ($i = date('Y'); $i >= 2000; $i--)
+                            <option value="{{ $i }}">{{ $i }}</option>
+                        @endfor
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-4 col-sm-12 mb-2">
+                    <button class="btn btn-primary w-100" id="filterBtn">Filter</button>
+                </div>
             </div>
         </div>
     </div>
