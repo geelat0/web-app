@@ -33,7 +33,7 @@
               </div>
               <div class="col-md-6">
                 <div class="row d-flex flex-column align-items-center">
-                  <h5 class="custom-header mb-3" style="font-weight: 600; color: #0C0342;">System Title</h5>
+                  <h5 class="custom-header mb-3" style="font-weight: 600; color: #0C0342;">OPCR System</h5>
                 </div>
                 <div class="row">
                   <div class="col-md-12">

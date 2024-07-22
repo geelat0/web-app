@@ -1,22 +1,21 @@
 @extends('app')
 
 @section('content')
-<div class="container">
+<div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
-        <div class="card-header">
-            <h2 class="mb-0">User Management</h2>
+      <div class="card-body">
+        <h4 class="card-title">User Management</h4>
+        {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
+        </p>
+        <div class="table-responsive pt-3">
+          <table id="users-table"  class="table table-striped" style="width: 100%">
+            <tbody>
+            </tbody>
+          </table>
         </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table id="users-table" class="table table-striped table-bordered" style="width:100%">
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+      </div>
     </div>
 </div>
-
 @include('user_page.create')
 @include('user_page.edit')
 @include('user_page.view')
@@ -40,6 +39,7 @@
             select: {
                 style: 'single',
             },
+            fixedHeader: true, 
             ajax: '{{ route('user.list') }}',
 
             buttons: [

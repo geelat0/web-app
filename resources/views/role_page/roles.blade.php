@@ -3,22 +3,21 @@
 
 {{-- Content of Pages --}}
 @section('content')
-    <div class="container">
-        <div class="card">
-            <div class="card-header">
-                <h2 class="mb-0">Roles</h2>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table id="roles-table" class="table table-striped table-bordered" style="width:100%">
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+<div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Roles</h4>
+        {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
+        </p>
+        <div class="table-responsive pt-3">
+          <table id="roles-table"  class="table table-striped" style="width: 100%">
+            <tbody>
+            </tbody>
+          </table>
         </div>
+      </div>
     </div>
-
+</div>
     @include('role_page.create')
     @include('role_page.edit')
     @include('role_page.view')

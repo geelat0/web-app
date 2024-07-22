@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Dashboard</title>
+    <title>OPCR</title>
 
     <link rel="stylesheet" href="{{asset('assets/vendors/feather/feather.css')}}">
     <link rel="stylesheet" href="{{asset('assets/vendors/ti-icons/css/themify-icons.css')}}">
@@ -75,7 +75,7 @@
                 </li> --}}
                 <li class="nav-item nav-profile dropdown">
                     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" id="profileDropdown">
-                    <img src="https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg" alt="profile" />
+                    <img src="{{ Auth::user()->profile_image ? asset('storage/' . Auth::user()->profile_image) : 'https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg' }}" alt="profile" />
                     </a>
                     <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
                         <a class="dropdown-item" href="/profile">
@@ -110,7 +110,7 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/user">
-                        <i class="fas fa-users fa-2x menu-icon"></i>
+                        <i class="icon-head menu-icon"></i>
                         <span class="menu-title">User</span>
                         {{-- <i class="menu-arrow"></i> --}}
                     </a>
@@ -128,12 +128,22 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/roles">
-                        <i class="fas fa-user-tag fa-2x menu-icon"></i>
+                        <i class="mdi mdi-tag-outline menu-icon"></i>
                         <span class="menu-title">Role</span>
                         {{-- <i class="menu-arrow"></i> --}}
                     </a>
                    
                 </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/login_in">
+                        <i class="mdi mdi-login menu-icon"></i>
+                        <span class="menu-title">Login History</span>
+                        {{-- <i class="menu-arrow"></i> --}}
+                    </a>
+                   
+                </li>
+                
                
             </ul>
         </nav>
@@ -173,6 +183,11 @@
     <script src="assets/js/todolist.js"></script>
 
     <script src="{{ asset('js/registration.js') }}"></script>
+
+    <script>
+        const user = @json(Auth::user());
+        console.log(user); // Use user data in your JavaScript
+    </script>
     
     @yield('scripts') 
 

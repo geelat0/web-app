@@ -24,9 +24,10 @@
                             <div class="row justify-content-center">
                                 <div class="col-md-3 text-center">
                                     <div class="profile-picture">
-                                        <img src="https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg" alt="Profile Picture" class="img-thumbnail mb-3">
-                                        <input type="file" class="form-control d-none" id="profile_picture" name="profile_picture">
-                                        <div id="profile_pictureError" class="invalid-feedback"></div>
+                                        <img src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : 'https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg' }}" alt="Profile Picture" class="img-thumbnail mb-3 rounded-circle" id="profileImagePreview">
+                                        <input type="file" class="form-control d-none" id="profile_image" name="profile_image">
+
+                                        <div id="profile_imageError" class="invalid-feedback"></div>
                                         <div class="text-center mt-3">
                                             <button type="button" class="btn btn-primary" id="uploadProfilePictureBtn">
                                                 <i class="mdi mdi-briefcase-upload"></i> Upload Photo
@@ -158,6 +159,10 @@
                             text: response.message,
                             showConfirmButton: true,
                         });
+
+                        if (response.profile_image) {
+                            $('#profileImagePreview').attr('src', response.profile_image);
+                        }
                     } else {
                         var errors = response.errors;
                         Object.keys(errors).forEach(function(key) {
@@ -206,7 +211,15 @@
         });
 
         $('#uploadProfilePictureBtn').on('click', function() {
-            $('#profile_picture').click();
+            $('#profile_image').click();
+        });
+
+        $('#profile_image').on('change', function() {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('#profileImagePreview').attr('src', e.target.result);
+            };
+            reader.readAsDataURL(this.files[0]);
         });
 
         $('form').on('reset', function() {

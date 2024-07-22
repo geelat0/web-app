@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LogController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
@@ -14,6 +15,12 @@ use Illuminate\Support\Facades\Route;
 Route::get('dash-home', [DashboardController::class, 'index']);
 Route::get('dashboard/filter', [DashboardController::class, 'filter'])->name('dashboard.filter');
 Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::get('/logs', [LogController::class, 'index'])->name('logs.index');
+Route::post('/logs/clear', [LogController::class, 'clear'])->name('logs.clear');
+
+Route::get('/login_in', [LogController::class, 'login_in']);
+Route::get('/list', [LogController::class, 'list'])->name('list');
 
 
 Route::get('user', [UserController::class, 'user_create']);

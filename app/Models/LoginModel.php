@@ -12,4 +12,10 @@ class LoginModel extends Model
     protected $table = 'login_in';
 
     public $timestamps = false;
+
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

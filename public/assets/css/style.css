@@ -25611,5 +25611,20 @@ label.required::after {
   color: #000; /* Optional: Default text color */
 }
 
+.profile-picture img.rounded-circle {
+  border-radius: 50%;
+  width: 300px; /* or your preferred width */
+  height: 270px; /* or your preferred height */
+  object-fit: cover;
+}
+
+.dt-scroll{
+  width: 100% !important;
+}
+.dt-scroll-body{
+  width: 100% !important;
+}
+
+
 
 /*# sourceMappingURL=maps/style.css.map */

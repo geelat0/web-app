@@ -27,6 +27,7 @@ return new class extends Migration
             $table->rememberToken();
             $table->string('status');
             $table->string('created_by');
+            $table->string('profile_image')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

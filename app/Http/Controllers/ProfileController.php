@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class ProfileController extends Controller
@@ -32,6 +33,7 @@ class ProfileController extends Controller
             'province' => 'required|string|max:255',
             'position' => 'required|string|max:255',
             'mobile_number' => 'required|string|max:15',
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -39,7 +41,20 @@ class ProfileController extends Controller
         }
 
         $user = Auth::user();
-        $user->update($request->all());
+
+        if ($request->hasFile('profile_image')) {
+            // Delete old profile picture if exists
+            if ($user->profile_image) {
+                Storage::disk('public')->delete($user->profile_image);
+            }
+            // Store new profile picture
+            $path = $request->file('profile_image')->store('profile_images', 'public');
+            $user->profile_image = $path;
+        }
+
+        $user->update($request->except('profile_image'));
+
+        // $user->update($request->all());
 
         return response()->json(['success' => true, 'message' => 'Profile updated successfully!']);
     }
