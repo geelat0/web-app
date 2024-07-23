@@ -15,15 +15,8 @@ class RoleController extends Controller
 
     public function roles()
     {
-        if(Auth::check()){
-
-            $user=Auth::user();
-             return view('role_page.roles');
-    
-        }else{
-            return redirect('/');
-        }
-       
+        $user=Auth::user();
+        return view('role_page.roles');
     }
 
     public function getRole(Request $request){

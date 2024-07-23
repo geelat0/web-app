@@ -12,14 +12,10 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        if(Auth::check()){
             $userCount = User::count();
             $roleCount = Role::count();
             $user = Auth::user();
             return view('dashboard', compact('user', 'userCount', 'roleCount'));
-        } else {
-            return redirect('/');
-        }
     }
 
     public function filter(Request $request)

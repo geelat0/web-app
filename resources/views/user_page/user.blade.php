@@ -39,7 +39,6 @@
             select: {
                 style: 'single',
             },
-            fixedHeader: true, 
             ajax: '{{ route('user.list') }}',
 
             buttons: [
@@ -353,7 +352,6 @@
                 { data: 'status', name: 'status', title: 'Status' },
                 { data: 'created_by', name: 'created_by', title: 'Created By' },
                 { data: 'created_at', name: 'created_at', title: 'Created At' },
-                // { data: 'password', name: 'password', title: 'Password' },
             ],
 
             language: {

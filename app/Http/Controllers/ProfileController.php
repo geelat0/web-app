@@ -12,15 +12,8 @@ class ProfileController extends Controller
 {
     public function index()
     {
-        if(Auth::check()){
-
-            $user=Auth::user();
-             return view('profile.profile', compact('user'));
-    
-        }else{
-            return redirect('/');
-        }
-       
+        $user=Auth::user();
+        return view('profile.profile', compact('user'));
     }
 
     public function update(Request $request)

@@ -23,15 +23,8 @@ class UserController extends Controller
 
     public function user_create()
     {
-        if(Auth::check()){
-
-            $user=Auth::user();
-             return view('user_page.user');
-    
-        }else{
-            return redirect('/');
-        }
-       
+        $user=Auth::user();
+        return view('user_page.user');
     }
 
     public function list()

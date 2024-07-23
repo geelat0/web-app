@@ -30,15 +30,8 @@ class LogController extends Controller
 
     public function login_in()
     {
-        if(Auth::check()){
-
-            $user=Auth::user();
-             return view('logs.login_in');
-    
-        }else{
-            return redirect('/');
-        }
-       
+        $user=Auth::user();
+        return view('logs.login_in'); 
     }
 
 
