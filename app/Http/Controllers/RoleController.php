@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Role;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Auth;
@@ -27,9 +28,30 @@ class RoleController extends Controller
 
     }
 
-    public function list()
+    public function list(Request $request)
     {
-        $roles = Role::whereNull('deleted_at')->get();
+        $query = Role::whereNull('deleted_at');
+
+        if ($request->has('date_range') && !empty($request->date_range)) {
+            [$startDate, $endDate] = explode(' - ', $request->date_range);
+            $startDate = Carbon::createFromFormat('m/d/Y', $startDate)->startOfDay();
+            $endDate = Carbon::createFromFormat('m/d/Y', $endDate)->endOfDay();
+    
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        if ($request->has('search') && !empty($request->search)) {
+            $searchTerm = $request->search;
+            
+            $query->where(function($subQuery) use ($searchTerm) {
+                $subQuery->where('name', 'like', "%{$searchTerm}%")
+                        //  ->orWhere('created_by', 'like', "%{$searchTerm}%")
+                         ->orWhere('status', 'like', "%{$searchTerm}%");
+                        
+            });
+        }
+    
+        $roles = $query->get();
        
         return DataTables::of($roles)
             ->addColumn('id', function($role) {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\LoginModel;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Yajra\DataTables\Facades\DataTables;
@@ -47,25 +48,48 @@ class LogController extends Controller
         return redirect()->route('logs.index')->with('success', 'Logs cleared successfully.');
     }
 
-    public function list()
+    public function list(Request $request)
     {
-        $login_in = LoginModel::with('user')->get();
+        $query = LoginModel::with('user');
 
-        // dd($login_in);
-        //dd($users->password);// Eager load the role relationship
+        if ($request->has('date_range') && !empty($request->date_range)) {
+            [$startDate, $endDate] = explode(' - ', $request->date_range);
+            $startDate = Carbon::createFromFormat('m/d/Y', $startDate)->startOfDay();
+            $endDate = Carbon::createFromFormat('m/d/Y', $endDate)->endOfDay();
+    
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        if ($request->has('search') && !empty($request->search)) {
+            $searchTerm = $request->search;
+    
+            if (strpos($searchTerm, ' ') !== false) {
+                [$firstName, $lastName] = explode(' ', $searchTerm, 2);
+                $query->whereHas('user', function($subQuery) use ($firstName, $lastName) {
+                    $subQuery->where('first_name', 'like', "%{$firstName}%")
+                            ->where('last_name', 'like', "%{$lastName}%");
+                });
+            } else {
+                $query->whereHas('user', function($subQuery) use ($searchTerm) {
+                    $subQuery->where('user_name', 'like', "%{$searchTerm}%");
+                            
+                });
+            }
+        }
+    
+        $login_in = $query->get();
         return DataTables::of($login_in)
             ->addColumn('id', function($data) {
                 return Crypt::encrypt($data->id);
                 
             })
             ->addColumn('user', function($data) {
-                return ucfirst($data->user->first_name) . ' ' . ucfirst($data->user->last_name);
+                return ucfirst($data->user->user_name);
             })
-            // ->editColumn('date_time_in', function($data) {
-            //     // return $data->date_time_in->format('m/d/Y');
-            // })
-            
-           
+            ->editColumn('created_at', function($data) {
+                return $data->created_at->format('m/d/Y H:i:s');
+            })
+
             ->make(true);
     }
 }

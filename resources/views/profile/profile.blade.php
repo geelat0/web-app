@@ -143,6 +143,7 @@
     $(document).ready(function() {
         $('#updateProfileForm').on('submit', function(e) {
             e.preventDefault();
+            showLoader();
             var formData = new FormData(this);
 
             $.ajax({
@@ -153,6 +154,7 @@
                 processData: false,
                 success: function(response) {
                     if (response.success) {
+                        hideLoader();
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
@@ -170,9 +172,11 @@
                             inputField.addClass('is-invalid');
                             $('#updateProfileForm #' + key + 'Error').text(errors[key][0]);
                         });
+                        hideLoader();
                     }
                 },
                 error: function(xhr) {
+                    hideLoader();
                     console.log(xhr.responseText);
                 }
             });
@@ -180,6 +184,7 @@
 
         $('#changePasswordForm').on('submit', function(e) {
             e.preventDefault();
+            showLoader();
             var formData = $(this).serialize();
 
             $.ajax({
@@ -187,6 +192,7 @@
                 method: 'POST',
                 data: formData,
                 success: function(response) {
+                    hideLoader();
                     if (response.success) {
                         Swal.fire({
                             icon: 'success',
@@ -202,9 +208,11 @@
                             inputField.addClass('is-invalid');
                             $('#changePasswordForm #' + key + 'Error').text(errors[key][0]);
                         });
+                        hideLoader();
                     }
                 },
                 error: function(xhr) {
+                    hideLoader();
                     console.log(xhr.responseText);
                 }
             });

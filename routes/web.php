@@ -17,15 +17,11 @@ Route::middleware(['auth_check'])->group(function () {
     Route::get('dashboard/filter', [DashboardController::class, 'filter'])->name('dashboard.filter');
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::get('/logs', [LogController::class, 'index'])->name('logs.index');
-    Route::post('/logs/clear', [LogController::class, 'clear'])->name('logs.clear');
-
     Route::get('/login_in', [LogController::class, 'login_in']);
     Route::get('/list', [LogController::class, 'list'])->name('list');
 
-
     Route::get('user', [UserController::class, 'user_create']);
-    Route::get('user/create', [UserController::class, 'create']);
+    
     Route::post('user/store', [UserController::class, 'store'])->name('user.store');
     Route::post('users/store', [UserController::class, 'UserStore'])->name('users.store');
     Route::post('users/update', [UserController::class, 'update'])->name('users.update');
@@ -46,6 +42,9 @@ Route::middleware(['auth_check'])->group(function () {
     Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/change-password', [ProfileController::class, 'changePassword'])->name('password.change');
 
+    Route::get('change-password', [AuthController::class, 'ChangePassForm'])->name('change-password');
+
+
 });
 
 
@@ -54,13 +53,18 @@ Route::middleware(['guest'])->group(function () {
 
     Route::get('/', [AuthController::class, 'index']);
     Route::post('login', [AuthController::class, 'login'])->name('login');
+    Route::get('register', [UserController::class, 'create']);
     
     Route::get('forgot-password', [AuthController::class, 'showLinkRequestForm'])->name('password.request');
     Route::post('forgot-password', [AuthController::class, 'sendResetLinkEmail'])->name('password.email');
     Route::get('reset-password/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
     Route::post('reset-password', [AuthController::class, 'reset'])->name('password.update');
+
     
 });
+
+Route::get('/logs', [LogController::class, 'index'])->name('logs.index');
+Route::post('/logs/clear', [LogController::class, 'clear'])->name('logs.clear');
 
 
 

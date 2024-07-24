@@ -12,6 +12,7 @@ use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use App\Mail\TempPasswordMail;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
@@ -27,14 +28,45 @@ class UserController extends Controller
         return view('user_page.user');
     }
 
-    public function list()
+    public function list(Request $request)
     {
-        $users = User::with('role')->whereNull('deleted_at')->get();
-        //dd($users->password);// Eager load the role relationship
+        $query = User::with('role')->whereNull('deleted_at');
+    
+        if ($request->has('date_range') && !empty($request->date_range)) {
+            [$startDate, $endDate] = explode(' - ', $request->date_range);
+            $startDate = Carbon::createFromFormat('m/d/Y', $startDate)->startOfDay();
+            $endDate = Carbon::createFromFormat('m/d/Y', $endDate)->endOfDay();
+    
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        if ($request->has('search') && !empty($request->search)) {
+            $searchTerm = $request->search;
+    
+            if (strpos($searchTerm, ' ') !== false) {
+                [$firstName, $lastName] = explode(' ', $searchTerm, 2);
+                $query->whereHas('role', function($subQuery) use ($firstName, $lastName) {
+                    $subQuery->where('first_name', 'like', "%{$firstName}%")
+                            ->where('last_name', 'like', "%{$lastName}%");
+                });
+            } else {
+                $query->whereHas('role',function($subQuery) use ($searchTerm) {
+                    $subQuery->where('first_name', 'like', "%{$searchTerm}%")
+                            ->orWhere('last_name', 'like', "%{$searchTerm}%")
+                            ->orWhere('user_name', 'like', "%{$searchTerm}%")
+                            ->orWhere('email', 'like', "%{$searchTerm}%")
+                            ->orWhere('position', 'like', "%{$searchTerm}%")
+                            ->orWhere('name', 'like', "%{$searchTerm}%")
+                            ->orWhere('province', 'like', "%{$searchTerm}%");
+                });
+            }
+        }
+    
+        $users = $query->get();
+    
         return DataTables::of($users)
             ->addColumn('id', function($user) {
                 return Crypt::encrypt($user->id);
-                
             })
             ->addColumn('name', function($user) {
                 return ucfirst($user->first_name) . ' ' . ucfirst($user->last_name);
@@ -43,12 +75,8 @@ class UserController extends Controller
                 return $user->created_at->format('m/d/Y');
             })
             ->addColumn('role', function($user) {
-                return $user->role ? $user->role->name : 'N/A'; // Fetch the role name
+                return $user->role ? $user->role->name : 'N/A';
             })
-            // ->addColumn('password', function($user) {
-            //     return Hasher::decode() ; // Fetch the role name
-            // })
-           
             ->make(true);
     }
 
@@ -216,6 +244,7 @@ class UserController extends Controller
 
         $randomString = Str::random(10);
 
+        $user->is_change_password = 1;
         $user->password = Hash::make($randomString);
         $user->save();
 

@@ -15,7 +15,7 @@ use Illuminate\Support\Str;
 class AuthController extends Controller
 {
 
-    protected $redirectTo = '/dashboard';
+    protected $redirectTo = '/dash-home';
 
     public function index()
     {
@@ -36,12 +36,15 @@ class AuthController extends Controller
         if (auth()->attempt($credentials, $remember)) {
             if (auth()->user()->status == 'Active') {
                 $loginS = new LoginModel();
-                $loginS->date_time_in = now();
                 $loginS->status = 'Logged In';
                 $loginS->user_id = Auth::id();
                 $loginS->save();
 
-                return response()->json(['success' => true]);
+                if (auth()->user()->is_change_password) {
+                    return response()->json(['success' => true, 'redirect' => route('change-password')]);
+                }
+
+                return response()->json(['success' => true, 'redirect' => $this->redirectTo]);
             } else {
                 auth()->logout();
                 return response()->json(['success' => false, 'message' => 'Your account is not active. Please contact the Admin.']);
@@ -72,6 +75,11 @@ class AuthController extends Controller
     public function showResetForm($token)
     {
         return view('auth.forget-pass', ['token' => $token]);
+    }
+    public function ChangePassForm()
+    {
+        $user=Auth::user();
+        return view('auth.change-password', compact('user'));
     }
 
     public function reset(Request $request)

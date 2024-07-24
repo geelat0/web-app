@@ -2,27 +2,35 @@
 
 @section('content')
 <div class="container">
-    <h1 class="mt-4">Dashboard</h1>
-    <p>Welcome to your dashboard, {{ $user->user_name }}</p>
+    
+    <h2 class="mt-4">Dashboard</h2>
+    <p class="mb-3">Welcome to your dashboard, {{ $user->user_name }}</p>
     
     <div class="row mb-4 justify-content-center">
-        <div class="col-lg-6 col-md-8 col-sm-10">
+        <div class="col">
             <div class="input-group">
-                <input type="text" id="start_date" class="form-control" placeholder="Start Date">
-                <input type="text" id="end_date" class="form-control" placeholder="End Date">
+                <input type="text" id="date-range-picker" class="form-control" placeholder="Select Date Range">
+            </div>
+        </div>
+        <div class="col">
+            <div class="input-group">
                 <select id="month" class="form-select">
                     <option value="">Select Month</option>
                     @for ($i = 1; $i <= 12; $i++)
                         <option value="{{ $i }}">{{ date('F', mktime(0, 0, 0, $i, 10)) }}</option>
                     @endfor
                 </select>
+            </div>
+        </div>
+        <div class="col">
+            <div class="input-group">
                 <select id="year" class="form-select">
                     <option value="">Select Year</option>
-                    @for ($i = date('Y'); $i >= 2000; $i--)
+                    @for ($i = date('Y'); $i >= 2020; $i--)
                         <option value="{{ $i }}">{{ $i }}</option>
                     @endfor
                 </select>
-                <button class="btn btn-primary" id="filterBtn">Filter</button>
+                <button class="btn btn-primary" id="filterBtn"> <i class="mdi mdi-filter-outline"></i> Filter</button>
             </div>
         </div>
     </div>
@@ -68,23 +76,56 @@
             </div>
         </div>
     </div>
+
+    {{-- <div class="row">
+        <div class="col stretch-card">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title">Bar chart</h4>
+                <canvas id="barChart"></canvas>
+              </div>
+            </div>
+          </div>
+        <div class="col stretch-card">
+            <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title">Pie chart</h4>
+                  <div class="doughnutjs-wrapper d-flex justify-content-center">
+                    <canvas id="pieChart"></canvas>
+                  </div>
+                </div>
+              </div>
+          </div>
+    </div> --}}
 </div>
 @endsection
 
 @section('scripts')
-<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script>
 $(function() {
-    $("#start_date").datepicker();
-    $("#end_date").datepicker();
-    
+    // Initialize date range picker
+    $('#date-range-picker').daterangepicker({
+        autoUpdateInput: false,
+        locale: {
+            cancelLabel: 'Clear'
+        }
+    });
+
+    $('#date-range-picker').on('apply.daterangepicker', function(ev, picker) {
+        $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+    });
+
+    $('#date-range-picker').on('cancel.daterangepicker', function(ev, picker) {
+        $(this).val('');
+    });
+
+    // Handle the filter button click
     $('#filterBtn').on('click', function() {
-        var startDate = $('#start_date').val();
-        var endDate = $('#end_date').val();
+        var dateRange = $('#date-range-picker').val();
+        var [startDate, endDate] = dateRange ? dateRange.split(' - ') : [null, null];
         var month = $('#month').val();
         var year = $('#year').val();
+        showLoader();
         
         $.ajax({
             url: '{{ route("dashboard.filter") }}',
@@ -96,6 +137,7 @@ $(function() {
                 year: year
             },
             success: function(data) {
+                hideLoader();
                 $('#userCount').text(data.userCount);
                 $('#roleCount').text(data.roleCount);
             }

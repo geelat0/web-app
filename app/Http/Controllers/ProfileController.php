@@ -68,7 +68,7 @@ class ProfileController extends Controller
         if (!Hash::check($request->current_password, $user->password)) {
             return response()->json(['success' => false, 'errors' => ['current_password' => ['Current password is incorrect']]]);
         }
-
+        $user->is_change_password = 0;
         $user->update(['password' => Hash::make($request->new_password)]);
 
         return response()->json(['success' => true, 'message' => 'Password changed successfully!']);

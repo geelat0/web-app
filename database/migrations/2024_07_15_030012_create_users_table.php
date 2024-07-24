@@ -28,6 +28,7 @@ return new class extends Migration
             $table->string('status');
             $table->string('created_by');
             $table->string('profile_image')->nullable();
+            $table->boolean('is_change_password')->default(0);
             $table->timestamps();
             $table->softDeletes();
 

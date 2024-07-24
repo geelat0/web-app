@@ -64,7 +64,7 @@
             </div>
             <div class="row d-flex flex-row-reverse align-items-end row-button-submit">
               <button type="submit" class="btn btn-primary custom-btn">Login</button>
-              <a href="/user/create" class="custom-link">Don't have an Account?</a>
+              <a href="/register" class="custom-link">Don't have an Account?</a>
             </div>
           </form>
         </div>
@@ -93,7 +93,7 @@
         },
         success: function(response) {
           if (response.success) {
-            window.location.href = '/dash-home';
+            window.location.href = response.redirect;
           } else {
             Swal.fire({
               icon: 'error',

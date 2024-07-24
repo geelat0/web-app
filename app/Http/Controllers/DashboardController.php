@@ -20,19 +20,27 @@ class DashboardController extends Controller
 
     public function filter(Request $request)
     {
-        $startDate = $request->input('start_date') ? Carbon::parse($request->input('start_date')) : null;
-        $endDate = $request->input('end_date') ? Carbon::parse($request->input('end_date')) : null;
+        $startDate = $request->input('start_date') ? Carbon::parse($request->input('start_date'))->startOfDay() : null;
+        $endDate = $request->input('end_date') ? Carbon::parse($request->input('end_date'))->endOfDay() : null;
         $month = $request->input('month');
         $year = $request->input('year');
 
         $userQuery = User::query();
         $roleQuery = Role::query();
 
+        // Apply date range filter
         if ($startDate && $endDate) {
             $userQuery->whereBetween('created_at', [$startDate, $endDate]);
             $roleQuery->whereBetween('created_at', [$startDate, $endDate]);
+        } else if ($startDate) {
+            $userQuery->where('created_at', '>=', $startDate);
+            $roleQuery->where('created_at', '>=', $startDate);
+        } else if ($endDate) {
+            $userQuery->where('created_at', '<=', $endDate);
+            $roleQuery->where('created_at', '<=', $endDate);
         }
 
+        // Apply month and year filters
         if ($month) {
             $userQuery->whereMonth('created_at', $month);
             $roleQuery->whereMonth('created_at', $month);

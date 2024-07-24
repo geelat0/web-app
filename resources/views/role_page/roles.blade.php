@@ -3,12 +3,53 @@
 
 {{-- Content of Pages --}}
 @section('content')
+
 <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
         <h4 class="card-title">Roles</h4>
         {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
         </p>
+        <div class="row">
+            <div class="col">
+                <p class="d-inline-flex gap-1">
+                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                        <i class="mdi mdi-filter-outline"></i> Filter
+                    </button>
+                </p>
+            </div>
+            <div class="col d-flex justify-content-end mb-3" >
+
+                <div id="table-buttons" class="d-flex">
+                    <!-- Buttons will be appended here -->
+                </div>
+            </div>
+        </div>
+        <div class="collapse" id="collapseExample">
+            <div class="card card-body">
+                <div class="d-flex justify-content-center mb-3">
+                    <div class="input-group input-group-sm me-3">
+                        <input type="text" id="search-input" class="form-control form-control-sm" placeholder="Search...">
+                    </div>
+                    <div class="input-group input-group-sm">
+                        <input type="text" id="date-range-picker" class="form-control form-control-sm" placeholder="Select date range">
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+      </div>
+    </div>
+</div>
+
+
+<div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        
+        {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
+        </p>
+        
         <div class="table-responsive pt-3">
           <table id="roles-table"  class="table table-striped" style="width: 100%">
             <tbody>
@@ -33,7 +74,7 @@
         
         table = $('#roles-table').DataTable({
             responsive: true,
-            processing: true,
+            processing: false,
             serverSide: true,
             pageLength: 30,
             lengthChange: false,
@@ -43,7 +84,15 @@
             select: {
                 style: 'single'
             },
-            ajax: '{{ route('role.list') }}',
+             ajax: {
+                url: '{{ route('role.list') }}',
+                data: function(d) {
+                    // Include the date range in the AJAX request
+                    d.date_range = $('#date-range-picker').val();
+                    d.search = $('#search-input').val();
+                    
+                }
+            },
 
             buttons: [
                 {
@@ -61,6 +110,7 @@
 
                         $('#createRoleForm').on('submit', function(e) {
                             e.preventDefault();
+                            showLoader();
                             // Handle form submission, e.g., via AJAX
                             var formData = $(this).serialize();
                             $.ajax({
@@ -70,6 +120,7 @@
                                 success: function(response) {
                                     if (response.success) {
                                         $('#createRoleModal').modal('hide');
+                                        hideLoader();
                                             Swal.fire({
                                                 icon: 'success',
                                                 title: 'Success!',
@@ -86,11 +137,13 @@
                                                 inputField.addClass('is-invalid');
                                                 $('#createRoleForm #' + key + 'Error').text(errors[key][0]);
                                             });
+                                            hideLoader();
                                             
                                         }
                                     
                                 },
                                 error: function(xhr) {
+                                    hideLoader();
                                     // Handle error
                                     console.log(xhr.responseText);
                                 }
@@ -112,6 +165,7 @@
 
                         $('#editRoleForm').off('submit').on('submit', function(e) {
                                 e.preventDefault();
+                                showLoader();
                                 var formData = $(this).serialize();
                                 $.ajax({
                                     url: '{{ route('role.update') }}', 
@@ -120,7 +174,7 @@
                                     success: function(response) {
                                         if (response.success) {
                                             $('#editRoleModal').modal('hide');
-                                            
+                                            hideLoader();
                                             Swal.fire({
                                                 icon: 'success',
                                                 title: 'Success!',
@@ -137,9 +191,11 @@
                                                 inputField.addClass('is-invalid');
                                                 $('#editRoleForm #' + key + 'Error').text(errors[key][0]);
                                             });
+                                            hideLoader();
                                         }
                                     },
                                     error: function(xhr) {
+                                        hideLoader();
                                         console.log(xhr.responseText);
                                     }
                             });
@@ -180,6 +236,7 @@
                             confirmButtonText: 'Yes, delete it!'
                         }).then((result) => {
                             if (result.isConfirmed) {
+                                showLoader();
                                 $.ajax({
                                     url: '{{ route('role.destroy') }}',
                                     method: 'POST',
@@ -188,6 +245,7 @@
                                         id: selectedUserId
                                     },
                                     success: function(response) {
+                                        hideLoader();
                                         if (response.success) {
                                             Swal.fire(
                                                 'Deleted!',
@@ -200,6 +258,7 @@
                                             Object.keys(response.errors).forEach(function(key) {
                                                 errorMessage += response.errors[key][0] + '<br>';
                                             });
+                                            hideLoader();
                                             Swal.fire({
                                                 icon: 'error',
                                                 title: 'Deletion Failed',
@@ -208,6 +267,7 @@
                                         }
                                     },
                                     error: function(xhr) {
+                                        hideLoader();
                                         console.log(xhr.responseText);
                                     }
                                 });
@@ -228,13 +288,46 @@
             ],
 
             language: {
-                emptyTable: "No users found"
+                emptyTable: "No data found",
+                search: "", // Remove "Search:" label
+                searchPlaceholder: "Search..." // Set placeholder text
             },
 
-            dom: '<"d-flex justify-content-between flex-wrap"fB>rtip', // Adjust DOM layout
+            dom: '<"d-flex justify-content-between flex-wrap"B>rtip', 
         });
 
-        table.buttons().container().appendTo('#roles-table_wrapper .col-md-6:eq(0)');
+        $('.navbar-toggler').on('click', function() {
+        // Reload the DataTable
+            table.ajax.reload(null, false); // false to keep the current paging
+        });
+
+        $('#search-input').on('keyup', function() {
+            table.ajax.reload();  // Reload the table when the search input changes
+        });
+
+        $('#date-range-picker').daterangepicker({
+            autoUpdateInput: false,
+            locale: {
+                cancelLabel: 'Clear'
+            }
+        });
+
+        $('#date-range-picker').on('apply.daterangepicker', function(ev, picker) {
+            $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+            table.ajax.reload(null, false);  // Reload the table with the new date range
+        });
+
+        $('#date-range-picker').on('cancel.daterangepicker', function(ev, picker) {
+            $(this).val('');
+            table.ajax.reload(null, false);  // Reload the table when the date range is cleared
+        });
+
+        $('#filter-date').click(function() {
+            table.ajax.reload(null, false); 
+        });
+
+        // table.buttons().container().appendTo('#roles-table_wrapper .col-md-6:eq(0)');
+        table.buttons().container().appendTo('#table-buttons');
 
         table.on('select deselect', function() {
             var selectedRows = table.rows({ selected: true }).count();

@@ -6,3 +6,12 @@
     });
   });
 })(jQuery);
+
+function showLoader() {
+  document.getElementById('loader').style.display = 'flex';
+}
+
+// Hide loader
+function hideLoader() {
+  document.getElementById('loader').style.display = 'none';
+}

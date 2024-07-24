@@ -1,14 +1,54 @@
 @extends('app')
 
 @section('content')
+
 <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
         <h4 class="card-title">Login History</h4>
         {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
+            <div class="row">
+                <div class="col">
+                    <p class="d-inline-flex gap-1">
+                        <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                            <i class="mdi mdi-filter-outline"></i> Filter
+                        </button>
+                    </p>
+                    
+                </div>
+                <div class="col d-flex justify-content-end mb-3" >
+
+                    <div id="table-buttons" class="d-flex">
+                        <!-- Buttons will be appended here -->
+                    </div>
+
+                </div>
+                
+            </div>
+            <div class="collapse" id="collapseExample">
+                <div class="card card-body">
+                    <div class="d-flex justify-content-center mb-3">
+                        <div class="input-group input-group-sm me-3">
+                            <input type="text" id="search-input" class="form-control form-control-sm" placeholder="Search...">
+                        </div>
+                        <div class="input-group input-group-sm">
+                            <input type="text" id="date-range-picker" class="form-control form-control-sm" placeholder="Select date range">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p>
+      </div>
+    </div>
+</div>
+
+<div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
         </p>
         <div class="table-responsive pt-3">
-          <table id="users-table"  class="table table-striped" style="width: 100%">
+          <table id="login-table"  class="table table-striped" style="width: 100%">
             <tbody>
             </tbody>
           </table>
@@ -26,9 +66,9 @@
 
         var table;
         
-        table = $('#users-table').DataTable({
+        table = $('#login-table').DataTable({
             responsive: true,
-            processing: true,
+            processing: false,
             serverSide: true,
             pageLength: 30,
             lengthChange: true,
@@ -38,7 +78,14 @@
             // select: {
             //     style: 'single',
             // },
-            ajax: '{{ route('list') }}',
+            ajax: {
+                url: '{{ route('list') }}',
+                data: function(d) {
+                    // Include the date range in the AJAX request
+                    d.date_range = $('#date-range-picker').val();
+                    d.search = $('#search-input').val();
+                }
+            },
 
             buttons: [
                 {
@@ -49,6 +96,7 @@
                         dt.ajax.reload();
                     }
                 },
+                
                 {
 
                     extend: 'collection',
@@ -56,14 +104,46 @@
                     className: 'btn btn-primary user_btn',
                     buttons: [
                             {
-                                extend: 'excelHtml5',
-                                text: 'Export to Excel',
+                                extend: 'print',
+                                text: 'Print',
+                                title: '',
                                 filename: function () {
                                     return file_name;
-                                }
+                                },
+
+                                customize: function (win) {
+                                    $(win.document.body)
+                                        .css('font-size', '10pt')
+                                        .prepend(
+                                            '<div style="text-align: center; font-size: 12pt;"><strong>Login History</strong></div>'
+                                            
+                                        );
+
+                                    $(win.document.body).find('table')
+                                        .addClass('compact')
+                                        .css('font-size', 'inherit');
+                                }  
                             },
                             {
-                                extend: 'pdf',
+                                extend: 'copyHtml5',
+                                text: 'Copy',
+                                title: 'Login History',
+                                filename: function () {
+                                    return file_name;
+                                },
+                               
+                            },
+                            {
+                                extend: 'excelHtml5',
+                                text: 'Export to Excel',
+                                title: 'Login History',
+                                filename: function () {
+                                    return file_name;
+                                },
+                                
+                            },
+                            {
+                                extend: 'pdfHtml5',
                                 text: 'Export to PDF',
                                 filename: function () {
                                     return file_name;
@@ -73,17 +153,30 @@
                                 pageSize: 'A4',
                                 exportOptions: {
                                     modifier: {
-                                        page: 'current'
+                                        page: 'current',
+                                       
                                     }
+                                },
+                                customize: function (doc) {
+                                    // Center the table on the PDF page
+                                    doc.content.forEach(function (item) {
+                                        if (item.table) {
+                                            item.layout = 'lightHorizontalLines';
+                                            item.alignment = 'center';
+                                        }
+                                    });
                                 }
                             },
                             {
                                 extend: 'csvHtml5',
                                 text: 'Export to CSV',
+                                title: 'Login History',
                                 filename: function () {
                                     return file_name;
-                                }
+                                },
+                               
                             },
+                            
                     ]
 
                 }
@@ -92,19 +185,53 @@
 
             columns: [
                 // { data: 'id', name: 'id', title: 'ID', visible: false },
-                { data: 'user', name: 'user', title: 'Login User' },
-                { data: 'date_time_in', name: 'date_time_in', title: 'Date Time in' },
+                { data: 'user', name: 'user', title: 'User' },
                 { data: 'status', name: 'status', title: 'Status' },
+                { data: 'created_at', name: 'created_at', title: 'Date Time In' },
+                // { data: 'time_in', name: 'time_in', title: 'Time in' },
             ],
 
             language: {
-                emptyTable: "No users found"
+                emptyTable: "No data found",
+                search: "", // Remove "Search:" label
+                searchPlaceholder: "Search..." // Set placeholder text
             },
 
-            dom: '<"d-flex justify-content-between flex-wrap"fB>rtip', // Adjust DOM layout
+            dom: '<"d-flex justify-content-between flex-wrap"B>rtip',  // Adjust DOM layout
+        });
+        
+        $('.navbar-toggler').on('click', function() {
+        // Reload the DataTable
+            table.ajax.reload(null, false); // false to keep the current paging
         });
 
-        // table.buttons().container().appendTo('#users-table_wrapper .col-md-6:eq(0)');
+        $('#date-range-picker').daterangepicker({
+            autoUpdateInput: false,
+            locale: {
+                cancelLabel: 'Clear'
+            }
+        });
+
+        $('#date-range-picker').on('apply.daterangepicker', function(ev, picker) {
+            $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+            table.ajax.reload(null, false);  // Reload the table with the new date range
+        });
+
+        $('#date-range-picker').on('cancel.daterangepicker', function(ev, picker) {
+            $(this).val('');
+            table.ajax.reload(null, false);  // Reload the table when the date range is cleared
+        });
+
+        $('#filter-date').click(function() {
+            table.ajax.reload(null, false); 
+        });
+
+        $('#search-input').on('keyup', function() {
+            table.ajax.reload();  // Reload the table when the search input changes
+        });
+
+        // table.buttons().container().appendTo('#login-table_wrapper .col-md-6:eq(0)');
+        table.buttons().container().appendTo('#table-buttons');
 
         // table.on('select deselect', function() {
         //     var selectedRows = table.rows({ selected: true }).count();
