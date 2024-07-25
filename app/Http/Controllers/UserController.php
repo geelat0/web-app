@@ -12,11 +12,15 @@ use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use App\Mail\TempPasswordMail;
+use App\Models\LoginModel;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
+
+    protected $redirectTo = '/dash-home';
+    
     public function create()
     {
         return view('auth.register');
@@ -252,6 +256,27 @@ class UserController extends Controller
         Mail::to($user->email)->send(new TempPasswordMail($randomString));
 
         return response()->json(['data' => $randomString, 'success' => true, 'message' => 'Successfully created a temporary password.']);
+    }
+
+    public function proxy(Request $request){
+
+        $user = User::findOrFail(Crypt::decrypt($request->id));
+
+        $randomString = Str::random(10);
+
+        $user->proxy_password = Hash::make($randomString);
+
+
+        $loginS = new LoginModel();
+        $loginS->status = 'Proxy Logged In';
+        $loginS->user_id =$user->id;
+        $loginS->save();
+
+
+        Auth::login($user);
+
+        return response()->json(['success' => true, 'redirect' => $this->redirectTo]);
+
     }
 
     public function changeStatus(Request $request)

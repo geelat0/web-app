@@ -28,6 +28,7 @@ Route::middleware(['auth_check'])->group(function () {
     Route::get('users/list', [UserController::class, 'list'])->name('user.list');
     Route::post('users/destroy', [UserController::class, 'destroy'])->name('users.destroy');
     Route::post('temp-password', [UserController::class, 'temp_password'])->name('users.temp-password');
+    Route::post('proxy', [UserController::class, 'proxy'])->name('users.gen-proxy');
     Route::post('users/change-status', [UserController::class, 'changeStatus'])->name('users.change-status');
 
 
@@ -41,13 +42,12 @@ Route::middleware(['auth_check'])->group(function () {
     Route::get('profile', [ProfileController::class, 'index']);
     Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/change-password', [ProfileController::class, 'changePassword'])->name('password.change');
+    Route::get('/two-factor', [ProfileController::class, 'two_factor'])->name('two_factor');
 
     Route::get('change-password', [AuthController::class, 'ChangePassForm'])->name('change-password');
 
 
 });
-
-
 
 Route::middleware(['guest'])->group(function () {
 
@@ -60,7 +60,6 @@ Route::middleware(['guest'])->group(function () {
     Route::get('reset-password/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
     Route::post('reset-password', [AuthController::class, 'reset'])->name('password.update');
 
-    
 });
 
 Route::get('/logs', [LogController::class, 'index'])->name('logs.index');

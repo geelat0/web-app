@@ -318,12 +318,12 @@
                                             })
                                            
                                         } else {
-                                            var errors = response.errors;
-                                            Object.keys(errors).forEach(function(key) {
-                                                var inputField = $('#editUserForm [name=' + key + ']');
-                                                inputField.addClass('is-invalid');
-                                                $('#editUserForm #' + key + 'Error').text(errors[key][0]);
-                                            });
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Error!',
+                                                text: response.message,
+                                                showConfirmButton: true,
+                                            })
                                             hideLoader();
                                         }
                                     },
@@ -399,7 +399,47 @@
                                     }
                                 });
                             }
-                        }
+                        },
+
+                        {
+                            text: 'Proxy Login',
+                            action: function (e, dt, node, config) {
+
+                                var selectedData = dt.row({ selected: true }).data();
+                                showLoader();
+
+                                $.ajax({
+                                    url: '{{ route('users.gen-proxy') }}', 
+                                    method: 'POST',
+                                    data: {
+                                        id: selectedData.id,
+                                        _token: '{{ csrf_token() }}'
+                                    },
+                                    success: function(response) {
+                                        if (response.success) {
+                                            hideLoader();
+                                            window.location.href = response.redirect;
+                                           
+                                        } else {
+                                            var errors = response.errors;
+                                            Object.keys(errors).forEach(function(key) {
+                                                var inputField = $('#editUserForm [name=' + key + ']');
+                                                inputField.addClass('is-invalid');
+                                                $('#editUserForm #' + key + 'Error').text(errors[key][0]);
+                                            });
+                                            hideLoader();
+                                        }
+                                    },
+                                    error: function(xhr) {
+                                        hideLoader();
+                                        console.log(xhr.responseText);
+                                    }
+                            });
+                                console.log(selectedData.id);
+                                
+                            }
+                        },
+                       
                     ]
 
                 }

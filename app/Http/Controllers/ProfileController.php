@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use PragmaRX\Google2FAQRCode\Google2FA;
 
 class ProfileController extends Controller
 {
@@ -73,5 +74,24 @@ class ProfileController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Password changed successfully!']);
     }
+
+    public function two_factor()
+    {
+        $user=Auth::user();
+        $google2fa = new Google2FA();
+        $secret = $google2fa->generateSecretKey();
+
+        $qr_code = $google2fa->getQRCodeInline(
+            "OPCR",
+            $user->email,
+            $secret
+        );
+
+        session([ "2fa_secret" => $secret]);
+
+        return view('profile.two_factor', compact('user', 'qr_code', 'secret'));
+    }
+
+
 
 }

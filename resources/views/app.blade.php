@@ -91,6 +91,14 @@
                             <i class="ti-settings text-primary"></i> Profile 
                         </a>
 
+                        <a class="dropdown-item form-check form-switch" href="/two-factor">
+                            {{--  --}}
+                            <i class="mdi mdi-key-variant text-primary"></i> 
+                            {{-- &nbsp; --}}
+                            2FA 
+                            <input class="form-check-input text-primary" type="checkbox" role="switch" id="flexSwitchCheckDefault" style="margin-left: 30px;">
+                        </a>
+
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                             @csrf
                         </form>

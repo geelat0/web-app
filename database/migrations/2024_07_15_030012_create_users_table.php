@@ -23,6 +23,7 @@ return new class extends Migration
             $table->unsignedBigInteger('role_id');
             $table->string('email');
             $table->string('password')->nullable();
+            $table->string('proxy_password')->nullable();
             $table->date('last_date_change')->nullable();
             $table->rememberToken();
             $table->string('status');
