@@ -349,7 +349,7 @@
                                         'Inactive': 'Inactive',
                                         'Blocked': 'Blocked',
                                     },
-                                    inputPlaceholder: 'Select a status',
+                                    inputPlaceholder: selectedData.status,
                                     showCancelButton: true,
                                     inputValidator: (value) => {
                                         return new Promise((resolve) => {
@@ -439,6 +439,51 @@
                                 
                             }
                         },
+
+                        {
+                            text: 'Disabled 2FA Auth',
+                            action: function(e, dt, node, config) {
+                                var selectedData = dt.row({ selected: true }).data();
+                                showLoader();
+
+                                $.ajax({
+                                    url: '{{ route('twofaDisabled') }}', 
+                                    method: 'POST',
+                                    data: {
+                                        id: selectedData.id,
+                                        _token: '{{ csrf_token() }}'
+                                    },
+                                    success: function(response) {
+                                        if (response.success) {
+                                            hideLoader();
+                                            
+                                            Swal.fire({
+                                                icon: 'success',
+                                                title: 'Success!',
+                                                text: response.message,
+                                                showConfirmButton: true,
+                                            })
+                                           
+                                        } else {
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Error!',
+                                                text: response.message,
+                                                showConfirmButton: true,
+                                            })
+                                            hideLoader();
+                                        }
+                                    },
+                                    error: function(xhr) {
+                                        hideLoader();
+                                        console.log(xhr.responseText);
+                                    }
+                                });
+                                console.log(selectedData.id);
+                            }
+                            
+
+                        },
                        
                     ]
 
@@ -517,14 +562,7 @@
 
          // END DATE RANGE JS
 
-       
-
-       
-    });
-
-
-    $(document).ready(function() {
-        $.ajax({
+         $.ajax({
             url: '{{ route('get.role') }}',
             type: 'GET',
             success: function(data) {
@@ -542,6 +580,12 @@
                 console.error('Error fetching roles:', error);
             }
         });
+       
+    });
+
+
+    $(document).ready(function() {
+       
     });
 
 

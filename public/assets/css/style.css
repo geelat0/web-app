@@ -25650,6 +25650,21 @@ label.required::after {
   to { transform: rotate(360deg); }
 }
 
+.g-auth {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.authenticator-logo {
+  width: 150px;
+  height: 100px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.authenticator-logo:hover {
+  transform: scale(1.1);
+}
+  
 
 
 

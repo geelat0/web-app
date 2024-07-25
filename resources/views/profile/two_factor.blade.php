@@ -36,7 +36,12 @@
               <div class="tab-content pt-5" id="tab-content">
                 <div class="tab-pane active" id="fill-tabpanel-0" role="tabpanel" aria-labelledby="fill-tab-0">
                   <div class="d-flex justify-content-center mt-3" >
-                    <p>Download the Google Authenticator</p>
+                    <div class="container g-auth">
+                      <p>Download the Google Authenticator</p>
+                      <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2" target="_blank">
+                        <img src="https://logowik.com/content/uploads/images/google-authenticator-new-202365744.logowik.com.webp" alt="Google Authenticator" class="authenticator-logo">
+                      </a>
+                    </div>
                   </div>
                 </div>
                 <div class="tab-pane" id="fill-tabpanel-1" role="tabpanel" aria-labelledby="fill-tab-1">
@@ -57,7 +62,7 @@
                     <p>OTP</p>
                   </div>
 
-                  <form id="changePasswordForm">
+                  <form id="twofaEnable">
                     @csrf
                     <div class="row mb-3">
                       <div class="col"></div>
@@ -66,7 +71,7 @@
                             type="number" min="0" max="999999" step="1"
                             class="form-control{{ $errors->has('otp') ? ' is-invalid' : '' }}"
                             autocomplete="off"
-                            name="otp" value="" required autofocus>
+                            name="otp" value="" autofocus>
                       </div>
                       <div class="col"></div>
                     </div>
@@ -87,5 +92,54 @@
 @endsection
 
 @section('scripts')
+
+<script>
+  $(document).ready(function() {
+        $('#twofaEnable').on('submit', function(e) {
+            e.preventDefault();
+            showLoader();
+            var formData = new FormData(this);
+
+            $.ajax({
+                url: '{{ route('twofaEnable') }}', 
+                method: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    if (response.success) {
+                        hideLoader();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: response.message,
+                            showConfirmButton: true,
+                        });
+
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: response.message,
+                            showConfirmButton: true,
+                        });
+                        hideLoader();
+                    }
+                },
+                error: function(xhr) {
+                    hideLoader();
+                    Swal.fire({
+                            icon: 'error',
+                            title: 'Oh no!',
+                            text: 'Something went wrong.',
+                            showConfirmButton: true,
+                        });
+                    console.log(xhr.responseText);
+                }
+            });
+        });
+
+    });
+</script>
 
 @endsection

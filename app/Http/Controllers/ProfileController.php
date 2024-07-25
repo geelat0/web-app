@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use PragmaRX\Google2FAQRCode\Google2FA;
 
 class ProfileController extends Controller
@@ -92,6 +93,44 @@ class ProfileController extends Controller
         return view('profile.two_factor', compact('user', 'qr_code', 'secret'));
     }
 
+    public function twofaEnable(Request $request)
+    {
+        $google2fa = new Google2FA();
 
+        // retrieve secret from the session
+        $secret = session("2fa_secret");
+        $user = Auth::user();
 
+        if ($google2fa->verify($request->input('otp'), $secret)) {
+            // store the secret in the user profile
+            // this will enable 2FA for this user
+
+            $user->is_two_factor_enabled = 1;
+            $user->is_two_factor_verified = 1;
+            $user->twofa_secret = $secret;
+            $user->save();
+
+            // avoid double OTP check
+            session(["2fa_checked" => true]);
+
+            return response()->json(['success' => true, 'message' => 'Two Factor Authentication Enabled Successfully.']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Incorrect value. Please try again']);
+
+        // throw ValidationException::withMessages([
+        //     'otp' => 'Incorrect value. Please try again...']);
+    }
+    public function twofaDisabled(Request $request)
+    {
+            $user = Auth::user();
+            $user->is_two_factor_enabled = 0;
+            $user->is_two_factor_verified = 0;
+            $user->twofa_secret = null;
+            $user->save();
+
+            return response()->json(['success' => true, 'message' => 'Two Factor Authentication Disabled Successfully.']);
+       
+    }
 }
+

@@ -91,12 +91,10 @@
                             <i class="ti-settings text-primary"></i> Profile 
                         </a>
 
-                        <a class="dropdown-item form-check form-switch" href="/two-factor">
-                            {{--  --}}
+                        <a class="dropdown-item form-check form-switch" href="#" id="twoFactorToggle">
                             <i class="mdi mdi-key-variant text-primary"></i> 
-                            {{-- &nbsp; --}}
                             2FA 
-                            <input class="form-check-input text-primary" type="checkbox" role="switch" id="flexSwitchCheckDefault" style="margin-left: 30px;">
+                            <input class="form-check-input text-primary" type="checkbox" role="switch" id="flexSwitchCheckDefault" style="margin-left: 30px;" @if (Auth::user()->is_two_factor_enabled) checked @endif>
                         </a>
 
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
@@ -206,19 +204,69 @@
     <script src="{{ asset('js/registration.js') }}"></script>
 
     <script>
-       document.addEventListener('DOMContentLoaded', function() {
+         const user = @json(Auth::user());
+         console.log(user); // Use user data in your JavaScript
+
+
+        $(document).ready(function() {
             hideLoader();
 
+            $('#flexSwitchCheckDefault').change(function() {
+                let isChecked = $(this).is(':checked');
+                let url = '/twofaDisabled';
+                if(isChecked){
+                    window.location.href = '/two-factor';
+                }
+                else
+                {
+                    $.ajax({
+                        url: url,
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                    // alert('2FA has been disabled');
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success!',
+                                    text: response.message,
+                                    
+                                });
+                            } else {
+                                Swal.fire({
+                                        icon: 'error',
+                                        title: 'Oh no!',
+                                        text: 'An error occurred. Please try again.'
+                                    
+                                    });
+                            }
+                        },
+                        error: function() {
+                            Swal.fire({
+                                        icon: 'error',
+                                        title: 'Oh no!',
+                                        text: 'An error occurred. Please try again.'
+                                        
+                                    });
+                        }
+                    });
+                }
+               
+            });
+
+
             $('#profile_image').on('change', function() {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                $('#profileImageShow').attr('src', e.target.result);
-            };
-            reader.readAsDataURL(this.files[0]);
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#profileImageShow').attr('src', e.target.result);
+                    };
+                    reader.readAsDataURL(this.files[0]);
+            });
+            
         });
-        });
-        const user = @json(Auth::user());
-        console.log(user); // Use user data in your JavaScript
+
     </script>
     
     @yield('scripts') 

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use PragmaRX\Google2FA\Google2FA;
 
 class AuthController extends Controller
 {
@@ -22,6 +23,11 @@ class AuthController extends Controller
 
         return view('auth.login');
     }
+    public function OTP()
+    {
+
+        return view('auth.otp');
+    }
 
     public function login(Request $request)
     {
@@ -31,9 +37,8 @@ class AuthController extends Controller
         ]);
 
         $credentials = $request->only('email', 'password');
-        $remember = $request->has('remember');
 
-        if (auth()->attempt($credentials, $remember)) {
+        if (auth()->attempt($credentials)) {
             if (auth()->user()->status == 'Active') {
                 $loginS = new LoginModel();
                 $loginS->status = 'Logged In';
@@ -43,6 +48,10 @@ class AuthController extends Controller
                 if (auth()->user()->is_change_password) {
                     return response()->json(['success' => true, 'redirect' => route('change-password')]);
                 }
+
+                // if (auth()->user()->is_two_factor_enabled) {
+                //     return response()->json(['success' => true, 'redirect' => route('auth.otp')]);
+                // }
 
                 return response()->json(['success' => true, 'redirect' => $this->redirectTo]);
             } else {
@@ -109,10 +118,36 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+
+        $user = Auth::user();
+        $user->is_two_factor_verified = 1;
+        $user->save();
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    public function check(Request $request)
+    {
+        $google2fa = new Google2FA();
+        $secret = Auth::user()->twofa_secret;
+
+        if ($google2fa->verify($request->input('otp'), $secret)) {
+            session(["2fa_checked" => true]);
+            $user = Auth::user();
+            $user->is_two_factor_verified = 0;
+            $user->save();
+            
+            return response()->json(['success' => true, 'redirect' => $this->redirectTo]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Incorrect value. Please try again']);
+
+        // throw ValidationException::withMessages([
+        //     'otp' => 'Incorrect value. Please try again...'
+        // ]);
     }
 }

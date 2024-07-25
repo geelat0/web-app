@@ -25,11 +25,14 @@ return new class extends Migration
             $table->string('password')->nullable();
             $table->string('proxy_password')->nullable();
             $table->date('last_date_change')->nullable();
+            $table->string('twofa_secret', 255)->nullable();
             $table->rememberToken();
             $table->string('status');
             $table->string('created_by');
             $table->string('profile_image')->nullable();
             $table->boolean('is_change_password')->default(0);
+            $table->boolean('is_two_factor_enabled')->default(0);
+            $table->boolean('is_two_factor_verified')->default(0);
             $table->timestamps();
             $table->softDeletes();
 
