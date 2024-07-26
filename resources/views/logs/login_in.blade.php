@@ -84,18 +84,24 @@
                     // Include the date range in the AJAX request
                     d.date_range = $('#date-range-picker').val();
                     d.search = $('#search-input').val();
-                }
+                },
+                // beforeSend: function() {
+                //     showLoader(); // Show loader before starting the AJAX request
+                // },
+                // complete: function() {
+                //     hideLoader(); // Hide loader after AJAX request completes
+                // }
             },
 
             buttons: [
-                {
-                    text: 'Reload',
-                    className: 'btn btn-warning user_btn',
-                    enabled: true,
-                    action: function ( e, dt, node, config ) {
-                        dt.ajax.reload();
-                    }
-                },
+                // {
+                //     text: 'Reload',
+                //     className: 'btn btn-warning user_btn',
+                //     enabled: true,
+                //     action: function ( e, dt, node, config ) {
+                //         dt.ajax.reload();
+                //     }
+                // },
                 
                 {
 

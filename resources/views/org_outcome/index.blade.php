@@ -7,7 +7,7 @@
 <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
-        <h4 class="card-title">Roles</h4>
+        <h4 class="card-title">Organizational Outcome/PAP</h4>
         {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
         </p>
         <div class="row">
@@ -51,7 +51,7 @@
         </p>
         
         <div class="table-responsive pt-3">
-          <table id="roles-table"  class="table table-striped" style="width: 100%">
+          <table id="org-table"  class="table table-striped" style="width: 100%">
             <tbody>
             </tbody>
           </table>
@@ -59,20 +59,21 @@
       </div>
     </div>
 </div>
-    @include('role_page.create')
-    @include('role_page.edit')
-    @include('role_page.view')
+    @include('org_outcome.create')
+    @include('org_outcome.edit')
+    @include('org_outcome.view')
 @endsection
 
 
 {{-- JS of Pages --}}
 @section('scripts')
+
 <script>
     $(document).ready(function() {
 
         var table;
-        
-        table = $('#roles-table').DataTable({
+
+        table = $('#org-table').DataTable({
             responsive: true,
             processing: false,
             serverSide: true,
@@ -84,8 +85,8 @@
             select: {
                 style: 'single'
             },
-             ajax: {
-                url: '{{ route('role.list') }}',
+            ajax: {
+                url: '{{ route('org.list') }}',
                 data: function(d) {
                     // Include the date range in the AJAX request
                     d.date_range = $('#date-range-picker').val();
@@ -110,20 +111,20 @@
                     text: 'Add',
                     className: 'btn btn-success user_btn',
                     action: function (e, dt, node, config) {
-                        $('#createRoleModal').modal('show');
+                        $('#createOrgModal').modal('show');
 
-                        $('#createRoleForm').on('submit', function(e) {
+                        $('#createOrgForm').on('submit', function(e) {
                             e.preventDefault();
                             showLoader();
                             // Handle form submission, e.g., via AJAX
                             var formData = $(this).serialize();
                             $.ajax({
-                                url: '{{ route('role.store') }}', 
+                                url: '{{ route('org.store') }}', 
                                 method: 'POST',
                                 data: formData,
                                 success: function(response) {
                                     if (response.success) {
-                                        $('#createRoleModal').modal('hide');
+                                        $('#createOrgModal').modal('hide');
                                         hideLoader();
                                             Swal.fire({
                                                 icon: 'success',
@@ -134,15 +135,19 @@
                                             table.ajax.reload();
                                         }
                                         else{
-                                            
-                                            var errors = response.errors;
-                                            Object.keys(errors).forEach(function(key) {
-                                                var inputField = $('#createRoleForm [name=' + key + ']');
-                                                inputField.addClass('is-invalid');
-                                                $('#createRoleForm #' + key + 'Error').text(errors[key][0]);
-                                            });
                                             hideLoader();
-                                        }
+                                           
+                                            var errors = response.errors;
+                                                Object.keys(errors).forEach(function (key) {
+                                                    var inputField = $('#createOrgForm [name="organizational_outcome[]"]');
+                                                    inputField.each(function() {
+                                                        if ($(this).val() === '') {
+                                                            $(this).addClass('is-invalid');
+                                                            $(this).siblings('.invalid-feedback').text(errors[key][0]);
+                                                        }
+                                                    });
+                                                });
+                                            }
                                 },
                                 error: function(xhr) {
                                     hideLoader();
@@ -158,24 +163,24 @@
                     className: 'btn btn-info user_btn',
                     enabled: false,
                     action: function (e, dt, node, config) {
-                        $('#editRoleModal').modal('show');
+                        $('#editOrgModal').modal('show');
 
                         var selectedData = dt.row({ selected: true }).data();
                         $('#edit_role_id').val(selectedData.id);
-                        $('#edit_name').val(selectedData.name);
+                        $('#edit_name').val(selectedData.organizational_outcome);
                         $('#edit_status').val(selectedData.status);
 
-                        $('#editRoleForm').off('submit').on('submit', function(e) {
+                        $('#editOrgForm').off('submit').on('submit', function(e) {
                                 e.preventDefault();
                                 showLoader();
                                 var formData = $(this).serialize();
                                 $.ajax({
-                                    url: '{{ route('role.update') }}', 
+                                    url: '{{ route('org.update') }}', 
                                     method: 'POST',
                                     data: formData,
                                     success: function(response) {
                                         if (response.success) {
-                                            $('#editRoleModal').modal('hide');
+                                            $('#editOrgModal').modal('hide');
                                             hideLoader();
                                             Swal.fire({
                                                 icon: 'success',
@@ -185,13 +190,13 @@
                                             })
 
                                             table.ajax.reload();
-                                           
+                                        
                                         } else {
                                             var errors = response.errors;
                                             Object.keys(errors).forEach(function(key) {
-                                                var inputField = $('#editRoleForm [name=' + key + ']');
+                                                var inputField = $('#editOrgForm [name=' + key + ']');
                                                 inputField.addClass('is-invalid');
-                                                $('#editRoleForm #' + key + 'Error').text(errors[key][0]);
+                                                $('#editOrgForm #' + key + 'Error').text(errors[key][0]);
                                             });
                                             hideLoader();
                                         }
@@ -213,9 +218,9 @@
 
                         var selectedData = dt.row({ selected: true }).data();
                         $('#view_role_id').val(selectedData.id);
-                        $('#view_name').val(selectedData.name);
+                        $('#view_name').val(selectedData.organizational_outcome);
                         $('#view_status').val(selectedData.status);
-                        $('#viewRoleModal').modal('show');
+                        $('#viewOrgModal').modal('show');
                         
                     }
                 },
@@ -240,7 +245,7 @@
                             if (result.isConfirmed) {
                                 showLoader();
                                 $.ajax({
-                                    url: '{{ route('role.destroy') }}',
+                                    url: '{{ route('org.destroy') }}',
                                     method: 'POST',
                                     data: {
                                         _token: '{{ csrf_token() }}',
@@ -251,7 +256,7 @@
                                         if (response.success) {
                                             Swal.fire(
                                                 'Deleted!',
-                                                'User has been deleted.',
+                                                'Organization Outcome has been deleted.',
                                                 'success'
                                             );
                                             table.ajax.reload();
@@ -277,13 +282,13 @@
                         });
                     }
                 },
-               
+            
                 
             ],
 
             columns: [
                 { data: 'id', name: 'id', title: 'ID', visible: false },
-                { data: 'name', name: 'name', title: 'Name' },
+                { data: 'organizational_outcome', name: 'organizational_outcome', title: 'Organizational Outcome' },
                 { data: 'status', name: 'status', title: 'Status' },
                 { data: 'created_by', name: 'created_by', title: 'Created By' },
                 { data: 'created_at', name: 'created_at', title: 'Created At' },
@@ -336,36 +341,33 @@
             table.buttons(['.btn-warning', '.btn-info', '.btn-danger']).enable(selectedRows > 0);
         });
 
-        $('#createRoleModal, #editRoleModal').on('hidden.bs.modal', function() {
+        $('#createOrgModal, #editOrgModal').on('hidden.bs.modal', function() {
             $(this).find('form')[0].reset(); // Reset form fields
             $(this).find('.is-invalid').removeClass('is-invalid'); // Remove validation error classes
             $(this).find('.invalid-feedback').text(''); // Clear error messages
         });
 
-       
-    });
+        let outcomeIndex = 1;
 
-
-    $(document).ready(function() {
-        $.ajax({
-            url: '{{ route('get.role') }}',
-            type: 'GET',
-            success: function(data) {
-                var rolesDropdown = $('#rolesDropdown');
-                var editRolesDropdown = $('#edit_role');
-                var viewRolesDropdown = $('#view_role');
-                data.forEach(function(role) {
-                    rolesDropdown.append('<option value="' + role.id + '">' + role.name + '</option>');
-                    editRolesDropdown.append('<option value="' + role.id + '">' + role.name + '</option>');
-                    viewRolesDropdown.append('<option value="' + role.id + '">' + role.name + '</option>');
-                });
-            },
-            error: function(xhr, status, error) {
-                console.error('Error fetching roles:', error);
-            }
+        $('#addOutcomeBtn').click(function () {
+            const newOutcomeHtml = `
+                <div class="form-group mt-3" id="organizational_outcome_group_${outcomeIndex}">
+                    <label for="organizational_outcome_${outcomeIndex}" class="required">Organization Outcome</label>
+                    <input type="text" class="form-control capitalize" name="organizational_outcome[]" id="organizational_outcome_${outcomeIndex}" aria-describedby="">
+                    <div class="invalid-feedback" id="organizational_outcome_${outcomeIndex}Error"></div>
+                    <button type="button" class="btn btn-danger btn-sm mt-2 removeOutcomeBtn" data-index="${outcomeIndex}"><i class="mdi mdi-delete"></i></button>
+                </div>
+            `;
+            $('#organizational_outcomes').append(newOutcomeHtml);
+            outcomeIndex++;
         });
+
+        $(document).on('click', '.removeOutcomeBtn', function () {
+            const index = $(this).data('index');
+            $(`#organizational_outcome_group_${index}`).remove();
+        });
+
     });
-
-
 </script>
+
 @endsection

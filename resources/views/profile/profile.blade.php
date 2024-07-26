@@ -182,6 +182,12 @@
             });
         });
 
+        $('#updateProfileForm').find('input, select').on('keyup change', function() {
+            $(this).removeClass('is-invalid');
+            var errorId = $(this).attr('name') + 'Error';
+            $('#' + errorId).text('');
+        });
+
         $('#changePasswordForm').on('submit', function(e) {
             e.preventDefault();
             showLoader();

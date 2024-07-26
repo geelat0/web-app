@@ -294,16 +294,12 @@ class UserController extends Controller
 
     public function twoAuthDisabled(Request $request)
     {
-            $user = User::findOrFail(Crypt::decrypt($request->id));
-            $user->is_two_factor_enabled = 0;
-            $user->is_two_factor_verified = 0;
-            $user->twofa_secret = null;
-            $user->save();
+        $user = User::findOrFail(Crypt::decrypt($request->id));
+        $user->is_two_factor_enabled = 0;
+        $user->is_two_factor_verified = 0;
+        $user->twofa_secret = null;
+        $user->save();
 
-            return response()->json(['success' => true, 'message' => 'Two Factor Authentication Disabled Successfully.']);
-       
+        return response()->json(['success' => true, 'message' => 'Two Factor Authentication Disabled Successfully.']);
     }
-
-
-    
 }

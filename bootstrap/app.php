@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\NotAuthenticated;
 use App\Http\Middleware\RedirectIfAuthenticated;
+use App\Http\Middleware\SuperAdminMiddleware;
 use App\Http\Middleware\Verify2FA;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -24,6 +25,10 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->appendToGroup('2fa', [
             Verify2FA::class,        
+        ]);
+
+        $middleware->appendToGroup('superadmin', [
+            SuperAdminMiddleware::class        
         ]);
         
     })

@@ -35,80 +35,90 @@
             </div>
             <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
                 <button id="navbar-toggler" class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
-                <span class="icon-menu"></span>
+                    <span class="icon-menu"></span>
                 </button>
+
                 <ul class="navbar-nav mr-lg-2">
                 </ul>
                 <ul class="navbar-nav navbar-nav-right">
-                {{-- <li class="nav-item dropdown">
-                    <a class="nav-link count-indicator dropdown-toggle" id="notificationDropdown" href="#" data-bs-toggle="dropdown">
-                    <i class="icon-bell mx-0"></i>
-                    <span class="count"></span>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="notificationDropdown">
-                    <p class="mb-0 font-weight-normal float-left dropdown-header">Notifications</p>
-                    <a class="dropdown-item preview-item">
-                        <div class="preview-thumbnail">
-                        <div class="preview-icon bg-success">
-                            <i class="ti-info-alt mx-0"></i>
-                        </div>
-                        </div>
-                        <div class="preview-item-content">
-                        <h6 class="preview-subject font-weight-normal">Application Error</h6>
-                        <p class="font-weight-light small-text mb-0 text-muted"> Just now </p>
-                        </div>
-                    </a>
-                    <a class="dropdown-item preview-item">
-                        <div class="preview-thumbnail">
-                        <div class="preview-icon bg-warning">
-                            <i class="ti-settings mx-0"></i>
-                        </div>
-                        </div>
-                        <div class="preview-item-content">
-                        <h6 class="preview-subject font-weight-normal">Settings</h6>
-                        <p class="font-weight-light small-text mb-0 text-muted"> Private message </p>
-                        </div>
-                    </a>
-                    <a class="dropdown-item preview-item">
-                        <div class="preview-thumbnail">
-                        <div class="preview-icon bg-info">
-                            <i class="ti-user mx-0"></i>
-                        </div>
-                        </div>
-                        <div class="preview-item-content">
-                        <h6 class="preview-subject font-weight-normal">New user registration</h6>
-                        <p class="font-weight-light small-text mb-0 text-muted"> 2 days ago </p>
-                        </div>
-                    </a>
-                    </div>
-                </li> --}}
-                <li class="nav-item nav-profile dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" id="profileDropdown">
-                    <img src="{{ Auth::user()->profile_image ? asset('storage/' . Auth::user()->profile_image) : 'https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg' }}" alt="profile" id="profileImageShow" />
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
-                        <a class="dropdown-item" href="/profile">
-                            <i class="ti-settings text-primary"></i> Profile 
+                    @if(Auth::user()->role->name === 'IT')    
+                    <li class="nav-item nav-profile dropdown">
+                        <a class="nav-link count-indicator dropdown-toggle" id="notificationDropdown" href="/logs">
+                        <i class="mdi mdi-bug mx-0" style="color: maroon; font-size:25px;"></i>
                         </a>
-
-                        <a class="dropdown-item form-check form-switch" href="#" id="twoFactorToggle">
-                            <i class="mdi mdi-key-variant text-primary"></i> 
-                            2FA 
-                            <input class="form-check-input text-primary" type="checkbox" role="switch" id="flexSwitchCheckDefault" style="margin-left: 30px;" @if (Auth::user()->is_two_factor_enabled) checked @endif>
+                    </li>
+                    @endif
+                    {{-- <li class="nav-item dropdown">
+                        <a class="nav-link count-indicator dropdown-toggle" id="notificationDropdown" href="#" data-bs-toggle="dropdown">
+                        <i class="icon-bell mx-0"></i>
+                        <span class="count"></span>
                         </a>
-
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                            @csrf
-                        </form>
-
-                        <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                            <i class="ti-power-off text-primary"></i> Logout
+                        <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="notificationDropdown">
+                        <p class="mb-0 font-weight-normal float-left dropdown-header">Notifications</p>
+                        <a class="dropdown-item preview-item">
+                            <div class="preview-thumbnail">
+                            <div class="preview-icon bg-success">
+                                <i class="ti-info-alt mx-0"></i>
+                            </div>
+                            </div>
+                            <div class="preview-item-content">
+                            <h6 class="preview-subject font-weight-normal">Application Error</h6>
+                            <p class="font-weight-light small-text mb-0 text-muted"> Just now </p>
+                            </div>
                         </a>
-                    </div>
-                </li>
+                        <a class="dropdown-item preview-item">
+                            <div class="preview-thumbnail">
+                            <div class="preview-icon bg-warning">
+                                <i class="ti-settings mx-0"></i>
+                            </div>
+                            </div>
+                            <div class="preview-item-content">
+                            <h6 class="preview-subject font-weight-normal">Settings</h6>
+                            <p class="font-weight-light small-text mb-0 text-muted"> Private message </p>
+                            </div>
+                        </a>
+                        <a class="dropdown-item preview-item">
+                            <div class="preview-thumbnail">
+                            <div class="preview-icon bg-info">
+                                <i class="ti-user mx-0"></i>
+                            </div>
+                            </div>
+                            <div class="preview-item-content">
+                            <h6 class="preview-subject font-weight-normal">New user registration</h6>
+                            <p class="font-weight-light small-text mb-0 text-muted"> 2 days ago </p>
+                            </div>
+                        </a>
+                        </div>
+                    </li> --}}
+                    
+                    <li class="nav-item nav-profile dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" id="profileDropdown">
+                        <img src="{{ Auth::user()->profile_image ? asset('storage/' . Auth::user()->profile_image) : 'https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg' }}" alt="profile" id="profileImageShow" />
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
+                            <a class="dropdown-item" href="/profile">
+                                <i class="ti-settings text-primary"></i> Profile 
+                            </a>
+
+                            <a class="dropdown-item form-check form-switch" href="#" id="twoFactorToggle">
+                                <i class="mdi mdi-key-variant text-primary"></i> 
+                                2FA 
+                                <input class="form-check-input text-primary" type="checkbox" role="switch" id="flexSwitchCheckDefault" style="margin-left: 30px;" @if (Auth::user()->is_two_factor_enabled) checked @endif>
+                            </a>
+
+                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                @csrf
+                            </form>
+
+                            <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                <i class="ti-power-off text-primary"></i> Logout
+                            </a>
+                        </div>
+                    </li>
                 </ul>
+
                 <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-toggle="offcanvas">
-                <span class="icon-menu"></span>
+                    <span class="icon-menu"></span>
                 </button>
             </div>
         </nav>
@@ -123,6 +133,28 @@
                     <span class="menu-title">Dashboard</span>
                 </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/organizational/outcome">
+                        <i class="mdi mdi-bulletin-board menu-icon"></i>
+                        <span class="menu-title">Organizatinal Outcome</span>
+                        {{-- <i class="menu-arrow"></i> --}}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/success/indicator">
+                        <i class="ti-link menu-icon"></i>
+                        <span class="menu-title">Success Indicators</span>
+                        {{-- <i class="menu-arrow"></i> --}}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="">
+                        <i class="mdi mdi-file-outline menu-icon"></i>
+                        <span class="menu-title">Report</span>
+                        {{-- <i class="menu-arrow"></i> --}}
+                    </a>
+                </li>
+                @if(Auth::user()->role->name === 'IT')
                 <li class="nav-item">
                     <a class="nav-link" href="/user">
                         <i class="icon-head menu-icon"></i>
@@ -158,8 +190,9 @@
                     </a>
                    
                 </li>
+                @endif
+
                 
-               
             </ul>
         </nav>
         <!-- partial -->
@@ -182,26 +215,25 @@
       <!-- page-body-wrapper ends -->
     </div>
     <!-- container-scroller -->
-    <script src="https://kit.fontawesome.com/971994a15b.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    
     <script src="{{ asset('assets/vendors/js/vendor.bundle.base.js') }}"></script>
     <script src="{{ asset('assets/js/jquery.cookie.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/vendors/chart.js/chart.umd.js') }}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-2.0.8/af-2.7.0/b-3.0.2/b-colvis-3.0.2/b-html5-3.0.2/b-print-3.0.2/cr-2.0.3/date-1.5.2/fc-5.0.1/fh-4.0.1/kt-2.12.1/r-3.0.2/rg-1.5.0/rr-1.5.0/sc-2.4.3/sb-1.7.1/sp-2.3.1/sl-2.0.3/sr-1.4.1/datatables.min.js"></script>
-      
-   
-    <script src="assets/js/off-canvas.js"></script>
-    <script src="assets/js/template.js"></script>
-    <script src="assets/js/settings.js"></script>
-    <script src="assets/js/todolist.js"></script>
-    <script src="assets/js/chart.js"></script>
+    <script src="{{ asset('assets/js/off-canvas.js') }}"></script>
+    <script src="{{ asset('assets/js/template.js') }}"></script>
+    <script src="{{ asset('assets/js/settings.js') }}"></script>
+    <script src="{{ asset('assets/js/todolist.js') }}"></script>
+    <script src="{{ asset('assets/js/chart.js') }}"></script>
+    <script src="{{ asset('js/registration.js') }}"></script>
 
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-
-    <script src="{{ asset('js/registration.js') }}"></script>
+    <script src="https://kit.fontawesome.com/971994a15b.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-2.0.8/af-2.7.0/b-3.0.2/b-colvis-3.0.2/b-html5-3.0.2/b-print-3.0.2/cr-2.0.3/date-1.5.2/fc-5.0.1/fh-4.0.1/kt-2.12.1/r-3.0.2/rg-1.5.0/rr-1.5.0/sc-2.4.3/sb-1.7.1/sp-2.3.1/sl-2.0.3/sr-1.4.1/datatables.min.js"></script>
 
     <script>
          const user = @json(Auth::user());
@@ -266,11 +298,7 @@
             });
             
         });
-
     </script>
-    
     @yield('scripts') 
-
-   
   </body>
 </html>

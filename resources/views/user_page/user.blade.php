@@ -6,7 +6,6 @@
     <div class="card">
         <div class="card-body">
             <h4 class="card-title">User Management</h4>
-            {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
             </p>
             <div class="row">
                 <div class="col">
@@ -18,13 +17,9 @@
                     
                 </div>
                 <div class="col d-flex justify-content-end mb-3" >
-
                     <div id="table-buttons" class="d-flex">
-                        <!-- Buttons will be appended here -->
                     </div>
-
                 </div>
-                
             </div>
             <div class="collapse" id="collapseExample">
                 <div class="card card-body">
@@ -42,7 +37,6 @@
     </div>
 </div>
 <div class="col-lg-12 grid-margin stretch-card">
-
     <div class="card">
         <div class="card-body">
             <div class="table-responsive pt-3">
@@ -60,11 +54,10 @@
 @endsection
 
 @section('scripts')
-
 <script>
     $(document).ready(function() {
-
         var table;
+        // START DATATABLES
         
         table = $('#users-table').DataTable({
             responsive: true,
@@ -81,20 +74,25 @@
             ajax: {
                 url: '{{ route('user.list') }}',
                 data: function(d) {
-                    // Include the date range in the AJAX request
                     d.date_range = $('#date-range-picker').val();
                     d.search = $('#search-input').val();
-                }
+                },
+                // beforeSend: function() {
+                //     showLoader(); // Show loader before starting the AJAX request
+                // },
+                // complete: function() {
+                //     hideLoader(); // Hide loader after AJAX request completes
+                // }
             },
             buttons: [
-                {
-                    text: 'Reload',
-                    className: 'btn btn-warning user_btn',
-                    enabled: true,
-                    action: function ( e, dt, node, config ) {
-                        dt.ajax.reload();
-                    }
-                },
+                // {
+                //     text: 'Reload',
+                //     className: 'btn btn-warning user_btn',
+                //     enabled: true,
+                //     action: function ( e, dt, node, config ) {
+                //         dt.ajax.reload();
+                //     }
+                // },
                 {
                     text: 'Add',
                     className: 'btn btn-success user_btn',
@@ -104,7 +102,6 @@
                         $('#createUserForm').on('submit', function(e) {
                             e.preventDefault();
                             showLoader();
-                            // Handle form submission, e.g., via AJAX
                             var formData = $(this).serialize();
                             $.ajax({
                                 url: '{{ route('users.store') }}', 
@@ -137,7 +134,6 @@
                                 },
                                 error: function(xhr) {
                                     hideLoader();
-                                    // Handle error
                                     console.log(xhr.responseText);
                                 }
                             });
@@ -206,7 +202,7 @@
                 },
                 {
                     text: 'View',
-                    className: 'btn btn-primary user_btn',
+                    className: 'btn btn-warning user_bt',
                     enabled: false,
                     action: function (e, dt, node, config) {
                         //alert('View Activated!');
@@ -286,57 +282,12 @@
                     }
                 },
                 {
-
                     extend: 'collection',
                     text: 'Actions',
                     enabled: false,
                     className: 'btn btn-primary user_btn',
-                    buttons: [
-                        {
-                            text: 'Temporary Password',
-                            action: function (e, dt, node, config) {
-
-                                var selectedData = dt.row({ selected: true }).data();
-                                showLoader();
-
-                                $.ajax({
-                                    url: '{{ route('users.temp-password') }}', 
-                                    method: 'POST',
-                                    data: {
-                                        id: selectedData.id,
-                                        _token: '{{ csrf_token() }}'
-                                    },
-                                    success: function(response) {
-                                        if (response.success) {
-                                            hideLoader();
-                                            
-                                            Swal.fire({
-                                                icon: 'success',
-                                                title: 'Success!',
-                                                text: response.message,
-                                                showConfirmButton: true,
-                                            })
-                                           
-                                        } else {
-                                            Swal.fire({
-                                                icon: 'error',
-                                                title: 'Error!',
-                                                text: response.message,
-                                                showConfirmButton: true,
-                                            })
-                                            hideLoader();
-                                        }
-                                    },
-                                    error: function(xhr) {
-                                        hideLoader();
-                                        console.log(xhr.responseText);
-                                    }
-                            });
-                                console.log(selectedData.id);
-                                
-                            }
-                        },
-
+                    buttons: 
+                    [
                         {
                             text: 'Change Status',
                             action: function(e, dt, node, config) {
@@ -400,48 +351,8 @@
                                 });
                             }
                         },
-
                         {
-                            text: 'Proxy Login',
-                            action: function (e, dt, node, config) {
-
-                                var selectedData = dt.row({ selected: true }).data();
-                                showLoader();
-
-                                $.ajax({
-                                    url: '{{ route('users.gen-proxy') }}', 
-                                    method: 'POST',
-                                    data: {
-                                        id: selectedData.id,
-                                        _token: '{{ csrf_token() }}'
-                                    },
-                                    success: function(response) {
-                                        if (response.success) {
-                                            hideLoader();
-                                            window.location.href = response.redirect;
-                                           
-                                        } else {
-                                            var errors = response.errors;
-                                            Object.keys(errors).forEach(function(key) {
-                                                var inputField = $('#editUserForm [name=' + key + ']');
-                                                inputField.addClass('is-invalid');
-                                                $('#editUserForm #' + key + 'Error').text(errors[key][0]);
-                                            });
-                                            hideLoader();
-                                        }
-                                    },
-                                    error: function(xhr) {
-                                        hideLoader();
-                                        console.log(xhr.responseText);
-                                    }
-                            });
-                                console.log(selectedData.id);
-                                
-                            }
-                        },
-
-                        {
-                            text: 'Disabled 2FA Auth',
+                            text: 'Disabled 2FA',
                             action: function(e, dt, node, config) {
                                 var selectedData = dt.row({ selected: true }).data();
                                 showLoader();
@@ -484,11 +395,90 @@
                             
 
                         },
-                       
-                    ]
+                        {
+                            text: 'Temporary Password',
+                            action: function (e, dt, node, config) {
 
+                                var selectedData = dt.row({ selected: true }).data();
+                                showLoader();
+
+                                $.ajax({
+                                    url: '{{ route('users.temp-password') }}', 
+                                    method: 'POST',
+                                    data: {
+                                        id: selectedData.id,
+                                        _token: '{{ csrf_token() }}'
+                                    },
+                                    success: function(response) {
+                                        if (response.success) {
+                                            hideLoader();
+                                            
+                                            Swal.fire({
+                                                icon: 'success',
+                                                title: 'Success!',
+                                                text: response.message,
+                                                showConfirmButton: true,
+                                            })
+                                           
+                                        } else {
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Error!',
+                                                text: response.message,
+                                                showConfirmButton: true,
+                                            })
+                                            hideLoader();
+                                        }
+                                    },
+                                    error: function(xhr) {
+                                        hideLoader();
+                                        console.log(xhr.responseText);
+                                    }
+                            });
+                                console.log(selectedData.id);
+                                
+                            }
+                        },
+                        {
+                            text: 'Proxy Login',
+                            action: function (e, dt, node, config) {
+
+                                var selectedData = dt.row({ selected: true }).data();
+                                showLoader();
+
+                                $.ajax({
+                                    url: '{{ route('users.gen-proxy') }}', 
+                                    method: 'POST',
+                                    data: {
+                                        id: selectedData.id,
+                                        _token: '{{ csrf_token() }}'
+                                    },
+                                    success: function(response) {
+                                        if (response.success) {
+                                            hideLoader();
+                                            window.location.href = response.redirect;
+                                           
+                                        } else {
+                                            var errors = response.errors;
+                                            Object.keys(errors).forEach(function(key) {
+                                                var inputField = $('#editUserForm [name=' + key + ']');
+                                                inputField.addClass('is-invalid');
+                                                $('#editUserForm #' + key + 'Error').text(errors[key][0]);
+                                            });
+                                            hideLoader();
+                                        }
+                                    },
+                                    error: function(xhr) {
+                                        hideLoader();
+                                        console.log(xhr.responseText);
+                                    }
+                            });
+                                console.log(selectedData.id);
+                                
+                            }
+                        },
+                    ]
                 }
-                
             ],
 
             columns: [
@@ -506,12 +496,14 @@
 
             language: {
                 emptyTable: "No data found",
-                search: "", // Remove "Search:" label
-                searchPlaceholder: "Search..." // Set placeholder text
+                search: "",
+                searchPlaceholder: "Search..."
             },
 
-            dom: '<"d-flex justify-content-between flex-wrap"B>rtip',  // Adjust DOM layout
+            dom: '<"d-flex justify-content-between flex-wrap"B>rtip',
         });
+
+        // END DATATABLES
 
         $('.navbar-toggler').on('click', function() {
         // Reload the DataTable
@@ -528,7 +520,7 @@
 
         table.on('select deselect', function() {
             var selectedRows = table.rows({ selected: true }).count();
-            table.buttons(['.btn-primary', '.btn-info', '.btn-danger']).enable(selectedRows > 0);
+            table.buttons(['.btn-warning', '.btn-info', '.btn-danger', '.btn-primary']).enable(selectedRows > 0);
         });
 
         $('#createUserModal, #editUserModal').on('hidden.bs.modal', function() {
@@ -537,6 +529,11 @@
             $(this).find('.invalid-feedback').text(''); // Clear error messages
         });
 
+        $('#createUserForm, #editUserForm').find('input, select').on('keyup change', function() {
+            $(this).removeClass('is-invalid');
+            var errorId = $(this).attr('name') + 'Error';
+            $('#' + errorId).text('');
+        });
 
         // START DATE RANGE JS
         $('#date-range-picker').daterangepicker({
@@ -562,6 +559,8 @@
 
          // END DATE RANGE JS
 
+        //  START FETCH ROLES FOR SELECT
+
          $.ajax({
             url: '{{ route('get.role') }}',
             type: 'GET',
@@ -580,15 +579,8 @@
                 console.error('Error fetching roles:', error);
             }
         });
+         //  END FETCH ROLES FOR SELECT
        
     });
-
-
-    $(document).ready(function() {
-       
-    });
-
-
 </script>
-
 @endsection
