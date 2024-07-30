@@ -34,7 +34,7 @@ class UserController extends Controller
 
     public function list(Request $request)
     {
-        $query = User::with('role')->whereNull('deleted_at');
+        $query = User::with(['role', 'division'])->whereNull('deleted_at');
     
         if ($request->has('date_range') && !empty($request->date_range)) {
             [$startDate, $endDate] = explode(' - ', $request->date_range);
@@ -81,6 +81,9 @@ class UserController extends Controller
             ->addColumn('role', function($user) {
                 return $user->role ? $user->role->name : 'N/A';
             })
+            ->addColumn('division_id', function($user) {
+                return $user->division_id ? $user->division->division_name : 'N/A';
+            })
             ->make(true);
     }
 
@@ -96,6 +99,11 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
             'status' => 'required|string|max:255',
+            'role_id' => 'required',
+            'division_id' => 'required',
+        ],[
+            'role_id' => 'The role field is required',
+            'division_id' => 'The division field is required',
         ]);
 
         if ($validator->fails()) {
@@ -111,6 +119,7 @@ class UserController extends Controller
         $user->position = ucfirst($request->position);
         $user->mobile_number = $request->mobile_number;
         $user->role_id = $request->role_id;
+        $user->divsion_id = $request->divsion_id;
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
         $user->status = ucfirst($request->status);
@@ -144,8 +153,10 @@ class UserController extends Controller
                             Rule::unique('users')->whereNull('deleted_at'),
                         ],
             'role_id' => 'required',
+            'division_id' => 'required',
         ],[
-            'role_id' => 'The role field is required'
+            'role_id' => 'The role field is required',
+            'division_id' => 'The division field is required',
         ]);
 
         if ($validator->fails()) {
@@ -163,6 +174,7 @@ class UserController extends Controller
         $user->position = ucfirst($request->position);
         $user->mobile_number = $request->mobile_number;
         $user->role_id = $request->role_id;
+        $user->divsion_id = $request->divsion_id;
         $user->email = $request->email;
         $user->password = Hash::make($randomString);
         $user->status = 'Active';
@@ -199,8 +211,10 @@ class UserController extends Controller
                         ],
             // 'password' => 'required|string|min:8',
             'role_id' => 'required|exists:role,id',
+           'division_id' => 'required|exists:divisions,id',
         ],[
-            'role_id.required' => 'The role field is required'
+            'role_id' => 'The role field is required',
+            'division_id' => 'The division field is required',
         ]);
     
         if ($validator->fails()) {
@@ -217,6 +231,7 @@ class UserController extends Controller
         $user->position = ucfirst($request->position);
         $user->mobile_number = $request->mobile_number;
         $user->role_id = $request->role_id;
+        $user->divsion_id = $request->divsion_id;
         $user->email = $request->email;
         // $user->password = Hash::make($randomString); // Uncomment if you need to update the password
         $user->status = 'Active';

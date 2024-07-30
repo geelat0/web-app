@@ -14,7 +14,6 @@
                                 <div class="form-group">
                                     <label for="organizational_outcome_0" class="required">Organization Outcome</label>
                                     <input type="text" class="form-control capitalize" name="organizational_outcome[]" id="organizational_outcome_0" aria-describedby="">
-                                    <div class="invalid-feedback" id="organizational_outcome_0Error"></div>
                                 </div>
                             </div>
                             <button type="button" class="btn btn-primary btn-sm mt-2" id="addOutcomeBtn"><i class="mdi mdi-plus-circle-outline"></i></button>

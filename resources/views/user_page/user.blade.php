@@ -489,6 +489,7 @@
                 { data: 'position', name: 'position', title: 'Position' },
                 { data: 'province', name: 'province', title: 'Province' },
                 { data: 'role', name: 'role', title: 'Role' },
+                { data: 'division_id', name: 'division_id', title: 'Division' },
                 { data: 'status', name: 'status', title: 'Status' },
                 { data: 'created_by', name: 'created_by', title: 'Created By' },
                 { data: 'created_at', name: 'created_at', title: 'Created At' },
@@ -530,6 +531,12 @@
         });
 
         $('#createUserForm, #editUserForm').find('input, select').on('keyup change', function() {
+            $(this).removeClass('is-invalid');
+            var errorId = $(this).attr('name') + 'Error';
+            $('#' + errorId).text('');
+        });
+
+        $('#createUserForm, #editUserForm').find('select.select2').on('select2:select', function() {
             $(this).removeClass('is-invalid');
             var errorId = $(this).attr('name') + 'Error';
             $('#' + errorId).text('');
@@ -579,7 +586,35 @@
                 console.error('Error fetching roles:', error);
             }
         });
-         //  END FETCH ROLES FOR SELECT
+
+        function initializeDivisionSelect() {
+        $('.division-select').select2({
+            placeholder: 'Select an Option',
+            allowClear: true,
+            ajax: {
+                url: '{{ route('indicator.getDivision') }}',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        q: params.term // search term
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                id: item.id,
+                                text: item.division_name
+                            };
+                        })
+                    };
+                },
+                cache: true
+            }
+        });
+    }
+    initializeDivisionSelect();
        
     });
 </script>

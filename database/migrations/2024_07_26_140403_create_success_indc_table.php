@@ -16,6 +16,9 @@ return new class extends Migration
             $table->unsignedBigInteger('org_id');
             $table->string('target');
             $table->string('measures');
+            $table->unsignedBigInteger('alloted_budget');
+            $table->json('division_id')->nullable();
+            $table->unsignedBigInteger('months');
             $table->string('status')->default('Active');
             $table->string('created_by');
             $table->timestamps();

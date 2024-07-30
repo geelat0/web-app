@@ -2,9 +2,11 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\IndicatorController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SuccesIndicatorController;
 use App\Http\Controllers\UserController;
@@ -64,8 +66,13 @@ Route::middleware(['auth_check'])->group(function () {
         Route::post('organizational/outcome/store', [OrganizationController::class, 'store'])->name('org.store');
         Route::post('organizational/outcome/update', [OrganizationController::class, 'update'])->name('org.update');
         Route::post('organizational/outcome/destroy', [OrganizationController::class, 'destroy'])->name('org.destroy');
-
-        Route::get('success/indicator', [SuccesIndicatorController::class, 'index']);
+        Route::get('organizational/outcome/getOrg', [OrganizationController::class, 'getOrg'])->name('org.getOrg');
+       
+        Route::get('indicator', [IndicatorController::class, 'index']);
+        Route::get('indicator/list', [IndicatorController::class, 'list'])->name('indicator.list');
+        Route::get('indicator/create', [IndicatorController::class, 'create'])->name('indicator.create');
+        Route::get('indicator/getDivision', [IndicatorController::class, 'getDivision'])->name('indicator.getDivision');
+        Route::post('indicator/store', [IndicatorController::class, 'store'])->name('indicator.store');
 
     });
 

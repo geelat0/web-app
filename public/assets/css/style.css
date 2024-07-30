@@ -8427,7 +8427,7 @@
   --bs-highlight-color: #dee2e6;
   --bs-highlight-bg: #664d03;
   --bs-border-color: #495057;
-  --bs-border-color-translucent: rgba(255, 255, 255, 0.15);
+  --bs-border-color-translucent: rgba(255, 255, 255, 0.039);
   --bs-form-valid-color: #75b798;
   --bs-form-valid-border-color: #75b798;
   --bs-form-invalid-color: #ea868f;
@@ -10360,7 +10360,7 @@ progress {
 
 .form-control, .typeahead,
 .tt-query,
-.tt-hint, .select2-container--default .select2-selection--single .select2-search__field, .select2-container--default .select2-selection--single, .dataTables_wrapper select {
+.tt-hint, .select2-container--default .select2-selection--single .select2-search__field, .select2-container--default .select2-selection--single, .dataTables_wrapper select, .select2-selection--multiple {
   display: block;
   width: 100%;
   padding: 1.125rem 1.375rem;
@@ -10378,7 +10378,7 @@ progress {
 @media (prefers-reduced-motion: reduce) {
   .form-control, .typeahead,
   .tt-query,
-  .tt-hint, .select2-container--default .select2-selection--single .select2-search__field, .select2-container--default .select2-selection--single, .dataTables_wrapper select {
+  .tt-hint, .select2-container--default .select2-selection--single .select2-search__field, .select2-container--default .select2-selection--multiple, .dataTables_wrapper select {
     transition: none;
   }
 }
@@ -23649,6 +23649,11 @@ table.dataTable tbody td.select-checkbox:after {
 }
 
 /* Select2 */
+
+.select2-container{
+  z-index: 101055;
+}
+
 .select2-container--default .select2-results__option--highlighted[aria-selected] {
   background: #4B49AC;
 }
@@ -25664,11 +25669,24 @@ label.required::after {
 .authenticator-logo:hover {
   transform: scale(1.1);
 }
+
+.wrap-text {
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+/* .select2-selection--multiple{
+  width: 12.5vw !important;
+  height: 7vh !important;
+}
+
+@media (max-width: 991px) {
+  .select2-selection--multiple{
+    width: 20vw !important;
+    height: 7vh !important;
+  }
+} */
   
-
-
-
-
 
 
 /*# sourceMappingURL=maps/style.css.map */

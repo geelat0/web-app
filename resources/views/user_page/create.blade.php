@@ -1,5 +1,5 @@
 <div class="modal fade" id="createUserModal" tabindex="-1" role="dialog" aria-labelledby="createUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="createUserModalLabel">Create New User</h5>
@@ -37,6 +37,8 @@
                                 </select>
                                 <div class="invalid-feedback" id="role_idError"></div>
                             </div>
+
+                            
                         </div>
                         
                         <div class="col-md-6">
@@ -68,17 +70,13 @@
                                 </select>
                                 <div class="invalid-feedback" id="provinceError"></div>
                             </div>
-
-                            {{-- <div class="form-group">
-                                <label for="password">Password</label>
-                                <input type="password" class="form-control" id="password" aria-describedby="" name="password" placeholder="Password">
-                                <div class="invalid-feedback" id="passwordError"></div>
-                            </div>
                             <div class="form-group">
-                                <label for="confirmPassword">Confirm Password</label>
-                                <input type="password" class="form-control" id="confirmPassword" aria-describedby="" name="password" placeholder="Confirm Password">
-                                <div class="invalid-feedback" id="confirmPasswordError"></div>
-                            </div> --}}
+                                <label for="division_id">Division</label>
+                                <select id="division_id" class="division-select form-select" name="division_id" multiple="multiple">   
+                                                                     
+                                </select>
+                                <div class="invalid-feedback" id="division_idError"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="d-flex justify-content-end">

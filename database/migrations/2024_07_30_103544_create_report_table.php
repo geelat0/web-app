@@ -11,21 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('opcr_report', function (Blueprint $table) {
+        Schema::create('report', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('org_id');
-            $table->unsignedBigInteger('success_id');
-            $table->unsignedBigInteger('division_id');
-            $table->integer('alloted_budget')->nullable();
+            $table->unsignedBigInteger('indicator_id');
             $table->string('actual_accomplishment')->nullable();
             $table->string('rating')->nullable();
             $table->string('remarks')->nullable();
+            $table->string('created_by');
             $table->timestamps();
             $table->softDeletes();
 
             $table->foreign('org_id')->references('id')->on('org_otc');
-            $table->foreign('success_id')->references('id')->on('success_indc');
-            $table->foreign('division_id')->references('id')->on('divisions');
+            $table->foreign('indicator_id')->references('id')->on('success_indc');
         });
     }
 

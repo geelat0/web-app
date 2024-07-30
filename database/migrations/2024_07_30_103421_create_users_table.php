@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('position');
             $table->string('mobile_number');
             $table->unsignedBigInteger('role_id');
+            $table->json('division_id');
             $table->string('email');
             $table->string('password')->nullable();
             $table->string('proxy_password')->nullable();

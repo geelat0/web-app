@@ -65,7 +65,7 @@ class OrganizationController extends Controller
                 ->whereNull('deleted_at')
                 ->count();
             return $count === 0;
-        }, 'The :attribute has already been taken.');
+        }, 'The :input has already been taken.');
 
         $validator = Validator::make($request->all(), [
             'organizational_outcome.*' => 'required|string|max:255|unique_with_soft_delete:org_otc,organizational_outcome',
@@ -130,5 +130,13 @@ class OrganizationController extends Controller
         return response()->json(['success' => true, 'message' => 'Organization Outcome deleted successfully']);
     }
 
+    public function getOrg(Request $request){
+        $searchTerm = $request->input('q'); // Capture search term
+        $data = Organizational::where('status', 'Active')
+                              ->whereNull('deleted_at')
+                              ->where('organizational_outcome', 'like', "%{$searchTerm}%")
+                              ->get(['id', 'organizational_outcome']);
+        return response()->json($data);
 
+    }
 }

@@ -25,6 +25,7 @@ class UserSeeder extends Seeder
                 'mobile_number' => '09123456789',
                 'email' => 'angelicamae.bonganay@gmail.com',
                 'role_id' => '1',
+                'division_id' => '1',
                 'status' => 'Active',
                 'password' => Hash::make('123456'),
                 'created_by' => 'A.bong',
