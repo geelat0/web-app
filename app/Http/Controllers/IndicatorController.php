@@ -14,12 +14,12 @@ class IndicatorController extends Controller
 {
     public function index(){
         $user=Auth::user();
-        return view('indicator.index');
+        return view('indicators.index');
     }
 
     public function create(){
         $user=Auth::user();
-        return view('indicator.create');
+        return view('indicators.create');
     }
 
     public function list(Request $request){
@@ -29,27 +29,27 @@ class IndicatorController extends Controller
             [$startDate, $endDate] = explode(' - ', $request->date_range);
             $startDate = Carbon::createFromFormat('m/d/Y', $startDate)->startOfDay();
             $endDate = Carbon::createFromFormat('m/d/Y', $endDate)->endOfDay();
-    
+
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
         if ($request->has('search') && !empty($request->search)) {
             $searchTerm = $request->search;
-            
+
             $query->where(function($subQuery) use ($searchTerm) {
                 $subQuery->where('name', 'like', "%{$searchTerm}%")
                         //  ->orWhere('created_by', 'like', "%{$searchTerm}%")
                          ->orWhere('status', 'like', "%{$searchTerm}%");
-                        
+
             });
         }
-    
+
         $indicator = $query->get();
-       
+
         return DataTables::of($indicator)
             ->addColumn('id', function($data) {
                 return Crypt::encrypt($data->id);
-                
+
             })
             ->editColumn('org_id', function($data) {
                 return $data->org->organizational_outcome;
@@ -66,7 +66,7 @@ class IndicatorController extends Controller
                 }
                 return '';
             })
-            
+
             ->make(true);
     }
 
@@ -90,7 +90,7 @@ class IndicatorController extends Controller
             'months.*' => 'required',
             'division_id.*' => 'required',
             'division_id.*.*' => 'exists:divisions,id',
-            
+
         ],[
             'org_id.required' => 'The organizational outcome is required',
             'target.required' => 'The target is required',

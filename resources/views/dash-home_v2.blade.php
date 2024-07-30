@@ -1,10 +1,10 @@
-@extends('app')
+@extends('components.app')
 
 @section('content')
 <div class="container">
     <h1 class="mt-4">Dashboard</h1>
     <p>Welcome to your dashboard, {{ $user->user_name }}</p>
-    
+
     <div class="row mb-4 justify-content-center">
         <div class="col-lg-10 col-md-12 col-sm-12">
             <div class="row">
@@ -57,7 +57,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
             <div class="card h-100 shadow-sm">
                 <div class="card-body">
@@ -81,36 +81,36 @@
 </div>
 @endsection
 
-@section('scripts')
-<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+@section('components.specific_page_scripts')
+{{-- <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> --}}
 <script>
 $(function() {
-    $("#start_date").datepicker();
-    $("#end_date").datepicker();
-    
-    $('#filterBtn').on('click', function() {
-        var startDate = $('#start_date').val();
-        var endDate = $('#end_date').val();
-        var month = $('#month').val();
-        var year = $('#year').val();
-        
-        $.ajax({
-            url: '{{ route("dashboard.filter") }}',
-            method: 'GET',
-            data: {
-                start_date: startDate,
-                end_date: endDate,
-                month: month,
-                year: year
-            },
-            success: function(data) {
-                $('#userCount').text(data.userCount);
-                $('#roleCount').text(data.roleCount);
-            }
-        });
-    });
+    // $("#start_date").datepicker();
+    // $("#end_date").datepicker();
+
+    // $('#filterBtn').on('click', function() {
+    //     var startDate = $('#start_date').val();
+    //     var endDate = $('#end_date').val();
+    //     var month = $('#month').val();
+    //     var year = $('#year').val();
+
+    //     $.ajax({
+    //         url: '{{ route("dashboard.filter") }}',
+    //         method: 'GET',
+    //         data: {
+    //             start_date: startDate,
+    //             end_date: endDate,
+    //             month: month,
+    //             year: year
+    //         },
+    //         success: function(data) {
+    //             $('#userCount').text(data.userCount);
+    //             $('#roleCount').text(data.roleCount);
+    //         }
+    //     });
+    // });
 });
 </script>
 @endsection

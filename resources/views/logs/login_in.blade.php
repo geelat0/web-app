@@ -1,4 +1,4 @@
-@extends('app')
+@extends('components.app')
 
 @section('content')
 
@@ -14,7 +14,7 @@
                             <i class="mdi mdi-filter-outline"></i> Filter
                         </button>
                     </p>
-                    
+
                 </div>
                 <div class="col d-flex justify-content-end mb-3" >
 
@@ -23,7 +23,7 @@
                     </div>
 
                 </div>
-                
+
             </div>
             <div class="collapse" id="collapseExample">
                 <div class="card card-body">
@@ -58,14 +58,14 @@
 </div>
 @endsection
 
-@section('scripts')
+@section('components.specific_page_scripts')
 <script>
     $(document).ready(function() {
 
         var file_name = 'Login History ' + new Date().toISOString().split('T')[0];
 
         var table;
-        
+
         table = $('#login-table').DataTable({
             responsive: true,
             processing: false,
@@ -102,7 +102,7 @@
                 //         dt.ajax.reload();
                 //     }
                 // },
-                
+
                 {
 
                     extend: 'collection',
@@ -122,13 +122,13 @@
                                         .css('font-size', '10pt')
                                         .prepend(
                                             '<div style="text-align: center; font-size: 12pt;"><strong>Login History</strong></div>'
-                                            
+
                                         );
 
                                     $(win.document.body).find('table')
                                         .addClass('compact')
                                         .css('font-size', 'inherit');
-                                }  
+                                }
                             },
                             {
                                 extend: 'copyHtml5',
@@ -137,7 +137,7 @@
                                 filename: function () {
                                     return file_name;
                                 },
-                               
+
                             },
                             {
                                 extend: 'excelHtml5',
@@ -146,7 +146,7 @@
                                 filename: function () {
                                     return file_name;
                                 },
-                                
+
                             },
                             {
                                 extend: 'pdfHtml5',
@@ -160,7 +160,7 @@
                                 exportOptions: {
                                     modifier: {
                                         page: 'current',
-                                       
+
                                     }
                                 },
                                 customize: function (doc) {
@@ -180,13 +180,13 @@
                                 filename: function () {
                                     return file_name;
                                 },
-                               
+
                             },
-                            
+
                     ]
 
                 }
-                
+
             ],
 
             columns: [
@@ -205,32 +205,32 @@
 
             dom: '<"d-flex justify-content-between flex-wrap"B>rtip',  // Adjust DOM layout
         });
-        
+
         $('.navbar-toggler').on('click', function() {
         // Reload the DataTable
             table.ajax.reload(null, false); // false to keep the current paging
         });
 
-        $('#date-range-picker').daterangepicker({
-            autoUpdateInput: false,
-            locale: {
-                cancelLabel: 'Clear'
-            }
-        });
+        // $('#date-range-picker').daterangepicker({
+        //     autoUpdateInput: false,
+        //     locale: {
+        //         cancelLabel: 'Clear'
+        //     }
+        // });
 
-        $('#date-range-picker').on('apply.daterangepicker', function(ev, picker) {
-            $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
-            table.ajax.reload(null, false);  // Reload the table with the new date range
-        });
+        // $('#date-range-picker').on('apply.daterangepicker', function(ev, picker) {
+        //     $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+        //     table.ajax.reload(null, false);  // Reload the table with the new date range
+        // });
 
-        $('#date-range-picker').on('cancel.daterangepicker', function(ev, picker) {
-            $(this).val('');
-            table.ajax.reload(null, false);  // Reload the table when the date range is cleared
-        });
+        // $('#date-range-picker').on('cancel.daterangepicker', function(ev, picker) {
+        //     $(this).val('');
+        //     table.ajax.reload(null, false);  // Reload the table when the date range is cleared
+        // });
 
-        $('#filter-date').click(function() {
-            table.ajax.reload(null, false); 
-        });
+        // $('#filter-date').click(function() {
+        //     table.ajax.reload(null, false);
+        // });
 
         $('#search-input').on('keyup', function() {
             table.ajax.reload();  // Reload the table when the search input changes
@@ -242,7 +242,7 @@
         // table.on('select deselect', function() {
         //     var selectedRows = table.rows({ selected: true }).count();
         //     table.buttons(['.btn-primary', '.btn-info', '.btn-danger']).enable(selectedRows > 0);
-        // });       
+        // });
 
     });
 

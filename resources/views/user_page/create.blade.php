@@ -38,9 +38,9 @@
                                 <div class="invalid-feedback" id="role_idError"></div>
                             </div>
 
-                            
+
                         </div>
-                        
+
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="email" class="required">Email</label>
@@ -52,7 +52,7 @@
                                 <input type="text" class="form-control" id="contactNumber" name="mobile_number">
                                 <div class="invalid-feedback" id="mobile_numberError"></div>
                             </div>
-                            <div class="form-group" style="margin-bottom:1.6rem;">
+                            <div class="form-group" style="">
                                 <label for="position" class="required">Position</label>
                                 <input type="text" class="form-control capitalize" id="position" name="position" aria-describedby="">
                                 <div class="invalid-feedback" id="positionError"></div>
@@ -71,9 +71,10 @@
                                 <div class="invalid-feedback" id="provinceError"></div>
                             </div>
                             <div class="form-group">
+
                                 <label for="division_id">Division</label>
-                                <select id="division_id" class="division-select form-select" name="division_id" multiple="multiple">   
-                                                                     
+                                <select id="division_id" class="division-select form-select" name="division_id" multiple="multiple">
+
                                 </select>
                                 <div class="invalid-feedback" id="division_idError"></div>
                             </div>

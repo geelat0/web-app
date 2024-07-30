@@ -1,9 +1,6 @@
-@extends('app')  {{-- Main blade File --}}
+@extends('components.app')
 
-
-{{-- Content of Pages --}}
 @section('content')
-
 <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
@@ -37,7 +34,7 @@
                 </div>
             </div>
         </div>
-       
+
       </div>
     </div>
 </div>
@@ -46,10 +43,10 @@
 <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
-        
+
         {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
         </p>
-        
+
         <div class="table-responsive pt-3">
           <table id="roles-table"  class="table table-striped" style="width: 100%">
             <tbody>
@@ -66,12 +63,13 @@
 
 
 {{-- JS of Pages --}}
-@section('scripts')
+@section('components.specific_page_scripts')
+
 <script>
     $(document).ready(function() {
 
         var table;
-        
+
         table = $('#roles-table').DataTable({
             responsive: true,
             processing: false,
@@ -118,7 +116,7 @@
                             // Handle form submission, e.g., via AJAX
                             var formData = $(this).serialize();
                             $.ajax({
-                                url: '{{ route('role.store') }}', 
+                                url: '{{ route('role.store') }}',
                                 method: 'POST',
                                 data: formData,
                                 success: function(response) {
@@ -134,7 +132,7 @@
                                             table.ajax.reload();
                                         }
                                         else{
-                                            
+
                                             var errors = response.errors;
                                             Object.keys(errors).forEach(function(key) {
                                                 var inputField = $('#createRoleForm [name=' + key + ']');
@@ -170,7 +168,7 @@
                                 showLoader();
                                 var formData = $(this).serialize();
                                 $.ajax({
-                                    url: '{{ route('role.update') }}', 
+                                    url: '{{ route('role.update') }}',
                                     method: 'POST',
                                     data: formData,
                                     success: function(response) {
@@ -185,7 +183,7 @@
                                             })
 
                                             table.ajax.reload();
-                                           
+
                                         } else {
                                             var errors = response.errors;
                                             Object.keys(errors).forEach(function(key) {
@@ -216,7 +214,7 @@
                         $('#view_name').val(selectedData.name);
                         $('#view_status').val(selectedData.status);
                         $('#viewRoleModal').modal('show');
-                        
+
                     }
                 },
                 {
@@ -277,8 +275,8 @@
                         });
                     }
                 },
-               
-                
+
+
             ],
 
             columns: [
@@ -295,7 +293,7 @@
                 searchPlaceholder: "Search..." // Set placeholder text
             },
 
-            dom: '<"d-flex justify-content-between flex-wrap"B>rtip', 
+            dom: '<"d-flex justify-content-between flex-wrap"B>rtip',
         });
 
         $('.navbar-toggler').on('click', function() {
@@ -307,25 +305,25 @@
             table.ajax.reload();  // Reload the table when the search input changes
         });
 
-        $('#date-range-picker').daterangepicker({
-            autoUpdateInput: false,
-            locale: {
-                cancelLabel: 'Clear'
-            }
-        });
+        // $('#date-range-picker').daterangepicker({
+        //     autoUpdateInput: false,
+        //     locale: {
+        //         cancelLabel: 'Clear'
+        //     }
+        // });
 
-        $('#date-range-picker').on('apply.daterangepicker', function(ev, picker) {
-            $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
-            table.ajax.reload(null, false);  // Reload the table with the new date range
-        });
+        // $('#date-range-picker').on('apply.daterangepicker', function(ev, picker) {
+        //     $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+        //     table.ajax.reload(null, false);  // Reload the table with the new date range
+        // });
 
-        $('#date-range-picker').on('cancel.daterangepicker', function(ev, picker) {
-            $(this).val('');
-            table.ajax.reload(null, false);  // Reload the table when the date range is cleared
-        });
+        // $('#date-range-picker').on('cancel.daterangepicker', function(ev, picker) {
+        //     $(this).val('');
+        //     table.ajax.reload(null, false);  // Reload the table when the date range is cleared
+        // });
 
         $('#filter-date').click(function() {
-            table.ajax.reload(null, false); 
+            table.ajax.reload(null, false);
         });
 
         // table.buttons().container().appendTo('#roles-table_wrapper .col-md-6:eq(0)');
@@ -342,7 +340,7 @@
             $(this).find('.invalid-feedback').text(''); // Clear error messages
         });
 
-       
+
     });
 
 

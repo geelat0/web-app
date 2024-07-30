@@ -1,0 +1,192 @@
+/* INBOX DATATABLES----------------------------------------------------------------------- */
+ /* Hide the table header */
+ .custom-card-table{
+    border: none !important;
+    border-radius: 20px !important;
+}
+
+ #inboxTable thead {
+    display: none;
+    color: #8c88a2;
+    font-size: 12px;
+}
+
+#inboxTable td{
+    font-size: 12px !important;
+}
+
+#inboxTable th,
+#inboxTable td {
+    text-align: left !important; /* Align text to the right */
+}
+
+#inboxTable td:nth-child(4),
+#inboxTable th:nth-child(4) {
+    text-align: right !important; /* Align text to the right */
+    font-size: 10px !important;
+    color: #8c88a2;
+}
+
+#inboxTable th:nth-child(4) {
+    display: none; /* Hide the header */
+}
+
+/* Remove borders from the table and its elements */
+#inboxTable {
+    border: none;
+}
+#inboxTable,
+#inboxTable th,
+#inboxTable td {
+    border: none !important;
+}
+
+/* Remove borders from pagination */
+.dataTables_wrapper .dataTables_paginate {
+    border: none !important;
+}
+.dataTables_wrapper .dataTables_paginate a {
+    border: none !important;
+}
+
+/* Search Bar */
+ div.dt-container div.dt-search input{
+    margin-left: .5em;
+    display: inline-block;
+    width: auto !important;
+    padding: 0 16px 0 16px !important;
+    border-radius: 100px;
+ }
+
+ /* for columns opened/unopened */
+ .unopened {
+    font-weight: bold;
+    color: #000; /* Dark text */
+    cursor: pointer; /* Pointer cursor on hover */
+}
+
+/* Styling for opened columns */
+.opened {
+    color: #777; /* Lightened text */
+}
+
+div.dt-container div.dt-info {
+    padding-top: 1em !important;
+    font: 10px !important;
+}
+
+#inboxTable tbody tr {
+    border-bottom: 1px solid #ddd; /* Adjust color and thickness as needed */
+}
+
+#inboxTable tbody tr:hover {
+    border-bottom: 1px solid #5D42F4;
+    box-shadow: -1px 5px 5px -3px rgba(0,0,0,0.35);
+    -webkit-box-shadow: -1px 5px 5px -3px rgba(0,0,0,0.35);
+    -moz-box-shadow: -1px 5px 5px -3px rgba(0,0,0,0.35);
+}
+
+.card-header{
+    /* border: none !important; */
+    height: 55px;
+}
+/* INBOX DATATABLES END----------------------------------------------------------------------- */
+
+
+
+
+
+
+/* faculty DATATABLES----------------------------------------------------------------------- */
+ /* Hide the table header */
+ #facultyTable thead {
+    /* display: none; */
+    color: #8c88a2;
+    font-size: 12px;
+}
+
+#facultyTable td{
+    font-size: 12px !important;
+}
+
+#facultyTable th,
+#facultyTable td {
+    text-align: left !important; /* Align text to the right */
+}
+
+/* Remove borders from the table and its elements */
+#facultyTable {
+    border: none;
+}
+#facultyTable,
+#facultyTable th,
+#facultyTable td {
+    border: none !important;
+}
+
+#facultyTable tbody tr {
+    border-bottom: 1px solid #ddd; /* Adjust color and thickness as needed */
+}
+
+#facultyTable tbody tr:hover {
+    border-bottom: 1px solid #5D42F4;
+    box-shadow: -1px 5px 5px -3px rgba(0,0,0,0.35);
+    -webkit-box-shadow: -1px 5px 5px -3px rgba(0,0,0,0.35);
+    -moz-box-shadow: -1px 5px 5px -3px rgba(0,0,0,0.35);
+}
+/* FACULTY DATATABLES END----------------------------------------------------------------------- */
+
+
+/* honorarium DATATABLES----------------------------------------------------------------------- */
+ /* Hide the table header */
+ #honorariumTable thead {
+    /* display: none; */
+    color: #8c88a2;
+    font-size: 12px;
+}
+
+#honorariumTable td{
+    font-size: 12px !important;
+}
+
+#honorariumTable th,
+#honorariumTable td {
+    text-align: left !important; /* Align text to the right */
+}
+
+/* Remove borders from the table and its elements */
+#honorariumTable {
+    border: none;
+}
+#honorariumTable,
+#honorariumTable th,
+#honorariumTable td {
+    border: none !important;
+}
+
+#honorariumTable tbody tr {
+    border-bottom: 1px solid #ddd; /* Adjust color and thickness as needed */
+}
+
+#honorariumTable tbody tr:hover {
+    border-bottom: 1px solid #5D42F4;
+    box-shadow: -1px 5px 5px -3px rgba(0,0,0,0.35);
+    -webkit-box-shadow: -1px 5px 5px -3px rgba(0,0,0,0.35);
+    -moz-box-shadow: -1px 5px 5px -3px rgba(0,0,0,0.35);
+}
+/* honorarium DATATABLES END----------------------------------------------------------------------- */
+
+
+
+.bx-left-arrow-alt{
+    transition: ease-in-out 200ms;
+}
+
+.bx-left-arrow-alt:hover{
+    background-color: #f1efff;
+    border-radius: 100px;
+}
+
+.select2-container{
+    z-index: 9999999999999999;
+}

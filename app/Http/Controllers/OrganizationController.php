@@ -14,9 +14,16 @@ use Illuminate\Validation\Rule;
 
 class OrganizationController extends Controller
 {
+
+    public function app(){
+
+        return view('components.app');
+    }
+
     public function index(){
+
         $user=Auth::user();
-        return view('org_outcome.index');
+        return view('outcome.index');
     }
 
     public function list(Request $request)
@@ -27,32 +34,32 @@ class OrganizationController extends Controller
             [$startDate, $endDate] = explode(' - ', $request->date_range);
             $startDate = Carbon::createFromFormat('m/d/Y', $startDate)->startOfDay();
             $endDate = Carbon::createFromFormat('m/d/Y', $endDate)->endOfDay();
-    
+
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
         if ($request->has('search') && !empty($request->search)) {
             $searchTerm = $request->search;
-            
+
             $query->where(function($subQuery) use ($searchTerm) {
                 $subQuery->where('organizational_outcome', 'like', "%{$searchTerm}%")
                          ->orWhere('created_by', 'like', "%{$searchTerm}%")
                          ->orWhere('status', 'like', "%{$searchTerm}%");
-                        
+
             });
         }
-    
+
         $orgs = $query->get();
-       
+
         return DataTables::of($orgs)
             ->addColumn('id', function($org) {
                 return Crypt::encrypt($org->id);
-                
+
             })
             ->editColumn('created_at', function($org) {
                 return $org->created_at->format('m/d/Y');
             })
-            
+
             ->make(true);
     }
 
@@ -71,11 +78,11 @@ class OrganizationController extends Controller
             'organizational_outcome.*' => 'required|string|max:255|unique_with_soft_delete:org_otc,organizational_outcome',
             'status' => 'required|string'
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json(['success' => false, 'errors' => $validator->errors()], 200);
         }
-    
+
         foreach ($request->organizational_outcome as $outcome) {
             $organizational = new Organizational();
             $organizational->organizational_outcome = ucfirst($outcome);
@@ -83,7 +90,7 @@ class OrganizationController extends Controller
             $organizational->created_by = Auth::user()->user_name;
             $organizational->save();
         }
-    
+
         return response()->json(['success' => true, 'message' => 'Organization Outcome(s) created successfully'], 200);
     }
 
@@ -99,18 +106,18 @@ class OrganizationController extends Controller
             Rule::unique('org_otc')->whereNull('deleted_at')->ignore($id), // Ensures unique name except for the current role
         ],
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json(['success' => false, 'errors' => $validator->errors()], 200);
         }
-    
+
         $org = Organizational::findOrFail($id);
-    
+
         $org->organizational_outcome = ucfirst($request->organizational_outcome);
         $org->status = ucfirst($request->status);
         $org->created_by = Auth::user()->user_name;
         $org->save();
-    
+
         return response()->json(['success' => true, 'message' => 'Organization Outcome updated successfully']);
     }
 

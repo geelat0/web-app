@@ -37,7 +37,7 @@
                 </div>
             </div>
         </div>
-       
+
       </div>
     </div>
 </div>
@@ -46,10 +46,10 @@
 <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
-        
+
         {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
         </p>
-        
+
         <div class="table-responsive pt-3">
           <table id="entries-table"  class="table table-striped" style="width: 100%">
             <tbody>
@@ -59,7 +59,7 @@
       </div>
     </div>
 </div>
-   
+
 @endsection
 
 @section('scripts')
@@ -67,7 +67,7 @@
     $(document).ready(function() {
 
         var table;
-        
+
         table = $('#entries-table').DataTable({
             responsive: true,
             processing: false,
@@ -89,14 +89,14 @@
                 },
             },
             buttons: [
-                
+
                 {
                     text: 'Add',
                     className: 'btn btn-success user_btn',
                     action: function (e, dt, node, config) {
 
                         window.location.href = '/indicator/create';
-                       
+
                     }
                 },
                 {
@@ -116,7 +116,7 @@
                                 showLoader();
                                 var formData = $(this).serialize();
                                 $.ajax({
-                                    url: '{{ route('role.update') }}', 
+                                    url: '{{ route('role.update') }}',
                                     method: 'POST',
                                     data: formData,
                                     success: function(response) {
@@ -131,7 +131,7 @@
                                             })
 
                                             table.ajax.reload();
-                                           
+
                                         } else {
                                             var errors = response.errors;
                                             Object.keys(errors).forEach(function(key) {
@@ -162,7 +162,7 @@
                         $('#view_name').val(selectedData.name);
                         $('#view_status').val(selectedData.status);
                         $('#viewRoleModal').modal('show');
-                        
+
                     }
                 },
                 {
@@ -223,8 +223,8 @@
                         });
                     }
                 },
-               
-                
+
+
             ],
 
             columns: [
@@ -248,7 +248,7 @@
                 searchPlaceholder: "Search..." // Set placeholder text
             },
 
-            dom: '<"d-flex justify-content-between flex-wrap"B>rtip', 
+            dom: '<"d-flex justify-content-between flex-wrap"B>rtip',
             createdRow: function(row, data, dataIndex) {
                 $(row).find('td:eq(1)').addClass('wrap-text');
             }
@@ -281,7 +281,7 @@
         });
 
         $('#filter-date').click(function() {
-            table.ajax.reload(null, false); 
+            table.ajax.reload(null, false);
         });
 
         // table.buttons().container().appendTo('#roles-table_wrapper .col-md-6:eq(0)');
@@ -298,7 +298,7 @@
             $(this).find('.invalid-feedback').text(''); // Clear error messages
         });
 
-       
+
     });
 
 

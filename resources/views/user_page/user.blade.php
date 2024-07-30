@@ -1,4 +1,4 @@
-@extends('app')
+@extends('components.app')
 
 @section('content')
 <div class="col-lg-12 grid-margin stretch-card">
@@ -14,7 +14,7 @@
                             <i class="mdi mdi-filter-outline"></i> Filter
                         </button>
                     </p>
-                    
+
                 </div>
                 <div class="col d-flex justify-content-end mb-3" >
                     <div id="table-buttons" class="d-flex">
@@ -53,12 +53,12 @@
 @include('user_page.view')
 @endsection
 
-@section('scripts')
+@section('components.specific_page_scripts')
 <script>
     $(document).ready(function() {
         var table;
         // START DATATABLES
-        
+
         table = $('#users-table').DataTable({
             responsive: true,
             processing: false,
@@ -104,7 +104,7 @@
                             showLoader();
                             var formData = $(this).serialize();
                             $.ajax({
-                                url: '{{ route('users.store') }}', 
+                                url: '{{ route('users.store') }}',
                                 method: 'POST',
                                 data: formData,
                                 success: function(response) {
@@ -120,7 +120,7 @@
                                             table.ajax.reload();
                                         }
                                         else{
-                                            
+
                                             var errors = response.errors;
                                             Object.keys(errors).forEach(function(key) {
                                                 var inputField = $('#createUserForm [name=' + key + ']');
@@ -128,9 +128,9 @@
                                                 $('#createUserForm #' + key + 'Error').text(errors[key][0]);
                                             });
                                             hideLoader();
-                                            
+
                                         }
-                                    
+
                                 },
                                 error: function(xhr) {
                                     hideLoader();
@@ -164,15 +164,15 @@
                                 showLoader();
                                 var formData = $(this).serialize();
                                 $.ajax({
-                                    url: '{{ route('users.update') }}', 
+                                    url: '{{ route('users.update') }}',
                                     method: 'POST',
                                     data: formData,
                                     success: function(response) {
-                                        
+
                                         if (response.success) {
                                             $('#editUserModal').modal('hide');
                                             hideLoader();
-                                            
+
                                             Swal.fire({
                                                 icon: 'success',
                                                 title: 'Success!',
@@ -181,7 +181,7 @@
                                             })
 
                                             table.ajax.reload();
-                                           
+
                                         } else {
                                             var errors = response.errors;
                                             Object.keys(errors).forEach(function(key) {
@@ -220,7 +220,7 @@
                         $('#view_role').val(selectedData.role_id).change();
 
                         $('#viewUserModal').modal('show');
-                        
+
                     }
                 },
                 {
@@ -242,7 +242,7 @@
                             confirmButtonText: 'Yes, delete it!'
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                showLoader(); 
+                                showLoader();
                                 $.ajax({
                                     url: '{{ route('users.destroy') }}',
                                     method: 'POST',
@@ -286,7 +286,7 @@
                     text: 'Actions',
                     enabled: false,
                     className: 'btn btn-primary user_btn',
-                    buttons: 
+                    buttons:
                     [
                         {
                             text: 'Change Status',
@@ -358,7 +358,7 @@
                                 showLoader();
 
                                 $.ajax({
-                                    url: '{{ route('twofaDisabled') }}', 
+                                    url: '{{ route('twofaDisabled') }}',
                                     method: 'POST',
                                     data: {
                                         id: selectedData.id,
@@ -367,14 +367,14 @@
                                     success: function(response) {
                                         if (response.success) {
                                             hideLoader();
-                                            
+
                                             Swal.fire({
                                                 icon: 'success',
                                                 title: 'Success!',
                                                 text: response.message,
                                                 showConfirmButton: true,
                                             })
-                                           
+
                                         } else {
                                             Swal.fire({
                                                 icon: 'error',
@@ -392,7 +392,7 @@
                                 });
                                 console.log(selectedData.id);
                             }
-                            
+
 
                         },
                         {
@@ -403,7 +403,7 @@
                                 showLoader();
 
                                 $.ajax({
-                                    url: '{{ route('users.temp-password') }}', 
+                                    url: '{{ route('users.temp-password') }}',
                                     method: 'POST',
                                     data: {
                                         id: selectedData.id,
@@ -412,14 +412,14 @@
                                     success: function(response) {
                                         if (response.success) {
                                             hideLoader();
-                                            
+
                                             Swal.fire({
                                                 icon: 'success',
                                                 title: 'Success!',
                                                 text: response.message,
                                                 showConfirmButton: true,
                                             })
-                                           
+
                                         } else {
                                             Swal.fire({
                                                 icon: 'error',
@@ -436,7 +436,7 @@
                                     }
                             });
                                 console.log(selectedData.id);
-                                
+
                             }
                         },
                         {
@@ -447,7 +447,7 @@
                                 showLoader();
 
                                 $.ajax({
-                                    url: '{{ route('users.gen-proxy') }}', 
+                                    url: '{{ route('users.gen-proxy') }}',
                                     method: 'POST',
                                     data: {
                                         id: selectedData.id,
@@ -457,7 +457,7 @@
                                         if (response.success) {
                                             hideLoader();
                                             window.location.href = response.redirect;
-                                           
+
                                         } else {
                                             var errors = response.errors;
                                             Object.keys(errors).forEach(function(key) {
@@ -474,7 +474,7 @@
                                     }
                             });
                                 console.log(selectedData.id);
-                                
+
                             }
                         },
                     ]
@@ -543,26 +543,26 @@
         });
 
         // START DATE RANGE JS
-        $('#date-range-picker').daterangepicker({
-            autoUpdateInput: false,
-            locale: {
-                cancelLabel: 'Clear'
-            }
-        });
+        // $('#date-range-picker').daterangepicker({
+        //     autoUpdateInput: false,
+        //     locale: {
+        //         cancelLabel: 'Clear'
+        //     }
+        // });
 
-        $('#date-range-picker').on('apply.daterangepicker', function(ev, picker) {
-            $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
-            table.ajax.reload(null, false);  // Reload the table with the new date range
-        });
+        // $('#date-range-picker').on('apply.daterangepicker', function(ev, picker) {
+        //     $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+        //     table.ajax.reload(null, false);  // Reload the table with the new date range
+        // });
 
-        $('#date-range-picker').on('cancel.daterangepicker', function(ev, picker) {
-            $(this).val('');
-            table.ajax.reload(null, false);  // Reload the table when the date range is cleared
-        });
+        // $('#date-range-picker').on('cancel.daterangepicker', function(ev, picker) {
+        //     $(this).val('');
+        //     table.ajax.reload(null, false);  // Reload the table when the date range is cleared
+        // });
 
-        $('#filter-date').click(function() {
-            table.ajax.reload(null, false); 
-        });
+        // $('#filter-date').click(function() {
+        //     table.ajax.reload(null, false);
+        // });
 
          // END DATE RANGE JS
 
@@ -615,7 +615,7 @@
         });
     }
     initializeDivisionSelect();
-       
+
     });
 </script>
 @endsection

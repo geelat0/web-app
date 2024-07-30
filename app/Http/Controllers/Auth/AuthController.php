@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use PragmaRX\Google2FA\Google2FA;
 
@@ -31,11 +32,14 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'email' => 'required|email',
-            'password' => 'required',
+            'password' => 'required|min:6',
         ]);
 
+        if ($validator->fails()) {
+            return response()->json(['success' => false,'errors' => $validator->errors()], 200);
+        }
         $credentials = $request->only('email', 'password');
 
         if (auth()->attempt($credentials)) {
@@ -140,7 +144,7 @@ class AuthController extends Controller
             $user = Auth::user();
             $user->is_two_factor_verified = 0;
             $user->save();
-            
+
             return response()->json(['success' => true, 'redirect' => $this->redirectTo]);
         }
 

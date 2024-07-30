@@ -12,20 +12,20 @@
 
     <link rel="stylesheet" href="{{asset('assets/vendors/select2/select2.min.css')}}">
     <link rel="stylesheet" href="{{asset('assets/vendors/select2-bootstrap-theme/select2-bootstrap.min.css')}}">
-    
+
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <link href="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-2.0.8/af-2.7.0/b-3.0.2/b-colvis-3.0.2/b-html5-3.0.2/b-print-3.0.2/cr-2.0.3/date-1.5.2/fc-5.0.1/fh-4.0.1/kt-2.12.1/r-3.0.2/rg-1.5.0/rr-1.5.0/sc-2.4.3/sb-1.7.1/sp-2.3.1/sl-2.0.3/sr-1.4.1/datatables.min.css" rel="stylesheet">
-  
+
 
     <link rel="stylesheet" href="{{asset('assets/css/style.css')}}">
   </head>
   <body>
 
-      
+
 
     <div class="container-scroller">
       <div class="row p-0 m-0 proBanner" id="proBanner">
-       
+
       </div>
 
       <div id="loader" class="loader">
@@ -45,13 +45,13 @@
                 <ul class="navbar-nav mr-lg-2">
                 </ul>
                 <ul class="navbar-nav navbar-nav-right">
-                    @if(Auth::user()->role->name === 'IT')    
+                    {{-- @if(Auth::user()->role->name === 'IT')     --}}
                     <li class="nav-item nav-profile dropdown">
                         <a class="nav-link count-indicator dropdown-toggle" id="notificationDropdown" href="/logs">
                         <i class="mdi mdi-bug mx-0" style="color: maroon; font-size:25px;"></i>
                         </a>
                     </li>
-                    @endif
+                    {{-- @endif --}}
                     {{-- <li class="nav-item dropdown">
                         <a class="nav-link count-indicator dropdown-toggle" id="notificationDropdown" href="#" data-bs-toggle="dropdown">
                         <i class="icon-bell mx-0"></i>
@@ -94,20 +94,20 @@
                         </a>
                         </div>
                     </li> --}}
-                    
+
                     <li class="nav-item nav-profile dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" id="profileDropdown">
-                        <img src="{{ Auth::user()->profile_image ? asset('storage/' . Auth::user()->profile_image) : 'https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg' }}" alt="profile" id="profileImageShow" />
+                        {{-- <img src="{{ Auth::user()->profile_image ? asset('storage/' . Auth::user()->profile_image) : 'https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg' }}" alt="profile" id="profileImageShow" /> --}}
                         </a>
                         <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
                             <a class="dropdown-item" href="/profile">
-                                <i class="ti-settings text-primary"></i> Profile 
+                                <i class="ti-settings text-primary"></i> Profile
                             </a>
 
                             <a class="dropdown-item form-check form-switch" href="#" id="twoFactorToggle">
-                                <i class="mdi mdi-key-variant text-primary"></i> 
-                                2FA 
-                                <input class="form-check-input text-primary" type="checkbox" role="switch" id="flexSwitchCheckDefault" style="margin-left: 30px;" @if (Auth::user()->is_two_factor_enabled) checked @endif>
+                                <i class="mdi mdi-key-variant text-primary"></i>
+                                2FA
+                                {{-- <input class="form-check-input text-primary" type="checkbox" role="switch" id="flexSwitchCheckDefault" style="margin-left: 30px;" @if (Auth::user()->is_two_factor_enabled) checked @endif> --}}
                             </a>
 
                             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
@@ -151,8 +151,8 @@
                         {{-- <i class="menu-arrow"></i> --}}
                     </a>
                 </li>
-               
-                @if(Auth::user()->role->name === 'IT')
+
+                {{-- @if(Auth::user()->role->name === 'IT') --}}
                 <li class="nav-item">
                     <a class="nav-link" href="/user">
                         <i class="icon-head menu-icon"></i>
@@ -177,7 +177,7 @@
                         <span class="menu-title">Role</span>
                         {{-- <i class="menu-arrow"></i> --}}
                     </a>
-                   
+
                 </li>
 
                 <li class="nav-item">
@@ -186,17 +186,17 @@
                         <span class="menu-title">Login History</span>
                         {{-- <i class="menu-arrow"></i> --}}
                     </a>
-                   
+
                 </li>
                 @endif
 
-                
+
             </ul>
         </nav>
         <!-- partial -->
         <div class="main-panel">
           <div class="content-wrapper">
-            @yield('content') 
+            @yield('content')
           </div>
           <!-- content-wrapper ends -->
           <!-- partial:partials/_footer.html -->
@@ -213,8 +213,8 @@
       <!-- page-body-wrapper ends -->
     </div>
     <!-- container-scroller -->
-    
-    
+
+
     <script src="{{ asset('assets/vendors/js/vendor.bundle.base.js') }}"></script>
     <script src="{{ asset('assets/js/jquery.cookie.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/vendors/chart.js/chart.umd.js') }}"></script>
@@ -227,7 +227,7 @@
     <script src="{{ asset('assets/js/todolist.js') }}"></script>
     <script src="{{ asset('assets/js/chart.js') }}"></script>
 
-    
+
 
 
 
@@ -271,14 +271,14 @@
                                     icon: 'success',
                                     title: 'Success!',
                                     text: response.message,
-                                    
+
                                 });
                             } else {
                                 Swal.fire({
                                         icon: 'error',
                                         title: 'Oh no!',
                                         text: 'An error occurred. Please try again.'
-                                    
+
                                     });
                             }
                         },
@@ -287,12 +287,12 @@
                                         icon: 'error',
                                         title: 'Oh no!',
                                         text: 'An error occurred. Please try again.'
-                                        
+
                                     });
                         }
                     });
                 }
-               
+
             });
 
 
@@ -303,9 +303,9 @@
                     };
                     reader.readAsDataURL(this.files[0]);
             });
-            
+
         });
     </script>
-    @yield('scripts') 
+    @yield('scripts')
   </body>
 </html>

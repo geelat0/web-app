@@ -1,11 +1,11 @@
-@extends('app')
+@extends('components.app')
 
 @section('content')
 <div class="container">
-    
+
     <h2 class="mt-4">Dashboard</h2>
     <p class="mb-3">Welcome to your dashboard, {{ $user->user_name }}</p>
-    
+
     <div class="row mb-4 justify-content-center">
         <div class="col">
             <div class="input-group">
@@ -55,7 +55,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
             <div class="card h-100 shadow-sm">
                 <div class="card-body">
@@ -100,8 +100,8 @@
 </div>
 @endsection
 
-@section('scripts')
-<script>
+@section('components.specific_page_scripts')
+{{-- <script>
 $(function() {
     // Initialize date range picker
     $('#date-range-picker').daterangepicker({
@@ -126,7 +126,7 @@ $(function() {
         var month = $('#month').val();
         var year = $('#year').val();
         showLoader();
-        
+
         $.ajax({
             url: '{{ route("dashboard.filter") }}',
             method: 'GET',
@@ -144,5 +144,5 @@ $(function() {
         });
     });
 });
-</script>
+</script> --}}
 @endsection
