@@ -2,31 +2,32 @@
 
 @section('content')
 
-<div class="col-lg-12 grid-margin stretch-card">
-    <div class="card">
-      <div class="card-body">
-        <h4 class="card-title">Login History</h4>
-        {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
-            <div class="row">
-                <div class="col">
-                    <p class="d-inline-flex gap-1">
-                        <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                            <i class="mdi mdi-filter-outline"></i> Filter
-                        </button>
-                    </p>
 
-                </div>
-                <div class="col d-flex justify-content-end mb-3" >
-
-                    <div id="table-buttons" class="d-flex">
-                        <!-- Buttons will be appended here -->
+<div class="row mt-4">
+    <div class="col-lg-12 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <h4 class="card-title">Login History</h4>
+            {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
+                <div class="row">
+                    <div class="col">
+                        <p class="d-inline-flex gap-1">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                                <i class="mdi mdi-filter-outline"></i> Filter
+                            </button>
+                        </p>
+    
                     </div>
-
+                    <div class="col d-flex justify-content-end mb-3" >
+    
+                        <div id="table-buttons" class="d-flex">
+                            <!-- Buttons will be appended here -->
+                        </div>
+    
+                    </div>
+    
                 </div>
-
-            </div>
-            <div class="collapse" id="collapseExample">
-                <div class="card card-body">
+                <div class="collapse" id="collapseExample">
                     <div class="d-flex justify-content-center mb-3">
                         <div class="input-group input-group-sm me-3">
                             <input type="text" id="search-input" class="form-control form-control-sm" placeholder="Search...">
@@ -36,26 +37,33 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </p>
-      </div>
+            </p>
+          </div>
+        </div>
     </div>
+
 </div>
 
-<div class="col-lg-12 grid-margin stretch-card">
-    <div class="card">
-      <div class="card-body">
-        {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
-        </p>
-        <div class="table-responsive pt-3">
-          <table id="login-table"  class="table table-striped" style="width: 100%">
-            <tbody>
-            </tbody>
-          </table>
+
+<div class="row mt-4">
+
+    <div class="col-lg-12 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
+            </p>
+            <div class="table-responsive pt-3">
+              <table id="login-table"  class="table table-striped" style="width: 100%">
+                <tbody>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-      </div>
     </div>
+
 </div>
+
 @endsection
 
 @section('components.specific_page_scripts')
@@ -63,6 +71,17 @@
     $(document).ready(function() {
 
         var file_name = 'Login History ' + new Date().toISOString().split('T')[0];
+
+        flatpickr("#date-range-picker", {
+            mode: "range",
+            dateFormat: "m/d/Y",
+            onChange: function(selectedDates, dateStr, instance) {
+                // Check if both start and end dates are selected
+                if (selectedDates.length === 2) {
+                    table.ajax.reload(null, false);  
+                }
+            }
+        });
 
         var table;
 
@@ -211,26 +230,6 @@
             table.ajax.reload(null, false); // false to keep the current paging
         });
 
-        // $('#date-range-picker').daterangepicker({
-        //     autoUpdateInput: false,
-        //     locale: {
-        //         cancelLabel: 'Clear'
-        //     }
-        // });
-
-        // $('#date-range-picker').on('apply.daterangepicker', function(ev, picker) {
-        //     $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
-        //     table.ajax.reload(null, false);  // Reload the table with the new date range
-        // });
-
-        // $('#date-range-picker').on('cancel.daterangepicker', function(ev, picker) {
-        //     $(this).val('');
-        //     table.ajax.reload(null, false);  // Reload the table when the date range is cleared
-        // });
-
-        // $('#filter-date').click(function() {
-        //     table.ajax.reload(null, false);
-        // });
 
         $('#search-input').on('keyup', function() {
             table.ajax.reload();  // Reload the table when the search input changes
@@ -238,11 +237,6 @@
 
         // table.buttons().container().appendTo('#login-table_wrapper .col-md-6:eq(0)');
         table.buttons().container().appendTo('#table-buttons');
-
-        // table.on('select deselect', function() {
-        //     var selectedRows = table.rows({ selected: true }).count();
-        //     table.buttons(['.btn-primary', '.btn-info', '.btn-danger']).enable(selectedRows > 0);
-        // });
 
     });
 

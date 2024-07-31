@@ -2,49 +2,60 @@
 
 @section('content')
 
-    <div class="card">
-        <div class="card-body">
-            <h4 class="card-title">Indicator</h4>
-            {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
-            </p>
-            <div class="row">
-                <div class="col">
-                    <p class="d-inline-flex gap-1">
-                        <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                            <i class="mdi mdi-filter-outline"></i> Filter
-                        </button>
-                    </p>
-                </div>
-                <div class="col d-flex justify-content-end mb-3" >
 
-                    <div id="table-buttons" class="d-flex">
-                        <!-- Buttons will be appended here -->
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Indicator</h4>
+                {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
+                </p>
+                <div class="row">
+                    <div class="col">
+                        <p class="d-inline-flex gap-1">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                                <i class="mdi mdi-filter-outline"></i> Filter
+                            </button>
+                        </p>
                     </div>
-                </div>
-            </div>
-            {{-- <div class="collapse" id="collapseExample">
-                <div class="card card-body">
-                    <div class="d-flex justify-content-center mb-3">
-                        <div class="input-group input-group-sm me-3">
-                            <input type="text" id="search-input" class="form-control form-control-sm" placeholder="Search...">
-                        </div>
-                        <div class="input-group input-group-sm">
-                            <input type="text" id="date-range-picker" class="form-control form-control-sm" placeholder="Select date range">
+                    <div class="col d-flex justify-content-end mb-3" >
+    
+                        <div id="table-buttons" class="d-flex">
+                            <!-- Buttons will be appended here -->
                         </div>
                     </div>
                 </div>
-            </div> --}}
-
-            <div class="table-responsive pt-3">
-                <table id="entries-table"  class="table table-striped" style="width: 100%">
-                  <tbody>
-                  </tbody>
-                </table>
+                <div class="collapse" id="collapseExample">
+                    <div class="card card-body">
+                        <div class="d-flex justify-content-center mb-3">
+                            <div class="input-group input-group-sm me-3">
+                                <input type="text" id="search-input" class="form-control form-control-sm" placeholder="Search...">
+                            </div>
+                            <div class="input-group input-group-sm">
+                                <input type="text" id="date-range-picker" class="form-control form-control-sm" placeholder="Select date range">
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-
         </div>
     </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive pt-3">
+                    <table id="entries-table"  class="table table-striped" style="width: 100%">
+                      <tbody>
+                      </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @endsection
 
@@ -54,6 +65,17 @@
     $(document).ready(function() {
 
         var table;
+
+        flatpickr("#date-range-picker", {
+            mode: "range",
+            dateFormat: "m/d/Y",
+            onChange: function(selectedDates, dateStr, instance) {
+                // Check if both start and end dates are selected
+                if (selectedDates.length === 2) {
+                    table.ajax.reload(null, false);  
+                }
+            }
+        });
 
         table = $('#entries-table').DataTable({
             responsive: true,
@@ -91,50 +113,17 @@
                     className: 'btn btn-info user_btn',
                     enabled: false,
                     action: function (e, dt, node, config) {
-                        $('#editRoleModal').modal('show');
 
                         var selectedData = dt.row({ selected: true }).data();
-                        $('#edit_role_id').val(selectedData.id);
-                        $('#edit_name').val(selectedData.name);
-                        $('#edit_status').val(selectedData.status);
 
-                        $('#editRoleForm').off('submit').on('submit', function(e) {
-                                e.preventDefault();
-                                showLoader();
-                                var formData = $(this).serialize();
-                                $.ajax({
-                                    url: '{{ route('role.update') }}',
-                                    method: 'POST',
-                                    data: formData,
-                                    success: function(response) {
-                                        if (response.success) {
-                                            $('#editRoleModal').modal('hide');
-                                            hideLoader();
-                                            Swal.fire({
-                                                icon: 'success',
-                                                title: 'Success!',
-                                                text: response.message,
-                                                showConfirmButton: true,
-                                            })
+                        if (selectedData && selectedData.id) {
+                           
+                            window.location.href = `/indicator_edit?id=${selectedData.id}`;
+                            console.log(selectedData.id);
+                        } else {
+                            alert('No item selected or invalid ID.');
+                        }
 
-                                            table.ajax.reload();
-
-                                        } else {
-                                            var errors = response.errors;
-                                            Object.keys(errors).forEach(function(key) {
-                                                var inputField = $('#editRoleForm [name=' + key + ']');
-                                                inputField.addClass('is-invalid');
-                                                $('#editRoleForm #' + key + 'Error').text(errors[key][0]);
-                                            });
-                                            hideLoader();
-                                        }
-                                    },
-                                    error: function(xhr) {
-                                        hideLoader();
-                                        console.log(xhr.responseText);
-                                    }
-                            });
-                        });
                     }
                 },
                 {
@@ -145,11 +134,14 @@
                         //alert('View Activated!');
 
                         var selectedData = dt.row({ selected: true }).data();
-                        $('#view_role_id').val(selectedData.id);
-                        $('#view_name').val(selectedData.name);
-                        $('#view_status').val(selectedData.status);
-                        $('#viewRoleModal').modal('show');
 
+                        if (selectedData && selectedData.id) {
+                        
+                            window.location.href = `/indicator_view?id=${selectedData.id}`;
+                            console.log(selectedData.id);
+                        } else {
+                            alert('No item selected or invalid ID.');
+                        }
                     }
                 },
                 {
@@ -173,7 +165,7 @@
                             if (result.isConfirmed) {
                                 showLoader();
                                 $.ajax({
-                                    url: '{{ route('role.destroy') }}',
+                                    url: '{{ route('indicator.destroy') }}',
                                     method: 'POST',
                                     data: {
                                         _token: '{{ csrf_token() }}',
@@ -184,7 +176,7 @@
                                         if (response.success) {
                                             Swal.fire(
                                                 'Deleted!',
-                                                'User has been deleted.',
+                                                'Indicator has been deleted.',
                                                 'success'
                                             );
                                             table.ajax.reload();
@@ -216,7 +208,7 @@
 
             columns: [
                 { data: 'id', name: 'id', title: 'ID', visible: false },
-                // { data: 'org_id', name: 'org_id', title: 'Organizational Outcome'},
+                { data: 'org_id', name: 'org_id', title: 'Organizational Outcome'},
                 { data: 'measures', name: 'measures', title: 'Measure', className: 'wrap-text' },
                 { data: 'target', name: 'target', title: 'Target' },
                 { data: 'division_id', name: 'division_id', title: 'Division' },
@@ -225,9 +217,9 @@
                 { data: 'created_at', name: 'created_at', title: 'Created At' },
             ],
 
-            rowGroup: {
-                dataSrc: 'org_id'
-            },
+            // rowGroup: {
+            //     dataSrc: 'org_id'
+            // },
 
             language: {
                 emptyTable: "No data found",
@@ -249,27 +241,6 @@
         $('#search-input').on('keyup', function() {
             table.ajax.reload();  // Reload the table when the search input changes
         });
-
-        // $('#date-range-picker').daterangepicker({
-        //     autoUpdateInput: false,
-        //     locale: {
-        //         cancelLabel: 'Clear'
-        //     }
-        // });
-
-        // $('#date-range-picker').on('apply.daterangepicker', function(ev, picker) {
-        //     $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
-        //     table.ajax.reload(null, false);  // Reload the table with the new date range
-        // });
-
-        // $('#date-range-picker').on('cancel.daterangepicker', function(ev, picker) {
-        //     $(this).val('');
-        //     table.ajax.reload(null, false);  // Reload the table when the date range is cleared
-        // });
-
-        // $('#filter-date').click(function() {
-        //     table.ajax.reload(null, false);
-        // });
 
         // table.buttons().container().appendTo('#roles-table_wrapper .col-md-6:eq(0)');
         table.buttons().container().appendTo('#table-buttons');

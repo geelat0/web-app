@@ -1,13 +1,13 @@
-<div class="modal fade" id="createUserModal" tabindex="-1" role="dialog" aria-labelledby="createUserModalLabel" aria-hidden="true">
+<div class="modal fade" id="createUserModal" tabindex="-1" role="dialog" aria-labelledby="createUserModalLabel" aria-hidden="true" >
     <div class="modal-dialog modal-xl" role="document">
-        <div class="modal-content">
+        <div class="modal-content" >
             <div class="modal-header">
                 <h5 class="modal-title" id="createUserModalLabel">Create New User</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <form id="createUserForm">
-                    @csrf
+            <form id="createUserForm">
+                @csrf
+                <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -71,20 +71,19 @@
                                 <div class="invalid-feedback" id="provinceError"></div>
                             </div>
                             <div class="form-group">
-
                                 <label for="division_id">Division</label>
-                                <select id="division_id" class="division-select form-select" name="division_id" multiple="multiple">
-
+                                <select id="division_id" class="division-select form-select" name="division_id[]" multiple="multiple">
                                 </select>
-                                <div class="invalid-feedback" id="division_idError"></div>
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="modal-footer">
                     <div class="d-flex justify-content-end">
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>

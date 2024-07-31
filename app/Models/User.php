@@ -23,6 +23,7 @@ class User extends Authenticatable
         'middle_name',
         'email',
         'province',
+        'division_id',
         'position',
         'mobile_number',
         'password',
@@ -59,6 +60,11 @@ class User extends Authenticatable
     public function division()
     {
         return $this->belongsTo(Division::class);
+    }
+
+    public function getDivisionsAttribute()
+    {
+        return Division::find($this->division_id);
     }
 
 

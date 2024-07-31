@@ -1,51 +1,59 @@
 @extends('components.app')
 
 @section('content')
-
-    <div class="card">
-        <div class="card-body">
-        <h4 class="card-title">Organizational Outcome/PAP</h4>
-        {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
-        </p>
-        <div class="row">
-            <div class="col">
-                <p class="d-inline-flex gap-1">
-                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                        <i class="mdi mdi-filter-outline"></i> Filter
-                    </button>
+<div class="row mt-4">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Organizational Outcome/PAP</h4>
+                {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
                 </p>
-            </div>
-            <div class="col d-flex justify-content-end mb-3" >
+                <div class="row">
+                    <div class="col">
+                        <p class="d-inline-flex gap-1">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                                <i class="mdi mdi-filter-outline"></i> Filter
+                            </button>
+                        </p>
+                    </div>
+                    <div class="col d-flex justify-content-end mb-3" >
 
-                <div id="table-buttons" class="d-flex">
-                    <!-- Buttons will be appended here -->
+                        <div id="table-buttons" class="d-flex">
+                            <!-- Buttons will be appended here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="collapse" id="collapseExample">
+                    <div class="card card-body">
+                        <div class="d-flex justify-content-center mb-3">
+                            <div class="input-group input-group-sm me-3">
+                                <input type="text" id="search-input" class="form-control form-control-sm" placeholder="Search...">
+                            </div>
+                            <div class="input-group input-group-sm">
+                                <input type="text" id="date-range-picker" class="form-control form-control-sm" placeholder="Select date range">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        {{-- <div class="collapse" id="collapseExample">
-            <div class="card card-body">
-                <div class="d-flex justify-content-center mb-3">
-                    <div class="input-group input-group-sm me-3">
-                        <input type="text" id="search-input" class="form-control form-control-sm" placeholder="Search...">
-                    </div>
-                    <div class="input-group input-group-sm">
-                        <input type="text" id="date-range-picker" class="form-control form-control-sm" placeholder="Select date range">
-                    </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive pt-3">
+                    <table id="org-table"  class="table table-striped" style="width: 100%">
+                    <tbody>
+                    </tbody>
+                    </table>
                 </div>
             </div>
-        </div> --}}
-
-
-        <div class="table-responsive pt-3">
-            <table id="org-table"  class="table table-striped" style="width: 100%">
-              <tbody>
-              </tbody>
-            </table>
-          </div>
-
         </div>
-  </div>
-
+    </div>
+</div>
   @include('outcome.create')
   @include('outcome.edit')
   @include('outcome.view')
@@ -60,6 +68,17 @@
     $(document).ready(function() {
 
         var table;
+
+        flatpickr("#date-range-picker", {
+            mode: "range",
+            dateFormat: "m/d/Y",
+            onChange: function(selectedDates, dateStr, instance) {
+                // Check if both start and end dates are selected
+                if (selectedDates.length === 2) {
+                    table.ajax.reload(null, false);  
+                }
+            }
+        });
 
         table = $('#org-table').DataTable({
             responsive: true,
@@ -301,27 +320,6 @@
             table.ajax.reload();  // Reload the table when the search input changes
         });
 
-        // $('#date-range-picker').daterangepicker({
-        //     autoUpdateInput: false,
-        //     locale: {
-        //         cancelLabel: 'Clear'
-        //     }
-        // });
-
-        // $('#date-range-picker').on('apply.daterangepicker', function(ev, picker) {
-        //     $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
-        //     table.ajax.reload(null, false);  // Reload the table with the new date range
-        // });
-
-        // $('#date-range-picker').on('cancel.daterangepicker', function(ev, picker) {
-        //     $(this).val('');
-        //     table.ajax.reload(null, false);  // Reload the table when the date range is cleared
-        // });
-
-        // $('#filter-date').click(function() {
-        //     table.ajax.reload(null, false);
-        // });
-
         // table.buttons().container().appendTo('#roles-table_wrapper .col-md-6:eq(0)');
         table.buttons().container().appendTo('#table-buttons');
 
@@ -345,7 +343,7 @@
                     <label for="organizational_outcome_${outcomeIndex}" class="required">Organization Outcome</label>
                     <input type="text" class="form-control capitalize" name="organizational_outcome[]" id="organizational_outcome_${outcomeIndex}" aria-describedby="">
                     <div class="invalid-feedback" id="organizational_outcome_${outcomeIndex}Error"></div>
-                    <button type="button" class="btn btn-danger btn-sm mt-2 removeOutcomeBtn" data-index="${outcomeIndex}"><i class="mdi mdi-delete"></i></button>
+                    <button type="button" class="btn btn-danger btn-sm mt-2 removeOutcomeBtn" data-index="${outcomeIndex}"><i class='bx bx-trash'></i></button>
                 </div>
             `;
             $('#organizational_outcomes').append(newOutcomeHtml);

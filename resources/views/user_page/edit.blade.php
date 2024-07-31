@@ -72,6 +72,11 @@
                                 <div class="invalid-feedback" id="provinceError"></div>
                             </div>
 
+                            <div class="form-group">
+                                <label for="edit_division_id">Division</label>
+                                <select id="edit_division_id" class="division-select select2 form-select" name="division_id" multiple></select>
+                            </div>
+
                             {{-- <div class="form-group">
                                 <label for="password">Password</label>
                                 <input type="password" class="form-control" id="password" aria-describedby="" name="password" placeholder="Password">

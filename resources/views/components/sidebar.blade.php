@@ -4,7 +4,7 @@
         <img src="https://upload.wikimedia.org/wikipedia/commons/3/39/Department_of_Labor_and_Employment_%28DOLE%29.svg" class="app-brand-logo w-px-30 h-auto me-2 " alt="logo" />
             <span class="app-brand-text menu-text fw-bold">OPCR
               <br />
-              <span class="fs-tiny fw-medium">Office Program Commitment Review</span>
+              <span class="fs-tiny fw-medium"></span>
             </span>
       </a>
 
@@ -51,7 +51,8 @@
         </li>
         <li class="menu-item {{ request()->is('roles') ? 'active' : '' }}">
           <a href="/roles" class="menu-link">
-            <i class='menu-icon tf-icons bx bx-group'></i>
+            <i class='menu-icon bx bx-purchase-tag-alt'></i>
+            {{-- <i class='menu-icon tf-icons bx bx-group'></i> --}}
             <div class="text-truncate" data-i18n="Page 2">Role</div>
           </a>
         </li>

@@ -12,9 +12,12 @@ use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use App\Mail\TempPasswordMail;
+use App\Models\Division;
 use App\Models\LoginModel;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
+
+use function GuzzleHttp\json_encode;
 
 class UserController extends Controller
 {
@@ -37,7 +40,7 @@ class UserController extends Controller
         $query = User::with(['role', 'division'])->whereNull('deleted_at');
     
         if ($request->has('date_range') && !empty($request->date_range)) {
-            [$startDate, $endDate] = explode(' - ', $request->date_range);
+            [$startDate, $endDate] = explode(' to ', $request->date_range);
             $startDate = Carbon::createFromFormat('m/d/Y', $startDate)->startOfDay();
             $endDate = Carbon::createFromFormat('m/d/Y', $endDate)->endOfDay();
     
@@ -82,7 +85,12 @@ class UserController extends Controller
                 return $user->role ? $user->role->name : 'N/A';
             })
             ->addColumn('division_id', function($user) {
-                return $user->division_id ? $user->division->division_name : 'N/A';
+                $divisionIds = json_decode($user->division_id, true);
+                if (is_array($divisionIds)) {
+                    $divisions = Division::whereIn('id', $divisionIds)->pluck('division_name')->toArray();
+                    return implode(', ', $divisions);
+                }
+                return '';
             })
             ->make(true);
     }
@@ -131,7 +139,6 @@ class UserController extends Controller
 
     public function UserStore(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -174,7 +181,7 @@ class UserController extends Controller
         $user->position = ucfirst($request->position);
         $user->mobile_number = $request->mobile_number;
         $user->role_id = $request->role_id;
-        $user->divsion_id = $request->divsion_id;
+        $user->division_id = json_encode($request->division_id);
         $user->email = $request->email;
         $user->password = Hash::make($randomString);
         $user->status = 'Active';
@@ -211,10 +218,13 @@ class UserController extends Controller
                         ],
             // 'password' => 'required|string|min:8',
             'role_id' => 'required|exists:role,id',
-           'division_id' => 'required|exists:divisions,id',
+            'division_id' => 'required|array',
+            'division_id.*' => 'exists:divisions,id',
         ],[
-            'role_id' => 'The role field is required',
-            'division_id' => 'The division field is required',
+            'role_id.required' => 'The role field is required',
+            'division_id.required' => 'The division field is required',
+            'division_id.array' => 'The division field must be an array',
+            'division_id.*.exists' => 'The selected division is invalid',
         ]);
     
         if ($validator->fails()) {
@@ -231,7 +241,7 @@ class UserController extends Controller
         $user->position = ucfirst($request->position);
         $user->mobile_number = $request->mobile_number;
         $user->role_id = $request->role_id;
-        $user->divsion_id = $request->divsion_id;
+        $user->division_id = $request->division_id;
         $user->email = $request->email;
         // $user->password = Hash::make($randomString); // Uncomment if you need to update the password
         $user->status = 'Active';
@@ -316,5 +326,20 @@ class UserController extends Controller
         $user->save();
 
         return response()->json(['success' => true, 'message' => 'Two Factor Authentication Disabled Successfully.']);
+    }
+
+    public function getDivision(Request $request)
+    {
+        $user = User::find(Crypt::decrypt($request->id));
+        if ($user) {
+
+            $divisionIds = json_decode($user->division_id, true);
+                if (is_array($divisionIds)) {
+                    $divisions = Division::whereIn('id', $divisionIds)->pluck('id')->toArray();
+                    $divisionId =  implode(', ', $divisions);
+                }
+            return response()->json(['success' => true, 'division_ids' => $divisions]);
+        }
+        return response()->json(['success' => false, 'message' => 'User not found'], 404);
     }
 }

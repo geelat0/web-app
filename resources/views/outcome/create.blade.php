@@ -16,7 +16,7 @@
                                     <input type="text" class="form-control capitalize" name="organizational_outcome[]" id="organizational_outcome_0" aria-describedby="">
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-primary btn-sm mt-2" id="addOutcomeBtn"><i class="mdi mdi-plus-circle-outline"></i></button>
+                            <button type="button" class="btn btn-primary btn-sm mt-2" id="addOutcomeBtn"><i class='bx bx-plus-circle'></i></button>
                             <div class="form-group mt-3">
                                 <label for="status" class="required">Status</label>
                                 <select id="status" class="form-select" name="status">

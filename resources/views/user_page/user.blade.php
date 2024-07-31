@@ -1,28 +1,27 @@
 @extends('components.app')
 
 @section('content')
-<div class="col-lg-12 grid-margin stretch-card">
-
-    <div class="card">
-        <div class="card-body">
-            <h4 class="card-title">User Management</h4>
-            </p>
-            <div class="row">
-                <div class="col">
-                    <p class="d-inline-flex gap-1">
-                        <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                            <i class="mdi mdi-filter-outline"></i> Filter
-                        </button>
-                    </p>
-
-                </div>
-                <div class="col d-flex justify-content-end mb-3" >
-                    <div id="table-buttons" class="d-flex">
+<div class="row mt-4">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">User Management</h4>
+                </p>
+                <div class="row">
+                    <div class="col">
+                        <p class="d-inline-flex gap-1">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                                <i class="mdi mdi-filter-outline"></i> Filter
+                            </button>
+                        </p>
+    
+                    </div>
+                    <div class="col d-flex justify-content-end mb-3" >
+                        <div id="table-buttons" class="d-flex">
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="collapse" id="collapseExample">
-                <div class="card card-body">
+                <div class="collapse" id="collapseExample">
                     <div class="d-flex justify-content-center mb-3">
                         <div class="input-group input-group-sm me-3">
                             <input type="text" id="search-input" class="form-control form-control-sm" placeholder="Search...">
@@ -34,20 +33,25 @@
                 </div>
             </div>
         </div>
+
     </div>
 </div>
-<div class="col-lg-12 grid-margin stretch-card">
-    <div class="card">
-        <div class="card-body">
-            <div class="table-responsive pt-3">
-                <table id="users-table" class="table table-striped" style="width: 100%">
-                    <tbody>
-                    </tbody>
-                </table>
+
+<div class="row mt-4">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive pt-3">
+                    <table id="users-table" class="table table-striped" style="width: 100%">
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
 @include('user_page.create')
 @include('user_page.edit')
 @include('user_page.view')
@@ -56,8 +60,53 @@
 @section('components.specific_page_scripts')
 <script>
     $(document).ready(function() {
+
+        function initializeDivisionSelect() {   
+            $('.division-select').select2({
+                placeholder: 'Select an Option',
+                allowClear: true,
+                ajax: {
+                    url: '{{ route('indicator.getDivision') }}',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                            q: params.term // search term
+                        };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: $.map(data, function (item) {
+                                return {
+                                    id: item.id,
+                                    text: item.division_name
+                                };
+                            })
+                        };
+                    },
+                    cache: true
+                }
+            });
+        }
+
+        initializeDivisionSelect();
+
         var table;
         // START DATATABLES
+
+        flatpickr("#date-range-picker", {
+            mode: "range",
+            dateFormat: "m/d/Y",
+            onChange: function(selectedDates, dateStr, instance) {
+                // Check if both start and end dates are selected
+                if (selectedDates.length === 2) {
+                    table.ajax.reload(null, false);  
+                }
+            }
+        });
+
+        var dateRange = $('#flatpickr-range').val();
+        console.log(dateRange);
 
         table = $('#users-table').DataTable({
             responsive: true,
@@ -99,10 +148,11 @@
                     enabled: true,
                     action: function (e, dt, node, config) {
                         $('#createUserModal').modal('show');
-                        $('#createUserForm').on('submit', function(e) {
+                        $('#createUserForm').off('submit').on('submit', function(e) {
                             e.preventDefault();
                             showLoader();
                             var formData = $(this).serialize();
+
                             $.ajax({
                                 url: '{{ route('users.store') }}',
                                 method: 'POST',
@@ -158,6 +208,52 @@
                         $('#edit_position').val(selectedData.position);
                         $('#edit_province').val(selectedData.province);
                         $('#edit_role').val(selectedData.role_id).change();
+
+                        $('#edit_division_id').select2({
+                            placeholder: 'Select divisions',
+                            tags: true,
+                            ajax: {
+                                url: '{{ route('indicator.getDivision') }}',
+                                dataType: 'json',
+                                delay: 250,
+                                data: function (params) {
+                                    return {
+                                        q: params.term // search term
+                                    };
+                                },
+                                processResults: function (data) {
+                                    return {
+                                        results: $.map(data, function (item) {
+                                            return {
+                                                id: item.id,
+                                                text: item.division_name
+                                            };
+                                        })
+                                    };
+                                },
+                                cache: true
+                            }
+                        });
+
+                        $.ajax({
+                            url: '{{ route('getDivision')}}',
+                            method: 'GET',
+                            data: {
+                                id: selectedData.id
+                            },
+                            success: function(response) {
+                                if(response.success) {
+                                    var divisionIds = response.division_ids;
+                                    console.log(divisionIds);
+                                    $('#edit_division_id').val(divisionIds).trigger('change');
+                                } else {
+                                    console.error('Failed to fetch divisions');
+                                }
+                            },
+                            error: function(xhr) {
+                                console.error(xhr.responseText);
+                            }
+                        });
 
                         $('#editUserForm').off('submit').on('submit', function(e) {
                                 e.preventDefault();
@@ -542,29 +638,8 @@
             $('#' + errorId).text('');
         });
 
-        // START DATE RANGE JS
-        // $('#date-range-picker').daterangepicker({
-        //     autoUpdateInput: false,
-        //     locale: {
-        //         cancelLabel: 'Clear'
-        //     }
-        // });
 
-        // $('#date-range-picker').on('apply.daterangepicker', function(ev, picker) {
-        //     $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
-        //     table.ajax.reload(null, false);  // Reload the table with the new date range
-        // });
 
-        // $('#date-range-picker').on('cancel.daterangepicker', function(ev, picker) {
-        //     $(this).val('');
-        //     table.ajax.reload(null, false);  // Reload the table when the date range is cleared
-        // });
-
-        // $('#filter-date').click(function() {
-        //     table.ajax.reload(null, false);
-        // });
-
-         // END DATE RANGE JS
 
         //  START FETCH ROLES FOR SELECT
 
@@ -586,36 +661,6 @@
                 console.error('Error fetching roles:', error);
             }
         });
-
-        function initializeDivisionSelect() {
-        $('.division-select').select2({
-            placeholder: 'Select an Option',
-            allowClear: true,
-            ajax: {
-                url: '{{ route('indicator.getDivision') }}',
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    return {
-                        q: params.term // search term
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {
-                                id: item.id,
-                                text: item.division_name
-                            };
-                        })
-                    };
-                },
-                cache: true
-            }
-        });
-    }
-    initializeDivisionSelect();
-
     });
 </script>
 @endsection

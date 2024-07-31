@@ -53,7 +53,7 @@ class LogController extends Controller
         $query = LoginModel::with('user');
 
         if ($request->has('date_range') && !empty($request->date_range)) {
-            [$startDate, $endDate] = explode(' - ', $request->date_range);
+            [$startDate, $endDate] = explode(' to ', $request->date_range);
             $startDate = Carbon::createFromFormat('m/d/Y', $startDate)->startOfDay();
             $endDate = Carbon::createFromFormat('m/d/Y', $endDate)->endOfDay();
     

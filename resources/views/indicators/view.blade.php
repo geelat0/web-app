@@ -1,7 +1,6 @@
 @extends('components.app')
 
 @section('content')
-
 <div class="container mt-5">
 
     <form id="NewIndicatorForm">
@@ -11,18 +10,20 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title"> <a href="/indicator" class="text-primary"><i class='bx bx-left-arrow-circle'></i></a>
-                            Create</h4>
+                            View</h4>
                         <div class="row">
                             <div class="form-group">
                                 <label for="org_id" class="required">Organizational Outcome</label>
-                                <select id="org_id" class="form-select capitalize" name="org_id">
+                                <select id="org_id" class="form-select capitalize" name="org_id" disabled>
+                                    @if($indicator)
+                                        <option value="{{ $indicator->org_id }}" selected>{{ $indicator->org->organizational_outcome }}</option>
+                                    @endif
                                 </select>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
 
         <div class="row mt-4">
@@ -33,47 +34,52 @@
                             <div class="row">
                                 <div class="form-group">
                                     <label for="measures" class="required">Measure</label>
-                                    <textarea type="text" class="form-control capitalize" name="measures[]" id="measures_0" aria-describedby=""></textarea>
+                                    <textarea type="text" class="form-control capitalize" name="measures" id="measures_0" aria-describedby="" disabled>{{ $indicator->measures }}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <label for="division_id" class="required">Division</label>
-                                    <select id="division_id_0" class="division-select form-select" name="division_id[0][]" multiple="multiple">
+                                    <select id="division_id_0" class="division-select form-select" name="division_id[]" multiple="multiple" disabled>
+                                        @if($indicator)
+                                            @foreach( $division_ids as $division)
+                                                <option value="{{ $division }}" selected>{{ App\Models\Division::find($division)->division_name }}</option>
+                                            @endforeach
+                                        @endif
                                     </select>
-                                    <div class="invalid-feedback" id="division_idError_[]"></div>
+                                    <div class="invalid-feedback" id="division_idError"></div>
                                 </div>
                                 <div class="col">
                                     <div class="form-group">
                                         <label for="target" class="required">Target</label>
-                                        <input type="text" class="form-control capitalize" name="target[]" id="target_0" aria-describedby="" disabled>
+                                        <input type="text" class="form-control capitalize" name="target" id="target_0" aria-describedby="" value="{{ $indicator->target }}" {{ $indicator->targetType == 'actual' ? 'disabled' : '' }} disabled>
                                         <div class="invalid-feedback" id="targetError[]"></div>
                                     </div>
-                                    <div class="form-group">
-                                        <input class="form-check-input" type="radio" name="targetType_0" id="Percentage_0" value="percentage">
+                                    {{-- <div class="form-group">
+                                        <input class="form-check-input" type="radio" name="targetType_0" id="Percentage_0" value="percentage" {{ $indicator->targetType == 'percentage' ? 'checked' : '' }}>
                                         <label class="form-check-label" for="Percentage_0">Percentage</label>
                                     </div>
                                     <div class="form-group">
-                                        <input class="form-check-input" type="radio" name="targetType_0" id="Number_0" value="number">
+                                        <input class="form-check-input" type="radio" name="targetType_0" id="Number_0" value="number" {{ $indicator->targetType == 'number' ? 'checked' : '' }}>
                                         <label class="form-check-label" for="Number_0">Number</label>
                                     </div>
                                     <div class="form-group">
-                                        <input class="form-check-input" type="radio" name="targetType_0" id="Actual_0" value="actual">
+                                        <input class="form-check-input" type="radio" name="targetType_0" id="Actual_0" value="actual" {{ $indicator->targetType == 'actual' ? 'checked' : '' }}>
                                         <label class="form-check-label" for="Actual_0">Actual</label>
-                                    </div>
+                                    </div> --}}
                                 </div>
                                 <div class="col">
-                                    <div class="form-group" class="required">
-                                        <label for="alloted_budget">Alloted Budget</label>
-                                        <input type="number" class="form-control capitalize" name="alloted_budget[]" id="alloted_budget_0" aria-describedby="">
+                                    <div class="form-group">
+                                        <label for="alloted_budget" class="required">Alloted Budget</label>
+                                        <input type="number" class="form-control capitalize" name="alloted_budget" id="alloted_budget_0" aria-describedby="" value="{{ $indicator->alloted_budget }}" disabled>
                                         <div class="invalid-feedback" id="alloted_budgetError"></div>
                                     </div>
                                 </div>
                                 <div class="col">
                                     <div class="form-group">
                                         <label for="months_0">Month</label>
-                                        <select id="months_0" class="months form-select" name="months[]">
+                                        <select id="months_0" class="months form-select" name="months">
                                             <option value="">Select Month</option>
                                             @for ($i = 1; $i <= 12; $i++)
-                                                <option value="{{ $i }}">{{ date('F', mktime(0, 0, 0, $i, 10)) }}</option>
+                                                <option value="{{ $i }}" {{ $indicator->month == $i ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 10)) }}</option>
                                             @endfor
                                         </select>
                                         <div class="invalid-feedback" id="monthsError_[]"></div>
@@ -84,35 +90,23 @@
                     </div>
                 </div>
             </div>
-
         </div>
-       
-
-
 
         <div class="row mt-3">
             <div class="col">
-                <div class="d-flex justify-content-start">
-                    <button type="button" class="btn btn-primary btn-add-card" id="addOutcomeBtn"><i class="mdi mdi-plus-circle-outline"></i>Add Entries</button>
-                </div>
-
-            </div>
-            <div class="col">
                 <div class="d-flex justify-content-end">
-                    <button type="submit" class="btn btn-primary">Submit</button>
                 </div>
-
             </div>
         </div>
     </form>
 </div>
-
 @endsection
 
 @section('components.specific_page_scripts')
 
 <script>
 $(document).ready(function() {
+    // Initialize Select2 for Organizational Outcome
     $('#org_id').select2({
         placeholder: 'Select an Option',
         allowClear: true,
@@ -139,6 +133,7 @@ $(document).ready(function() {
         }
     });
 
+    // Initialize Select2 for Division
     function initializeDivisionSelect() {
         $('.division-select').select2({
             placeholder: 'Select an Option',
@@ -176,88 +171,7 @@ $(document).ready(function() {
 
     setCurrentMonth(0);
 
-
-    let outcomeIndex = 1;
-
-    function addOutcomeCard() {
-        const newOutcomeHtml = `
-        <div class="row mt-4">
-            <div class="col-lg-12 grid-margin stretch-card card-template cards-container" id="cards-container_${outcomeIndex}">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="form-group">
-                                <label for="measures_${outcomeIndex}" class="required">Measure</label>
-                                <input type="text" class="form-control capitalize" name="measures[]" id="measures_${outcomeIndex}" aria-describedby="">
-                                <div class="invalid-feedback" id="measureError_${outcomeIndex}"></div>
-                            </div>
-                            <div class="form-group">
-                                <label for="division_id_${outcomeIndex}">Division</label>
-                                <select id="division_id_${outcomeIndex}" class="division-select form-select" name="division_id[${outcomeIndex}][]" multiple="multiple">
-                                </select>
-                            </div>
-                            <div class="col">
-                                <div class="form-group">
-                                     <label for="target_${outcomeIndex}" class="required">Target</label>
-                                    <input type="text" class="form-control capitalize" name="target[]" id="target_${outcomeIndex}" aria-describedby="" disabled>
-                                    <div class="invalid-feedback" id="targetError_${outcomeIndex}"></div>
-                                </div>
-                                <div class="form-group">
-                                    <input class="form-check-input target-type" type="radio" name="targetType_${outcomeIndex}" id="Percentage_${outcomeIndex}" value="percentage">
-                                    <label class="form-check-label" for="Percentage_${outcomeIndex}">Percentage</label>
-                                </div>
-                                <div class="form-group">
-                                    <input class="form-check-input target-type" type="radio" name="targetType_${outcomeIndex}" id="Number_${outcomeIndex}" value="number">
-                                    <label class="form-check-label" for="Number_${outcomeIndex}">Number</label>
-                                </div>
-                                <div class="form-group">
-                                    <input class="form-check-input target-type" type="radio" name="targetType_${outcomeIndex}" id="Actual_${outcomeIndex}" value="actual">
-                                    <label class="form-check-label" for="Actual_${outcomeIndex}">Actual</label>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="form-group">
-                                    <label for="alloted_budget_${outcomeIndex}">Alloted Budget</label>
-                                    <input type="number" class="form-control capitalize" name="alloted_budget[]" id="alloted_budget_${outcomeIndex}" aria-describedby="">
-                                    <div class="invalid-feedback" id="alloted_budgetError_${outcomeIndex}"></div>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="form-group">
-                                    <label for="months_${outcomeIndex}">Month</label>
-                                    <select id="months_${outcomeIndex}" class="months form-select" name="months[]">
-                                        <option value="">Select Month</option>
-                                        @for ($i = 1; $i <= 12; $i++)
-                                            <option value="{{ $i }}">{{ date('F', mktime(0, 0, 0, $i, 10)) }}</option>
-                                        @endfor
-                                    </select>
-                                    <div class="invalid-feedback" id="monthsError_${outcomeIndex}"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="button" class="btn btn-danger btn-sm mt-2 removeOutcomeBtn" data-index="${outcomeIndex}">Remove</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        `;
-        $('#cards-containers').append(newOutcomeHtml);
-
-        initializeDivisionSelect();
-        setCurrentMonth(outcomeIndex);
-        outcomeIndex++;
-    }
-
-    $('#addOutcomeBtn').click(function () {
-        addOutcomeCard();
-    });
-
-    $(document).on('click', '.removeOutcomeBtn', function () {
-        const index = $(this).data('index');
-        $(`#cards-container_${index}`).remove();
-    });
-
-
+    // Handle target type change
     $(document).on('change', 'input[name^="targetType"]', function() {
         const index = $(this).closest('.card').find('input[name^="targetType"]').attr('id').split('_').pop();
         const selectedType = $(this).val();
@@ -306,19 +220,17 @@ $(document).ready(function() {
         }
     });
 
-
-
+    // Form submission
     $('#NewIndicatorForm').on('submit', function(e) {
         e.preventDefault();
         showLoader();
 
         $.ajax({
-            url: '{{ route('indicator.store') }}',
-            type: 'POST',
+            url: '{{ route('indicator.update', $indicator->id) }}', // Assuming you have a route named 'indicator.update'
+            type: 'PUT',
             data: $(this).serialize(),
             success: function(response) {
                 hideLoader();
-                window.location.href = '/indicator';
                 if (response.success) {
                     Swal.fire({
                         icon: 'success',
@@ -326,8 +238,7 @@ $(document).ready(function() {
                         text: response.message,
                         showConfirmButton: false,
                     });
-                    $('#NewIndicatorForm')[0].reset(); // Reset the form
-                    $('#cards-containers').html($('.cards-container:first').clone());
+                    window.location.href = '/indicator';
                 }
             },
             error: function(xhr) {
@@ -362,10 +273,6 @@ $(document).ready(function() {
             }
         });
     });
-
 });
-
-
-
 </script>
 @endsection

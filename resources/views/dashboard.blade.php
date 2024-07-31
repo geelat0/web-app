@@ -9,7 +9,7 @@
     <div class="row mb-4 justify-content-center">
         <div class="col">
             <div class="input-group">
-                <input type="text" id="date-range-picker" class="form-control" placeholder="Select Date Range">
+                <input type="text" class="form-control" placeholder="YYYY-MM-DD to YYYY-MM-DD" id="flatpickr-range" />
             </div>
         </div>
         <div class="col">
@@ -77,72 +77,50 @@
         </div>
     </div>
 
-    {{-- <div class="row">
-        <div class="col stretch-card">
-            <div class="card">
-              <div class="card-body">
-                <h4 class="card-title">Bar chart</h4>
-                <canvas id="barChart"></canvas>
-              </div>
-            </div>
-          </div>
-        <div class="col stretch-card">
-            <div class="card">
-                <div class="card-body">
-                  <h4 class="card-title">Pie chart</h4>
-                  <div class="doughnutjs-wrapper d-flex justify-content-center">
-                    <canvas id="pieChart"></canvas>
-                  </div>
-                </div>
-              </div>
-          </div>
-    </div> --}}
 </div>
 @endsection
 
 @section('components.specific_page_scripts')
-{{-- <script>
-$(function() {
-    // Initialize date range picker
-    $('#date-range-picker').daterangepicker({
-        autoUpdateInput: false,
-        locale: {
-            cancelLabel: 'Clear'
-        }
-    });
+<script>
+    $(function() {
+        // Initialize Flatpickr date range picker
+        flatpickr("#flatpickr-range", {
+            mode: "range",
+            dateFormat: "Y-m-d",
+        });
 
-    $('#date-range-picker').on('apply.daterangepicker', function(ev, picker) {
-        $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
-    });
+        // Set current month and year as the selected values
+        var now = new Date();
+        var currentMonth = now.getMonth() + 1; // getMonth() returns month from 0-11
+        var currentYear = now.getFullYear();
 
-    $('#date-range-picker').on('cancel.daterangepicker', function(ev, picker) {
-        $(this).val('');
-    });
+        $('#month').val(currentMonth);
+        $('#year').val(currentYear);
 
-    // Handle the filter button click
-    $('#filterBtn').on('click', function() {
-        var dateRange = $('#date-range-picker').val();
-        var [startDate, endDate] = dateRange ? dateRange.split(' - ') : [null, null];
-        var month = $('#month').val();
-        var year = $('#year').val();
-        showLoader();
+        // Handle the filter button click
+        $('#filterBtn').on('click', function() {
+            var dateRange = $('#flatpickr-range').val();
+            var [startDate, endDate] = dateRange ? dateRange.split(' to ') : [null, null];
+            var month = $('#month').val();
+            var year = $('#year').val();
+            showLoader();
 
-        $.ajax({
-            url: '{{ route("dashboard.filter") }}',
-            method: 'GET',
-            data: {
-                start_date: startDate,
-                end_date: endDate,
-                month: month,
-                year: year
-            },
-            success: function(data) {
-                hideLoader();
-                $('#userCount').text(data.userCount);
-                $('#roleCount').text(data.roleCount);
-            }
+            $.ajax({
+                url: '{{ route("dashboard.filter") }}',
+                method: 'GET',
+                data: {
+                    start_date: startDate,
+                    end_date: endDate,
+                    month: month,
+                    year: year
+                },
+                success: function(data) {
+                    hideLoader();
+                    $('#userCount').text(data.userCount);
+                    $('#roleCount').text(data.roleCount);
+                }
+            });
         });
     });
-});
-</script> --}}
+</script>
 @endsection

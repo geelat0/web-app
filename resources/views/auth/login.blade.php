@@ -81,7 +81,7 @@
             <!-- Logo -->
             <div class="app-brand mb-3">
               <a href="index.html" class="app-brand-link gap-2">
-                <img src="{{ asset('assets/myimg/logo.png') }}" class="logo-container" alt="Login" style="width: 10%;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/3/39/Department_of_Labor_and_Employment_%28DOLE%29.svg" class="logo-container" alt="Login" style="width: 10%;">
                 <span class="app-brand-text demo text-body fw-bold text-uppercase">OPCR</span>
               </a>
             </div>

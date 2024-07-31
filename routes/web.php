@@ -35,6 +35,8 @@ Route::middleware(['auth_check'])->group(function () {
             Route::post('temp-password', [UserController::class, 'temp_password'])->name('users.temp-password');
             Route::post('proxy', [UserController::class, 'proxy'])->name('users.gen-proxy');
             Route::post('users/change-status', [UserController::class, 'changeStatus'])->name('users.change-status');
+            Route::get('getDivision', [UserController::class, 'getDivision'])->name('getDivision');
+
 
             Route::get('roles', [RoleController::class, 'roles']);
             Route::get('role/list', [RoleController::class, 'list'])->name('role.list');
@@ -62,7 +64,6 @@ Route::middleware(['auth_check'])->group(function () {
 
         Route::get('change-password', [AuthController::class, 'ChangePassForm'])->name('change-password');
 
-
         Route::get('outcome', [OutcomeController::class, 'index'])->name('organization_outcome');
         Route::get('organiztional/outcome/list', [OutcomeController::class, 'list'])->name('org.list');
         Route::post('organizational/outcome/store', [OutcomeController::class, 'store'])->name('org.store');
@@ -73,8 +74,12 @@ Route::middleware(['auth_check'])->group(function () {
         Route::get('indicator', [IndicatorController::class, 'index'])->name('indicator');
         Route::get('indicator/list', [IndicatorController::class, 'list'])->name('indicator.list');
         Route::get('indicator_create', [IndicatorController::class, 'create'])->name('indicator.create');
+        Route::get('indicator_edit', [IndicatorController::class, 'edit'])->name('indicator.edit');
         Route::get('indicator/getDivision', [IndicatorController::class, 'getDivision'])->name('indicator.getDivision');
         Route::post('indicator/store', [IndicatorController::class, 'store'])->name('indicator.store');
+        Route::match(['post', 'put'], 'indicator/update', [IndicatorController::class, 'update'])->name('indicator.update');
+        Route::get('indicator_view', [IndicatorController::class, 'view'])->name('indicator.view');
+        Route::post('indicator/destroy', [IndicatorController::class, 'destroy'])->name('indicator.destroy');
 
     });
 
