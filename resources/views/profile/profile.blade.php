@@ -1,6 +1,5 @@
-@extends('app')  {{-- Main blade File --}}
+@extends('components.app')
 
-{{-- Content of Pages --}}
 @section('content')
     <div class="container mt-5">
         <div class="card">
@@ -101,7 +100,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="d-flex justify-content-end">
+                            <div class="d-flex justify-content-end mt-4">
                                 <button type="submit" class="btn btn-primary">Update Profile</button>
                             </div>
                             
@@ -126,7 +125,7 @@
                                 <input type="password" class="form-control" id="new_password_confirmation" name="new_password_confirmation">
                                 <div id="new_password_confirmationError" class="invalid-feedback"></div>
                             </div>
-                            <div class="d-flex justify-content-end">
+                            <div class="d-flex justify-content-end mt-4">
                                 <button type="submit" class="btn btn-primary">Change Password</button>
                             </div>
                         </form>
@@ -138,7 +137,7 @@
     </div>
 @endsection
 
-@section('scripts')
+@section('components.specific_page_scripts')
 <script>
     $(document).ready(function() {
         $('#updateProfileForm').on('submit', function(e) {

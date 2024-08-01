@@ -24,15 +24,15 @@ class UserController extends Controller
 
     protected $redirectTo = '/dash-home';
     
-    public function create()
-    {
-        return view('auth.register');
-    }
+    // public function create()
+    // {
+    //     return view('auth.register');
+    // }
 
     public function user_create()
     {
         $user=Auth::user();
-        return view('user_page.user');
+        return view('user_page.user', compact('user'));
     }
 
     public function list(Request $request)
@@ -161,9 +161,11 @@ class UserController extends Controller
                         ],
             'role_id' => 'required',
             'division_id' => 'required',
+            'division_id.*' => 'exists:divisions,id',
         ],[
-            'role_id' => 'The role field is required',
-            'division_id' => 'The division field is required',
+            'role_id.required' => 'The role field is required',
+            'division_id.required' => 'The division field is required',
+            'division_id.*.exists' => 'The selected division is invalid',
         ]);
 
         if ($validator->fails()) {
@@ -218,12 +220,11 @@ class UserController extends Controller
                         ],
             // 'password' => 'required|string|min:8',
             'role_id' => 'required|exists:role,id',
-            'division_id' => 'required|array',
+            'division_id' => 'required',
             'division_id.*' => 'exists:divisions,id',
         ],[
             'role_id.required' => 'The role field is required',
             'division_id.required' => 'The division field is required',
-            'division_id.array' => 'The division field must be an array',
             'division_id.*.exists' => 'The selected division is invalid',
         ]);
     
@@ -232,7 +233,7 @@ class UserController extends Controller
         }
     
         $user = User::findOrFail($id);
-    
+        
         $user->first_name = ucfirst($request->first_name);
         $user->last_name = ucfirst($request->last_name);
         $user->middle_name = ucfirst($request->middle_name);
@@ -241,7 +242,7 @@ class UserController extends Controller
         $user->position = ucfirst($request->position);
         $user->mobile_number = $request->mobile_number;
         $user->role_id = $request->role_id;
-        $user->division_id = $request->division_id;
+        $user->division_id = json_encode($request->division_id);
         $user->email = $request->email;
         // $user->password = Hash::make($randomString); // Uncomment if you need to update the password
         $user->status = 'Active';
@@ -328,17 +329,38 @@ class UserController extends Controller
         return response()->json(['success' => true, 'message' => 'Two Factor Authentication Disabled Successfully.']);
     }
 
+    // public function getDivision(Request $request)
+    // {
+    //     $user = User::find(Crypt::decrypt($request->id));
+    //     if ($user) {
+
+    //         $divisionIds = json_decode($user->division_id, true);
+    //             if (is_array($divisionIds)) {
+    //                 $divisions = Division::whereIn('id', $divisionIds)->pluck('id')->toArray();
+    //                 $divisionId =  implode(', ', $divisions);
+    //             }
+    //         return response()->json(['success' => true, 'division_ids' => $divisionId]);
+    //     }
+    //     return response()->json(['success' => false, 'message' => 'User not found'], 404);
+    // }
+
     public function getDivision(Request $request)
     {
         $user = User::find(Crypt::decrypt($request->id));
         if ($user) {
-
             $divisionIds = json_decode($user->division_id, true);
-                if (is_array($divisionIds)) {
-                    $divisions = Division::whereIn('id', $divisionIds)->pluck('id')->toArray();
-                    $divisionId =  implode(', ', $divisions);
-                }
-            return response()->json(['success' => true, 'division_ids' => $divisions]);
+            if (is_array($divisionIds)) {
+                $divisions = Division::whereIn('id', $divisionIds)->get(['id', 'division_name']);
+                
+                $divisionData = $divisions->map(function ($division) {
+                    return [
+                        'id' => $division->id,
+                        'division_name' => $division->division_name
+                    ];
+                });
+
+                return response()->json(['success' => true, 'divisions' => $divisionData]);
+            }
         }
         return response()->json(['success' => false, 'message' => 'User not found'], 404);
     }

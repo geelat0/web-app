@@ -32,7 +32,7 @@ class LogController extends Controller
     public function login_in()
     {
         $user=Auth::user();
-        return view('logs.login_in'); 
+        return view('logs.login_in', compact('user')); 
     }
 
 

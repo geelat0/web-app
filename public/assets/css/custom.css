@@ -46,3 +46,22 @@ label.required::after {
   @keyframes spin {
     to { transform: rotate(360deg); }
   }
+
+  .profile-picture img.rounded-circle {
+    border-radius: 50%;
+    width: 300px; /* or your preferred width */
+    height: 270px; /* or your preferred height */
+    object-fit: cover;
+  }
+
+/* Add red border to input fields with errors */
+.is-invalid {
+  border-color: #dc3545; /* Bootstrap red for validation errors */
+}
+
+/* Style for error messages */
+.invalid-feedback {
+  display: block;
+  color: #dc3545; /* Bootstrap red for validation errors */
+}
+  

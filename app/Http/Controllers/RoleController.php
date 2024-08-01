@@ -17,7 +17,7 @@ class RoleController extends Controller
     public function roles()
     {
         $user=Auth::user();
-        return view('role_page.roles');
+        return view('role_page.roles', compact('user'));
     }
 
     public function getRole(Request $request){

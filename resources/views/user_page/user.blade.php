@@ -61,36 +61,6 @@
 <script>
     $(document).ready(function() {
 
-        function initializeDivisionSelect() {   
-            $('.division-select').select2({
-                placeholder: 'Select an Option',
-                allowClear: true,
-                ajax: {
-                    url: '{{ route('indicator.getDivision') }}',
-                    dataType: 'json',
-                    delay: 250,
-                    data: function (params) {
-                        return {
-                            q: params.term // search term
-                        };
-                    },
-                    processResults: function (data) {
-                        return {
-                            results: $.map(data, function (item) {
-                                return {
-                                    id: item.id,
-                                    text: item.division_name
-                                };
-                            })
-                        };
-                    },
-                    cache: true
-                }
-            });
-        }
-
-        initializeDivisionSelect();
-
         var table;
         // START DATATABLES
 
@@ -104,9 +74,6 @@
                 }
             }
         });
-
-        var dateRange = $('#flatpickr-range').val();
-        console.log(dateRange);
 
         table = $('#users-table').DataTable({
             responsive: true,
@@ -209,31 +176,7 @@
                         $('#edit_province').val(selectedData.province);
                         $('#edit_role').val(selectedData.role_id).change();
 
-                        $('#edit_division_id').select2({
-                            placeholder: 'Select divisions',
-                            tags: true,
-                            ajax: {
-                                url: '{{ route('indicator.getDivision') }}',
-                                dataType: 'json',
-                                delay: 250,
-                                data: function (params) {
-                                    return {
-                                        q: params.term // search term
-                                    };
-                                },
-                                processResults: function (data) {
-                                    return {
-                                        results: $.map(data, function (item) {
-                                            return {
-                                                id: item.id,
-                                                text: item.division_name
-                                            };
-                                        })
-                                    };
-                                },
-                                cache: true
-                            }
-                        });
+                        $('#edit_division_id').val(null).change();
 
                         $.ajax({
                             url: '{{ route('getDivision')}}',
@@ -243,9 +186,14 @@
                             },
                             success: function(response) {
                                 if(response.success) {
-                                    var divisionIds = response.division_ids;
-                                    console.log(divisionIds);
-                                    $('#edit_division_id').val(divisionIds).trigger('change');
+                                    var divisionIds = response.divisions;
+
+                                    $.each(divisionIds, function(index, division) {
+                                        var newOption = new Option(division.division_name, division.id, true, true);
+                                        $('#edit_division_id').append(newOption);
+                                    });
+
+                                    $('#edit_division_id').trigger('change');
                                 } else {
                                     console.error('Failed to fetch divisions');
                                 }
@@ -281,9 +229,10 @@
                                         } else {
                                             var errors = response.errors;
                                             Object.keys(errors).forEach(function(key) {
+                                                var sanitizedKey = key.replace('[]', '');
                                                 var inputField = $('#editUserForm [name=' + key + ']');
                                                 inputField.addClass('is-invalid');
-                                                $('#editUserForm #' + key + 'Error').text(errors[key][0]);
+                                                $('#editUserForm #' + sanitizedKey + 'Error').text(errors[key][0]);
                                             });
                                             hideLoader();
                                         }
@@ -314,6 +263,33 @@
                         $('#view_position').val(selectedData.position);
                         $('#view_province').val(selectedData.province);
                         $('#view_role').val(selectedData.role_id).change();
+
+                        $('#view_division_id').val(null).change();
+
+                        $.ajax({
+                            url: '{{ route('getDivision')}}',
+                            method: 'GET',
+                            data: {
+                                id: selectedData.id
+                            },
+                            success: function(response) {
+                                if(response.success) {
+                                    var divisionIds = response.divisions;
+
+                                    $.each(divisionIds, function(index, division) {
+                                        var newOption = new Option(division.division_name, division.id, true, true);
+                                        $('#view_division_id').append(newOption);
+                                    });
+
+                                    $('#view_division_id').trigger('change');
+                                } else {
+                                    console.error('Failed to fetch divisions');
+                                }
+                            },
+                            error: function(xhr) {
+                                console.error(xhr.responseText);
+                            }
+                        });
 
                         $('#viewUserModal').modal('show');
 
@@ -625,21 +601,57 @@
             $(this).find('.is-invalid').removeClass('is-invalid'); // Remove validation error classes
             $(this).find('.invalid-feedback').text(''); // Clear error messages
         });
+        
 
+        // Handle input and select fields for create and edit user forms
         $('#createUserForm, #editUserForm').find('input, select').on('keyup change', function() {
             $(this).removeClass('is-invalid');
-            var errorId = $(this).attr('name') + 'Error';
+            
+            // Remove [] from name attribute for error ID
+            var errorId = $(this).attr('name').replace('[]', '') + 'Error';
             $('#' + errorId).text('');
         });
 
-        $('#createUserForm, #editUserForm').find('select.select2').on('select2:select', function() {
+        // Handle Select2 fields specifically
+        $('#createUserForm, #editUserForm').find('select[name="division_id[]"]').on('select2:select', function() {
             $(this).removeClass('is-invalid');
-            var errorId = $(this).attr('name') + 'Error';
+            
+            // Remove [] from name attribute for error ID
+            var errorId = $(this).attr('name').replace('[]', '') + 'Error';
             $('#' + errorId).text('');
         });
 
 
+        
+        function initializeDivisionSelect() {   
+            $('.division-select').select2({
+                placeholder: 'Select an Option',
+                allowClear: true,
+                ajax: {
+                    url: '{{ route('indicator.getDivision') }}',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                            q: params.term // search term
+                        };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: $.map(data, function (item) {
+                                return {
+                                    id: item.id,
+                                    text: item.division_name
+                                };
+                            })
+                        };
+                    },
+                    cache: true
+                }
+            });
+        }
 
+        initializeDivisionSelect();
 
         //  START FETCH ROLES FOR SELECT
 

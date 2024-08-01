@@ -71,9 +71,10 @@
                                 <div class="invalid-feedback" id="provinceError"></div>
                             </div>
                             <div class="form-group">
-                                <label for="division_id">Division</label>
-                                <select id="division_id" class="division-select form-select" name="division_id[]" multiple="multiple">
+                                <label for="create_division_id" class="required">Division</label>
+                                <select id="create_division_id" class="division-select form-select" name="division_id[]" multiple="multiple">
                                 </select>
+                                <div class="invalid-feedback" id="division_idError "></div>
                             </div>
                         </div>
                     </div>

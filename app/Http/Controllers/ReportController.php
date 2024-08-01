@@ -15,12 +15,12 @@ class ReportController extends Controller
 {
     public function index(){
         $user=Auth::user();
-        return view('entries.index');
+        return view('entries.index', compact('user'));
     }
 
     public function create(){
         $user=Auth::user();
-        return view('entries.create');
+        return view('entries.create', compact('user'));
     }
 
     public function list(Request $request){

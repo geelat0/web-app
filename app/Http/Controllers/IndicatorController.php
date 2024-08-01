@@ -16,12 +16,12 @@ class IndicatorController extends Controller
 {
     public function index(){
         $user=Auth::user();
-        return view('indicators.index');
+        return view('indicators.index', compact('user'));
     }
 
     public function create(){
         $user=Auth::user();
-        return view('indicators.create');
+        return view('indicators.create', compact('user'));
     }
 
     public function edit(Request $request){
@@ -31,7 +31,7 @@ class IndicatorController extends Controller
         $division_ids = json_decode($indicator->division_id);
 
         $user=Auth::user();
-        return view('indicators.edit', compact('indicator', 'division_ids'));
+        return view('indicators.edit', compact('indicator', 'division_ids', 'user'));
     }
 
     public function view(Request $request){
@@ -41,7 +41,7 @@ class IndicatorController extends Controller
         $division_ids = json_decode($indicator->division_id);
 
         $user=Auth::user();
-        return view('indicators.view', compact('indicator', 'division_ids'));
+        return view('indicators.view', compact('indicator', 'division_ids', 'user'));
     }
 
     public function list(Request $request){
@@ -135,11 +135,6 @@ class IndicatorController extends Controller
         $currentMonth = Carbon::now()->month;
 
         foreach ($validated['measures'] as $index => $target) {
-
-            // $targetType = $request->input("targetType.$index");
-            // if ($targetType == 'percentage') {
-            //     $target = $target . '%';
-            // }
 
             SuccessIndicator::create([
                 'org_id' => $validated['org_id'],

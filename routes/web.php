@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EntriesController;
 use App\Http\Controllers\IndicatorController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\OrganizationController;
@@ -80,6 +81,13 @@ Route::middleware(['auth_check'])->group(function () {
         Route::match(['post', 'put'], 'indicator/update', [IndicatorController::class, 'update'])->name('indicator.update');
         Route::get('indicator_view', [IndicatorController::class, 'view'])->name('indicator.view');
         Route::post('indicator/destroy', [IndicatorController::class, 'destroy'])->name('indicator.destroy');
+
+        Route::get('entries', [EntriesController::class, 'index'])->name('entries');
+        Route::get('entries_create', [EntriesController::class, 'create'])->name('create');
+        Route::post('entries/store', [EntriesController::class, 'store'])->name('entries.store');
+        Route::get('entries/list', [EntriesController::class, 'list'])->name('entries.list');
+        Route::get('entries/getIndicator', [EntriesController::class, 'getIndicator'])->name('entries.getIndicator');
+
 
     });
 

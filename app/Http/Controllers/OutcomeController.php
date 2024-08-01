@@ -17,7 +17,7 @@ class OutcomeController extends Controller
     public function index(){
 
         $user=Auth::user();
-        return view('outcome.index');
+        return view('outcome.index', compact('user'));
     }
 
     public function list(Request $request)

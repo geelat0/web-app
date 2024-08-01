@@ -73,20 +73,13 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="edit_division_id">Division</label>
-                                <select id="edit_division_id" class="division-select select2 form-select" name="division_id" multiple></select>
+                                <label for="edit_division_id" class="required">Division</label>
+                                <select id="edit_division_id" class="division-select select2 form-select" name="division_id[]" multiple="multiple">
+
+                                </select>
+                                <div class="invalid-feedback" id="division_idError"></div>
                             </div>
 
-                            {{-- <div class="form-group">
-                                <label for="password">Password</label>
-                                <input type="password" class="form-control" id="password" aria-describedby="" name="password" placeholder="Password">
-                                <div class="invalid-feedback" id="passwordError"></div>
-                            </div>
-                            <div class="form-group">
-                                <label for="confirmPassword">Confirm Password</label>
-                                <input type="password" class="form-control" id="confirmPassword" aria-describedby="" name="password" placeholder="Confirm Password">
-                                <div class="invalid-feedback" id="confirmPasswordError"></div>
-                            </div> --}}
                         </div>
                     </div>
                        

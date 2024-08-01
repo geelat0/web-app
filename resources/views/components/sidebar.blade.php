@@ -39,6 +39,12 @@
             <div class="text-truncate" data-i18n="Page 2">Indicator</div>
           </a>
         </li>
+        <li class="menu-item {{ request()->is('entries') ? 'active' : '' }}">
+          <a href="/entries" class="menu-link">
+            <i class='menu-icon tf-icons bx bx-file'></i>
+            <div class="text-truncate" data-i18n="Page 2">Entries</div>
+          </a>
+        </li>
 
         <li class="menu-item">
             <div style="margin-left: 5%; margin-top: 5%; color: #b4b0c4;">Users</div>

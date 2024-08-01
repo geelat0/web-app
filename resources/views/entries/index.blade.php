@@ -1,13 +1,13 @@
 @extends('components.app')
 
 @section('content')
-<div class="row mt-4">
+
+
+<div class="row">
     <div class="col">
         <div class="card">
             <div class="card-body">
-                <div>
-                </div>
-                <h4 class="card-title">Organizational Outcome/PAP </h4>
+                <h4 class="card-title">Entries</h4>
                 {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
                 </p>
                 <div class="row">
@@ -19,7 +19,7 @@
                         </p>
                     </div>
                     <div class="col d-flex justify-content-end mb-3" >
-
+    
                         <div id="table-buttons" class="d-flex">
                             <!-- Buttons will be appended here -->
                         </div>
@@ -47,27 +47,26 @@
         <div class="card">
             <div class="card-body">
                 <div class="table-responsive pt-3">
-                    <table id="org-table"  class="table table-striped" style="width: 100%">
-                    <tbody>
-                    </tbody>
+                    <table id="entry-table"  class="table table-striped" style="width: 100%">
+                      <tbody>
+                      </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
 </div>
-  @include('outcome.create')
-  @include('outcome.edit')
-  @include('outcome.view')
+
+@include('entries.file')
+
 
 
 @endsection
 
-{{-- JS of Pages --}}
+
 @section('components.specific_page_scripts')
 
 <script>
-
     $(document).ready(function() {
 
         var table;
@@ -83,7 +82,7 @@
             }
         });
 
-        table = $('#org-table').DataTable({
+        table = $('#entry-table').DataTable({
             responsive: true,
             processing: false,
             serverSide: true,
@@ -95,75 +94,23 @@
             select: {
                 style: 'single'
             },
-            ajax: {
-                url: '{{ route('org.list') }}',
+             ajax: {
+                url: '{{ route('entries.list') }}',
                 data: function(d) {
                     // Include the date range in the AJAX request
                     d.date_range = $('#date-range-picker').val();
                     d.search = $('#search-input').val();
                 },
-                // beforeSend: function() {
-                //     showLoader(); // Show loader before starting the AJAX request
-                // },
-                // complete: function() {
-                //     hideLoader(); // Hide loader after AJAX request completes
-                // }
             },
             buttons: [
-                // {
-                //     text: 'Reload',
-                //     className: 'btn btn-warning user_btn',
-                //     action: function ( e, dt, node, config ) {
-                //         dt.ajax.reload();
-                //     }
-                // },
+
                 {
                     text: 'Add',
                     className: 'btn btn-success user_btn',
                     action: function (e, dt, node, config) {
-                        $('#createOrgModal').modal('show');
-
-                        $('#createOrgForm').off('submit').on('submit', function(e) {
-                            e.preventDefault();
-                            // showLoader();
-                            // Handle form submission, e.g., via AJAX
-                            var formData = $(this).serialize();
-                            $.ajax({
-                                url: '{{ route('org.store') }}',
-                                method: 'POST',
-                                data: formData,
-                                success: function(response) {
-                                    if (response.success) {
-                                        $('#createOrgModal').modal('hide');
-                                        // hideLoader();
-                                            Swal.fire({
-                                                icon: 'success',
-                                                title: 'Success!',
-                                                text: response.message,
-                                                showConfirmButton: true,
-                                            })
-                                            table.ajax.reload();
-                                        }
-                                        else{
-                                            // hideLoader();
-                                            var errorMessage = '';
-                                            $.each(response.errors, function(index, value) {
-                                                errorMessage += value + '<br>';
-                                            });
-                                            Swal.fire({
-                                                icon: 'error',
-                                                title: 'Validation Error',
-                                                html: errorMessage,
-                                            });
-                                        }
-                                },
-                                error: function(xhr) {
-                                    // hideLoader();
-                                    // Handle error
-                                    console.log(xhr.responseText);
-                                }
-                            });
-                        });
+                        // $('#createEntriesModal').modal('show');
+                        window.location.href = `/entries_create`;
+                        
                     }
                 },
                 {
@@ -171,53 +118,17 @@
                     className: 'btn btn-info user_btn',
                     enabled: false,
                     action: function (e, dt, node, config) {
-                        $('#editOrgModal').modal('show');
 
                         var selectedData = dt.row({ selected: true }).data();
-                        $('#edit_role_id').val(selectedData.id);
-                        $('#edit_name').val(selectedData.organizational_outcome);
-                        $('#edit_status').val(selectedData.status);
 
-                        $('#editOrgForm').off('submit').on('submit', function(e) {
-                                e.preventDefault();
-                                showLoader();
-                                var formData = $(this).serialize();
-                                $.ajax({
-                                    url: '{{ route('org.update') }}',
-                                    method: 'POST',
-                                    data: formData,
-                                    success: function(response) {
-                                        if (response.success) {
-                                            $('#editOrgModal').modal('hide');
-                                            hideLoader();
-                                            Swal.fire({
-                                                icon: 'success',
-                                                title: 'Success!',
-                                                text: response.message,
-                                                showConfirmButton: true,
-                                            })
+                        if (selectedData && selectedData.id) {
+                           
+                            window.location.href = `/indicator_edit?id=${selectedData.id}`;
+                            console.log(selectedData.id);
+                        } else {
+                            alert('No item selected or invalid ID.');
+                        }
 
-                                            table.ajax.reload();
-
-                                        } else {
-                                            hideLoader();
-                                            var errorMessage = '';
-                                            $.each(response.errors, function(index, value) {
-                                                errorMessage += value + '<br>';
-                                            });
-                                            Swal.fire({
-                                                icon: 'error',
-                                                title: 'Validation Error',
-                                                html: errorMessage,
-                                            });
-                                        }
-                                    },
-                                    error: function(xhr) {
-                                        hideLoader();
-                                        console.log(xhr.responseText);
-                                    }
-                            });
-                        });
                     }
                 },
                 {
@@ -228,11 +139,14 @@
                         //alert('View Activated!');
 
                         var selectedData = dt.row({ selected: true }).data();
-                        $('#view_role_id').val(selectedData.id);
-                        $('#view_name').val(selectedData.organizational_outcome);
-                        $('#view_status').val(selectedData.status);
-                        $('#viewOrgModal').modal('show');
 
+                        if (selectedData && selectedData.id) {
+                        
+                            window.location.href = `/indicator_view?id=${selectedData.id}`;
+                            console.log(selectedData.id);
+                        } else {
+                            alert('No item selected or invalid ID.');
+                        }
                     }
                 },
                 {
@@ -254,20 +168,20 @@
                             confirmButtonText: 'Yes, delete it!'
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                // showLoader();
+                                showLoader();
                                 $.ajax({
-                                    url: '{{ route('org.destroy') }}',
+                                    url: '{{ route('indicator.destroy') }}',
                                     method: 'POST',
                                     data: {
                                         _token: '{{ csrf_token() }}',
                                         id: selectedUserId
                                     },
                                     success: function(response) {
-                                        // hideLoader();
+                                        hideLoader();
                                         if (response.success) {
                                             Swal.fire(
                                                 'Deleted!',
-                                                'Organization Outcome has been deleted.',
+                                                'Indicator has been deleted.',
                                                 'success'
                                             );
                                             table.ajax.reload();
@@ -276,7 +190,7 @@
                                             Object.keys(response.errors).forEach(function(key) {
                                                 errorMessage += response.errors[key][0] + '<br>';
                                             });
-                                            // hideLoader();
+                                            hideLoader();
                                             Swal.fire({
                                                 icon: 'error',
                                                 title: 'Deletion Failed',
@@ -285,7 +199,7 @@
                                         }
                                     },
                                     error: function(xhr) {
-                                        // hideLoader();
+                                        hideLoader();
                                         console.log(xhr.responseText);
                                     }
                                 });
@@ -299,11 +213,36 @@
 
             columns: [
                 { data: 'id', name: 'id', title: 'ID', visible: false },
-                { data: 'organizational_outcome', name: 'organizational_outcome', title: 'Organizational Outcome' },
-                { data: 'status', name: 'status', title: 'Status' },
-                { data: 'created_by', name: 'created_by', title: 'Created By' },
+                { data: 'indicator_id', name: 'indicator_id', title: 'Indicator'},
+                { data: 'months', name: 'months', title: 'Month', className: 'wrap-text' },
+                {
+                    data: 'file',
+                    name: 'file',
+                    title: 'File',
+                    render: function(data, type, row) {
+                        if (data) {
+                            // Assuming 'data' is the Base64 encoded string
+                            return `
+                                <a href="#" class="file-preview" 
+                                data-file="${data}" 
+                                data-toggle="modal" 
+                                data-target="#fileModal">
+                                    <i class="bx bx-file"></i> Preview
+                                </a>`;
+                        } else {
+                            return 'No File';
+                        }
+                    },
+                    orderable: false,
+                    searchable: false
+                },      
                 { data: 'created_at', name: 'created_at', title: 'Created At' },
+                { data: 'created_by', name: 'created_by', title: 'Created By' },
             ],
+
+            // rowGroup: {
+            //     dataSrc: 'org_id'
+            // },
 
             language: {
                 emptyTable: "No data found",
@@ -312,6 +251,9 @@
             },
 
             dom: '<"d-flex justify-content-between flex-wrap"B>rtip',
+            createdRow: function(row, data, dataIndex) {
+                $(row).find('td:eq(1)').addClass('wrap-text');
+            }
         });
 
         $('.navbar-toggler').on('click', function() {
@@ -331,36 +273,28 @@
             table.buttons(['.btn-warning', '.btn-info', '.btn-danger']).enable(selectedRows > 0);
         });
 
-        $('#createOrgModal, #editOrgModal').on('hidden.bs.modal', function() {
+        $('#createEntriesModal, #editRoleModal').on('hidden.bs.modal', function() {
             $(this).find('form')[0].reset(); // Reset form fields
             $(this).find('.is-invalid').removeClass('is-invalid'); // Remove validation error classes
             $(this).find('.invalid-feedback').text(''); // Clear error messages
-            $(this).find('.dynamic-outcome-group').remove();
         });
 
-        let outcomeIndex = 1;
+        function getFileExtension(filename) {
+            return filename.split('.').pop().toLowerCase();
+        }
 
-        $('#addOutcomeBtn').click(function () {
-            const newOutcomeHtml = `
-                <div class="form-group mt-3" id="organizational_outcome_group_${outcomeIndex}">
-                    <label for="organizational_outcome_${outcomeIndex}" class="required">Organization Outcome</label>
-                    <input type="text" class="form-control capitalize" name="organizational_outcome[]" id="organizational_outcome_${outcomeIndex}" aria-describedby="">
-                    <div class="invalid-feedback" id="organizational_outcome_${outcomeIndex}Error"></div>
-                    <button type="button" class="btn btn-danger btn-sm mt-2 removeOutcomeBtn" data-index="${outcomeIndex}"><i class='bx bx-trash'></i></button>
-                </div>
-            `;
-            $('#organizational_outcomes').append(newOutcomeHtml);
-            outcomeIndex++;
-        });
-
-
-        $(document).on('click', '.removeOutcomeBtn', function () {
-            const index = $(this).data('index');
-            $(`#organizational_outcome_group_${index}`).remove();
-        });
 
     });
+
+    $(document).on('click', '.file-preview', function(e) {
+        e.preventDefault();
+        var base64File = $(this).data('file');
+        var fileUrl = 'data:application/pdf;base64,' + base64File;
+        $('#filePreview').attr('src', fileUrl);
+        $('#fileModal').modal('show');
+    });
+
+
 </script>
 
 @endsection
-

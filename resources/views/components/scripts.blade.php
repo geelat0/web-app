@@ -11,6 +11,7 @@
     <script src={{asset('assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js')}}></script>
     <script src={{asset('assets/vendor/js/menu.js')}}></script>
     <script src={{asset('assets/vendor/libs/select2/select2.js')}}></script>
+    <script src={{asset('assets/vendor/libs/dropzone/dropzone.js')}}></script>
 
 
     <!-- CDN -->
@@ -39,6 +40,18 @@
         }
 
         hideLoader()
+
+
+        $(document).ready(function() {
+            $('#profile_image').on('change', function() {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#profileImageShow').attr('src', e.target.result);
+                        $('#profileImageShow2').attr('src', e.target.result);
+                    };
+                    reader.readAsDataURL(this.files[0]);
+            });
+        })
 
     </script>
 

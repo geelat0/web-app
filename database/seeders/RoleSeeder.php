@@ -22,7 +22,7 @@ class RoleSeeder extends Seeder
           );
         Role::create(
             [
-                'name'=> 'Planning',
+                'name'=> 'SAP',
                 'created_by'=> 'IT',
                 
             ]
