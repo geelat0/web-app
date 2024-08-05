@@ -26,7 +26,6 @@
                     </div>
                 </div>
                 <div class="collapse" id="collapseExample">
-                    <div class="card card-body">
                         <div class="d-flex justify-content-center mb-3">
                             <div class="input-group input-group-sm me-3">
                                 <input type="text" id="search-input" class="form-control form-control-sm" placeholder="Search...">
@@ -34,7 +33,6 @@
                             <div class="input-group input-group-sm">
                                 <input type="text" id="date-range-picker" class="form-control form-control-sm" placeholder="Select date range">
                             </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -214,7 +212,9 @@
                 { data: 'division_id', name: 'division_id', title: 'Division' },
                 { data: 'alloted_budget', name: 'alloted_budget', title: 'Alloted Budget' },
                 { data: 'created_by', name: 'created_by', title: 'Created By' },
+                { data: 'updated_by', name: 'updated_by', title: 'Updated By' },
                 { data: 'created_at', name: 'created_at', title: 'Created At' },
+                { data: 'updated_at', name: 'updated_at', title: 'Updated_At' },
             ],
 
             // rowGroup: {

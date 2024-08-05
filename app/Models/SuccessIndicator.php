@@ -20,6 +20,13 @@ class SuccessIndicator extends Model
         'alloted_budget',
         'months',
         'created_by',
+        'updated_by',
+        'Albay_target',
+        'Camarines_Sur_target',
+        'Camarines_Norte_target',
+        'Catanduanes_target',
+        'Masbate_target',
+        'Sorsogon_target',
     ];
 
     protected $casts = [

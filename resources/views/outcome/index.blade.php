@@ -26,7 +26,6 @@
                     </div>
                 </div>
                 <div class="collapse" id="collapseExample">
-                    <div class="card card-body">
                         <div class="d-flex justify-content-center mb-3">
                             <div class="input-group input-group-sm me-3">
                                 <input type="text" id="search-input" class="form-control form-control-sm" placeholder="Search...">
@@ -34,7 +33,6 @@
                             <div class="input-group input-group-sm">
                                 <input type="text" id="date-range-picker" class="form-control form-control-sm" placeholder="Select date range">
                             </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -177,6 +175,7 @@
                         $('#edit_role_id').val(selectedData.id);
                         $('#edit_name').val(selectedData.organizational_outcome);
                         $('#edit_status').val(selectedData.status);
+                        $('#edit_organizational_outcome_order').val(selectedData.organizational_outcome_order);
 
                         $('#editOrgForm').off('submit').on('submit', function(e) {
                                 e.preventDefault();
@@ -232,6 +231,8 @@
                         $('#view_name').val(selectedData.organizational_outcome);
                         $('#view_status').val(selectedData.status);
                         $('#viewOrgModal').modal('show');
+                        $('#view_organizational_outcome_order').val(selectedData.organizational_outcome_order);
+
 
                     }
                 },
@@ -299,6 +300,7 @@
 
             columns: [
                 { data: 'id', name: 'id', title: 'ID', visible: false },
+                { data: 'organizational_outcome_order', name: 'organizational_outcome_order', title: 'Order' },
                 { data: 'organizational_outcome', name: 'organizational_outcome', title: 'Organizational Outcome' },
                 { data: 'status', name: 'status', title: 'Status' },
                 { data: 'created_by', name: 'created_by', title: 'Created By' },
@@ -342,12 +344,19 @@
 
         $('#addOutcomeBtn').click(function () {
             const newOutcomeHtml = `
-                <div class="form-group mt-3" id="organizational_outcome_group_${outcomeIndex}">
+            <div id="organizational_outcome_group_${outcomeIndex}">
+                <div class="form-group mt-3" >
+                    <label for="organizational_outcome_order_${outcomeIndex}" class="required">Order</label>
+                    <input type="text" class="form-control capitalize" name="organizational_outcome_order[]" id="organizational_outcome_order_${outcomeIndex}" aria-describedby="">
+                    <div class="invalid-feedback" id="organizational_outcome_order_${outcomeIndex}Error"></div>
+                </div>
+                <div class="form-group mt-3">
                     <label for="organizational_outcome_${outcomeIndex}" class="required">Organization Outcome</label>
                     <input type="text" class="form-control capitalize" name="organizational_outcome[]" id="organizational_outcome_${outcomeIndex}" aria-describedby="">
                     <div class="invalid-feedback" id="organizational_outcome_${outcomeIndex}Error"></div>
-                    <button type="button" class="btn btn-danger btn-sm mt-2 removeOutcomeBtn" data-index="${outcomeIndex}"><i class='bx bx-trash'></i></button>
                 </div>
+                <button type="button" class="btn btn-danger btn-sm mt-2 removeOutcomeBtn" data-index="${outcomeIndex}"><i class='bx bx-trash'></i></button>
+            </div>
             `;
             $('#organizational_outcomes').append(newOutcomeHtml);
             outcomeIndex++;

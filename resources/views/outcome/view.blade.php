@@ -13,6 +13,10 @@
                         <div class="col">
                             <input type="hidden" name="id" id="view_role_id">
                             <div class="form-group">
+                                <label for="view_organizational_outcome_order" class="required">Order</label>
+                                <input type="number" class="form-control capitalize" name="organizational_outcome_order[]" id="view_organizational_outcome_order" aria-describedby="">
+                            </div>
+                            <div class="form-group">
                                 <label for="view_name" class="required capitalize">Organization Outcome</label>
                                 <input type="text" class="form-control" id="view_name" name="organizational_outcome" disabled>
                                 <div class="invalid-feedback" id="organizational_outcomeError"></div>

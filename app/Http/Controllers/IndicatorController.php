@@ -30,8 +30,16 @@ class IndicatorController extends Controller
         $indicator = SuccessIndicator::find(Crypt::decrypt($id));
         $division_ids = json_decode($indicator->division_id);
 
+        $division_targets = [];
+        foreach ($division_ids as $division_id) {
+            $division =Division::find($division_id);
+            $cleanedDivisionName = preg_replace('/\s*PO$/', '', $division->division_name);
+            $column_name = "{$cleanedDivisionName}_target";
+            $division_targets[$division_id] = $indicator->$column_name ?? '';
+        }
+
         $user=Auth::user();
-        return view('indicators.edit', compact('indicator', 'division_ids', 'user'));
+        return view('indicators.edit', compact('indicator', 'division_ids', 'division_targets', 'user'));
     }
 
     public function view(Request $request){
@@ -40,12 +48,26 @@ class IndicatorController extends Controller
         $indicator = SuccessIndicator::find(Crypt::decrypt($id));
         $division_ids = json_decode($indicator->division_id);
 
+        $division_targets = [];
+        foreach ($division_ids as $division_id) {
+            $division =Division::find($division_id);
+            $cleanedDivisionName = preg_replace('/\s*PO$/', '', $division->division_name);
+            $column_name = "{$cleanedDivisionName}_target";
+            $division_targets[$division_id] = $indicator->$column_name ?? '';
+        }
+
         $user=Auth::user();
-        return view('indicators.view', compact('indicator', 'division_ids', 'user'));
+        return view('indicators.view', compact('indicator', 'division_ids', 'division_targets', 'user'));
     }
 
     public function list(Request $request){
-        $query = SuccessIndicator::whereNull('deleted_at')->with(['division', 'org']);
+        if(Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP'){
+            $query = SuccessIndicator::whereNull('deleted_at')->with(['division', 'org']);
+        }
+        else{
+            $query = SuccessIndicator::whereNull('deleted_at')->with(['division', 'org'])->where('updated_by', Auth::user()->user_name);
+        }
+       
 
         if ($request->has('date_range') && !empty($request->date_range)) {
             [$startDate, $endDate] = explode(' to ', $request->date_range);
@@ -58,11 +80,10 @@ class IndicatorController extends Controller
         if ($request->has('search') && !empty($request->search)) {
             $searchTerm = $request->search;
 
-            $query->where(function($subQuery) use ($searchTerm) {
-                $subQuery->where('name', 'like', "%{$searchTerm}%")
-                        //  ->orWhere('created_by', 'like', "%{$searchTerm}%")
-                         ->orWhere('status', 'like', "%{$searchTerm}%");
-
+            $query->whereHas('org',function($subQuery) use ($searchTerm) {
+                $subQuery->where('measures', 'like', "%{$searchTerm}%")
+                         ->orWhere('organizational_outcome', 'like', "%{$searchTerm}%")
+                         ->orWhere('target', 'like', "%{$searchTerm}%");
             });
         }
 
@@ -78,6 +99,12 @@ class IndicatorController extends Controller
             })
             ->editColumn('created_at', function($data) {
                 return $data->created_at->format('m/d/Y');
+            })
+            ->editColumn('updated_at', function($data) {
+                return $data->updated_at->format('m/d/Y');
+            })
+            ->editColumn('alloted_budget', function($data) {
+                return '₱' . number_format($data->alloted_budget, 2);
             })
             ->editColumn('division_id', function($data) {
                 // Decode the JSON array of division IDs
@@ -132,17 +159,27 @@ class IndicatorController extends Controller
             'division_id.required' => 'The division is required',
         ]);
 
+        $data = $request->all();
+        // dd($data);
+
         $currentMonth = Carbon::now()->month;
 
-        foreach ($validated['measures'] as $index => $target) {
+        foreach ($request->measures as $index => $measure) {
+            // dd($measure);
 
             SuccessIndicator::create([
-                'org_id' => $validated['org_id'],
-                'target' => $validated['target'][$index] ?? 'Actual',
-                'measures' => $target,
-                'months' => $validated['months'][$index] ?? $currentMonth,
-                'division_id' => json_encode($validated['division_id'][$index]),
-                'alloted_budget' => $validated['alloted_budget'][$index],
+                'org_id' => $request->org_id,
+                'measures' => $measure,
+                'target' => $request->target[$index] ?? 'Actual',
+                'Albay_target' => $request->Albay_target[$index] ?? 0,
+                'Camarines_Sur_target' =>  $request->Camarines_Sur_target[$index] ?? 0,
+                'Camarines_Norte_target' => $request->Camarines_Norte_target[$index] ?? 0,
+                'Catanduanes_target' =>  $request->Catanduanes_target[$index] ?? 0,
+                'Masbate_target' =>  $request->Masbate_target[$index] ?? 0,
+                'Sorsogon_target' => $request->Sorsogon_target[$index] ?? 0,
+                'months' =>$request->months[$index] ?? $currentMonth,
+                'division_id' => json_encode($request->division_id[$index]), 
+                'alloted_budget' => $request->alloted_budget[$index],
                 'created_by' => auth()->user()->user_name,
             ]);
         }
@@ -186,16 +223,24 @@ class IndicatorController extends Controller
         $indicator = SuccessIndicator::findOrFail($request->id);
 
         $currentMonth = Carbon::now()->month;
+       
     
         // Update the record with the new data
         $indicator->org_id = $request->input('org_id');
         $indicator->target = $request->input('target') ?? 'Actual';
+        $indicator->Albay_target = str_replace(['[', ']', '"'], '', json_encode($request->input('Albay_target'))) ?? '0';
+        $indicator->Camarines_Sur_target = str_replace(['[', ']', '"'], '', json_encode($request->input('Camarines_Sur_target'))) ?? '0';
+        $indicator->Camarines_Norte_target = str_replace(['[', ']', '"'], '', json_encode($request->input('Camarines_Norte_target'))) ?? '0';
+        $indicator->Catanduanes_target = str_replace(['[', ']', '"'], '', json_encode($request->input('Catanduanes_target'))) ?? '0';
+        $indicator->Masbate_target = str_replace(['[', ']', '"'], '', json_encode($request->input('Masbate_target'))) ?? '0';
+        $indicator->Sorsogon_target = str_replace(['[', ']', '"'], '', json_encode($request->input('Sorsogon_target'))) ?? '0';
         $indicator->measures = $request->input('measures');
         $indicator->alloted_budget = $request->input('alloted_budget');
         $indicator->division_id = json_encode($request->input('division_id')); // Save as JSON
         $indicator->months = $currentMonth;
         $indicator->status = $request->input('status', 'Active'); // Default to 'Active' if not provided
-        $indicator->created_by = Auth::user()->user_name; // Assuming you store the username of the creator
+        $indicator->updated_by = Auth::user()->user_name; // Assuming you store the username of the creator
+        $indicator->updated_at =now(); // Assuming you store the username of the creator
     
         // Save the updated indicator
         $indicator->save();

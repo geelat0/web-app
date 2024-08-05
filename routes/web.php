@@ -84,7 +84,11 @@ Route::middleware(['auth_check'])->group(function () {
 
         Route::get('entries', [EntriesController::class, 'index'])->name('entries');
         Route::get('entries_create', [EntriesController::class, 'create'])->name('create');
+        Route::get('entries_view', [EntriesController::class, 'view'])->name('view');
+        Route::get('entries_edit', [EntriesController::class, 'edit'])->name('edit');
         Route::post('entries/store', [EntriesController::class, 'store'])->name('entries.store');
+        Route::post('entries/update', [EntriesController::class, 'update'])->name('entries.update');
+        Route::post('entries/destroy', [EntriesController::class, 'destroy'])->name('entries.destroy');
         Route::get('entries/list', [EntriesController::class, 'list'])->name('entries.list');
         Route::get('entries/getIndicator', [EntriesController::class, 'getIndicator'])->name('entries.getIndicator');
 

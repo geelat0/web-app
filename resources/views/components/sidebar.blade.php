@@ -24,37 +24,38 @@
           </a>
         </li>
         <li class="menu-item">
-          <div style="margin-left: 5%; margin-top: 5%; color: #b4b0c4;">Report</div>
+          <div style="margin-left: 5%; margin-top: 5%; color: #b4b0c4;">Reports</div>
         </li>
+        @if(Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP')
         <li class="menu-item {{ request()->is('outcome') ? 'active' : '' }}">
           <a href="/outcome" class="menu-link">
             <i class='menu-icon tf-icons bx bx-archive-in'></i>
-            <div class="text-truncate" data-i18n="Page 2">Account Outcome</div>
+            <div class="text-truncate" data-i18n="Page 2">Organizational Outcome</div>
             {{-- <span class="badge bg-danger badge-notifications p-1 fs-8">14</span> --}}
           </a>
         </li>
+        @endif
+
         <li class="menu-item {{ request()->is('indicator') ? 'active' : '' }}">
           <a href="/indicator" class="menu-link">
             <i class='menu-icon tf-icons bx bx-plus-circle'></i>
             <div class="text-truncate" data-i18n="Page 2">Indicator</div>
           </a>
         </li>
+       
         <li class="menu-item {{ request()->is('entries') ? 'active' : '' }}">
           <a href="/entries" class="menu-link">
             <i class='menu-icon tf-icons bx bx-file'></i>
             <div class="text-truncate" data-i18n="Page 2">Entries</div>
           </a>
-        </li>
+        </li> 
+        
+        @if(Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP')
 
         <li class="menu-item">
-            <div style="margin-left: 5%; margin-top: 5%; color: #b4b0c4;">Users</div>
+            <div style="margin-left: 5%; margin-top: 5%; color: #b4b0c4;">User Management</div>
           </li>
-        <li class="menu-item {{ request()->is('user') ? 'active' : '' }}">
-          <a href="/user" class="menu-link">
-            <i class='menu-icon tf-icons bx bx-group'></i>
-            <div class="text-truncate" data-i18n="Page 2">User</div>
-          </a>
-        </li>
+
         <li class="menu-item {{ request()->is('roles') ? 'active' : '' }}">
           <a href="/roles" class="menu-link">
             <i class='menu-icon bx bx-purchase-tag-alt'></i>
@@ -62,11 +63,20 @@
             <div class="text-truncate" data-i18n="Page 2">Role</div>
           </a>
         </li>
-        <li class="menu-item">
+
+        <li class="menu-item {{ request()->is('user') ? 'active' : '' }}">
+          <a href="/user" class="menu-link">
+            <i class='menu-icon tf-icons bx bx-group'></i>
+            <div class="text-truncate" data-i18n="Page 2">Users</div>
+          </a>
+        </li>
+
+        <li class="menu-item" {{ request()->is('login_in') ? 'active' : '' }}>
             <a href="/login_in" class="menu-link">
               <i class='menu-icon tf-icons bx bx-history' ></i>
               <div class="text-truncate" data-i18n="Page 2">History</div>
             </a>
           </li>
+          @endif
       </ul>
   </aside>

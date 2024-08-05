@@ -12,6 +12,10 @@
                         <div class="col">
                             <div id="organizational_outcomes">
                                 <div class="form-group">
+                                    <label for="organizational_outcome_order_0" class="required">Order</label>
+                                    <input type="number" class="form-control capitalize" name="organizational_outcome_order[]" id="organizational_outcome_order_0" aria-describedby="">
+                                </div>
+                                <div class="form-group">
                                     <label for="organizational_outcome_0" class="required">Organization Outcome</label>
                                     <input type="text" class="form-control capitalize" name="organizational_outcome[]" id="organizational_outcome_0" aria-describedby="">
                                 </div>

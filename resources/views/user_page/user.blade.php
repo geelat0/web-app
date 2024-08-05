@@ -423,50 +423,50 @@
                                 });
                             }
                         },
-                        {
-                            text: 'Disabled 2FA',
-                            action: function(e, dt, node, config) {
-                                var selectedData = dt.row({ selected: true }).data();
-                                showLoader();
+                        // {
+                        //     text: 'Disabled 2FA',
+                        //     action: function(e, dt, node, config) {
+                        //         var selectedData = dt.row({ selected: true }).data();
+                        //         showLoader();
 
-                                $.ajax({
-                                    url: '{{ route('twofaDisabled') }}',
-                                    method: 'POST',
-                                    data: {
-                                        id: selectedData.id,
-                                        _token: '{{ csrf_token() }}'
-                                    },
-                                    success: function(response) {
-                                        if (response.success) {
-                                            hideLoader();
+                        //         $.ajax({
+                        //             url: '{{ route('twofaDisabled') }}',
+                        //             method: 'POST',
+                        //             data: {
+                        //                 id: selectedData.id,
+                        //                 _token: '{{ csrf_token() }}'
+                        //             },
+                        //             success: function(response) {
+                        //                 if (response.success) {
+                        //                     hideLoader();
 
-                                            Swal.fire({
-                                                icon: 'success',
-                                                title: 'Success!',
-                                                text: response.message,
-                                                showConfirmButton: true,
-                                            })
+                        //                     Swal.fire({
+                        //                         icon: 'success',
+                        //                         title: 'Success!',
+                        //                         text: response.message,
+                        //                         showConfirmButton: true,
+                        //                     })
 
-                                        } else {
-                                            Swal.fire({
-                                                icon: 'error',
-                                                title: 'Error!',
-                                                text: response.message,
-                                                showConfirmButton: true,
-                                            })
-                                            hideLoader();
-                                        }
-                                    },
-                                    error: function(xhr) {
-                                        hideLoader();
-                                        console.log(xhr.responseText);
-                                    }
-                                });
-                                console.log(selectedData.id);
-                            }
+                        //                 } else {
+                        //                     Swal.fire({
+                        //                         icon: 'error',
+                        //                         title: 'Error!',
+                        //                         text: response.message,
+                        //                         showConfirmButton: true,
+                        //                     })
+                        //                     hideLoader();
+                        //                 }
+                        //             },
+                        //             error: function(xhr) {
+                        //                 hideLoader();
+                        //                 console.log(xhr.responseText);
+                        //             }
+                        //         });
+                        //         console.log(selectedData.id);
+                        //     }
 
 
-                        },
+                        // },
                         {
                             text: 'Temporary Password',
                             action: function (e, dt, node, config) {
@@ -511,6 +511,7 @@
 
                             }
                         },
+                        @if(Auth::user()->role->name === 'IT')
                         {
                             text: 'Proxy Login',
                             action: function (e, dt, node, config) {
@@ -549,6 +550,7 @@
 
                             }
                         },
+                        @endif
                     ]
                 }
             ],

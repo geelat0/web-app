@@ -30,21 +30,21 @@ class DivisionSeeder extends Seeder
           );
           Division::create(
             [
-                'division_name'=> 'ALBAY PO',
+                'division_name'=> 'Albay PO',
                 'created_by'=> 'IT',
                 
             ]
           );
           Division::create(
             [
-                'division_name'=> 'Camarines Sur PO',
+                'division_name'=> 'Camarines_Sur PO',
                 'created_by'=> 'IT',
                 
             ]
           );
           Division::create(
             [
-                'division_name'=> 'Cam Norte PO',
+                'division_name'=> 'Camarines_Norte PO',
                 'created_by'=> 'IT',
                 
             ]

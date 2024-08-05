@@ -59,7 +59,7 @@
                                     <div class="mb-3">
                                         <div class="form-group">
                                             <label for="create_by" class="form-label">Created By</label>
-                                            <input type="text" class="form-control" id="create_by" value="{{$user->first_name . ' ' . $user->last_name}}" disabled/>
+                                            <input type="text" class="form-control" id="create_by" value="{{$user->user_name}}" disabled/>
                                         </div>
                                     </div>
                                 </div>

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('org_otc', function (Blueprint $table) {
             $table->id();
+            $table->integer('organizational_outcome_order');
             $table->string('organizational_outcome');
             $table->string('status')->default('Active');
             $table->string('created_by');

@@ -12,6 +12,7 @@
                         <h4 class="card-title"> <a href="/indicator" class="text-primary"><i class='bx bx-left-arrow-circle'></i></a>
                             View</h4>
                         <div class="row">
+                            <input type="hidden" name="id" value="{{ $indicator->id }}">
                             <div class="form-group">
                                 <label for="org_id" class="required">Organizational Outcome</label>
                                 <select id="org_id" class="form-select capitalize" name="org_id" disabled>
@@ -46,6 +47,12 @@
                                         @endif
                                     </select>
                                     <div class="invalid-feedback" id="division_idError"></div>
+                                </div>
+                                <div class="row mt-3 mb-3">
+                                    <div class="col" id="targetFields_0">
+
+                                    </div>
+                                    
                                 </div>
                                 <div class="col">
                                     <div class="form-group">
@@ -92,12 +99,13 @@
             </div>
         </div>
 
-        <div class="row mt-3">
+        {{-- <div class="row mt-3">
             <div class="col">
                 <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary">Submit</button>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </form>
 </div>
 @endsection
@@ -159,9 +167,22 @@ $(document).ready(function() {
                 },
                 cache: true
             }
+        }).on('change', function() {
+            const index = $(this).attr('id').split('_').pop();
+            const selectedDivisions = $(this).val();
+            updateTargetFields(index, selectedDivisions);
+        });
+
+        // Check if any divisions are already selected and update accordingly
+        $('.division-select').each(function() {
+            const index = $(this).attr('id').split('_').pop();
+            const selectedDivisions = $(this).val();
+            if (selectedDivisions.length > 0) {
+                updateTargetFields(index, selectedDivisions);
+            }
         });
     }
-    initializeDivisionSelect();
+    // initializeDivisionSelect();
 
     function setCurrentMonth(index) {
         const now = new Date();
@@ -219,6 +240,152 @@ $(document).ready(function() {
             .val('Actual');
         }
     });
+
+
+     //---------------------------------------------------START JS FOR DIVISION'S INPUTS---------------------------------------------------//
+
+   // Function to update target fields based on selected divisions
+    function updateTargetFields(index, selectedDivisions, isInitialLoad = false) {
+        const targetContainer = $(`#targetFields_${index}`);
+        targetContainer.empty();
+
+        if (selectedDivisions.length > 0) {
+            selectedDivisions.forEach((divisionId) => {
+                const divisionName = $(`#division_id_${index} option[value="${divisionId}"]`).text();
+                const cleanedDivisionName = divisionName.replace(/\s*PO$/, '');
+
+                if (divisionName.includes("PO")) {
+                    const targetValue = @json($division_targets)[divisionId] || 0;
+                    const targetHtml = `
+                        <div class="form-group">
+                            <label for="target_${divisionId}_${index}" class="required">${divisionName} Target</label>
+                            <input type="text" class="form-control capitalize target-input" name="${cleanedDivisionName}_target[]" id="target_${divisionId}_${index}" aria-describedby="" value="${targetValue}" disabled>
+                            <div class="invalid-feedback" id="targetError_${divisionId}_${index}"></div>
+                        </div>
+                    `;
+                    targetContainer.append(targetHtml);
+
+                    // Enable the target input and attach the input event to calculate total
+                    const targetInput = $(`#target_${divisionId}_${index}`);
+                    if (!isInitialLoad) {
+                        // targetInput.removeAttr('disabled');
+                    } else {
+                        const targetValue = $(`#target_${index}`).val();
+                        // targetInput.val(targetValue).removeAttr('disabled');
+                    }
+
+                    targetInput.on('input', function() {
+                        let total = 0;
+                        $(`#targetFields_${index} .target-input`).each(function() {
+                            const value = parseFloat($(this).val().replace('%', ''));
+                            if (!isNaN(value)) {
+                                total += value;
+                            }
+                        });
+                        $(`#target_${index}`).val(total);
+                    });
+                } else {
+                    $(`.percent`).removeClass('d-none');
+                }
+            });
+        }
+    }
+
+    // Trigger the initialization function on page load
+    initializeDivisionSelect();
+
+    $(document).on('change', '.division-select', function() {
+        const index = $(this).attr('id').split('_').pop();
+        const selectedDivisions = $(this).val();
+
+        const hasPO = selectedDivisions.some((divisionId) => {
+            const divisionName = $(`#division_id_${index} option[value="${divisionId}"]`).text();
+            return divisionName.includes("PO");
+        });
+
+        updateTargetFields(index, selectedDivisions);
+
+        if (hasPO) {
+            updateTargetFields(index, selectedDivisions);
+        }
+    });
+
+
+    $(document).on('change', 'input[name^="targetType"]', function() {
+        const index = $(this).closest('.card').find('input[name^="targetType"]').attr('id').split('_').pop();
+        const selectedType = $(this).val();
+
+        $(`#targetFields_${index} .target-input`).each(function() {
+            const targetInput = $(this);
+            const currentValue = targetInput.val();
+            const divisionId = targetInput.attr('id').split('_')[1];
+
+            if (selectedType === 'percentage') {
+                targetInput
+                    .attr('type', 'text') // Set type to text to allow appending "%"
+                    .attr('min', '0')
+                    .attr('max', '100')
+                    .attr('placeholder', '%')
+                    .removeAttr('disabled')
+                    .val(currentValue.replace('Actual', ''))
+                    .off('input.percentage')
+                    .on('input.percentage', function() {
+                        // Remove non-numeric characters except '%'
+                        let value = $(this).val().replace(/[^\d%]/g, '');
+
+                        if (value.indexOf('%') !== -1) {
+                            value = value.substring(0, value.indexOf('%') + 1); // Keep only one "%"
+                        }
+                        // Ensure the value is within the range
+                        if ($.isNumeric(value) && value >= 0 && value <= 100) {
+                            $(this).val(`${value}%`);
+                        } else {
+                            $(this).val(value);
+                        }
+                    });
+
+            } else if (selectedType === 'number') {
+                targetInput
+                    .attr('type', 'number')
+                    .removeAttr('min')
+                    .removeAttr('max')
+                    .removeAttr('placeholder')
+                    .removeAttr('disabled')
+                    .val(currentValue.replace('%', ''))
+                    .off('input.percentage');
+
+                    let total = 0;
+                    $(`#targetFields_${index} .target-input`).each(function() {
+                        const value = parseFloat($(this).val().replace('%', ''));
+                        if (!isNaN(value)) {
+                            total += value;
+                        }
+                    });
+
+                    $(`#target_${index}`).val(total);
+
+                    // calculateTotalTarget(index);
+
+            } else if (selectedType === 'actual') {
+                targetInput
+                    .attr('type', 'text')
+                    .attr('disabled', 'disabled')
+                    .removeAttr('placeholder')
+                    .off('input.percentage')
+                    .val('Actual');
+                    $(`#target_${index}`).val('Actual')
+            }
+        });
+
+    });
+
+    $(document).on('input', '.target-input', function() {
+        const index = $(this).closest('.card').find('input[name^="targetType"]').attr('id').split('_').pop();
+        // calculateTotalTarget(index);
+    });
+
+    //---------------------------------------------------END JS FOR DIVISION'S INPUTS---------------------------------------------------//
+
 
     // Form submission
     $('#NewIndicatorForm').on('submit', function(e) {

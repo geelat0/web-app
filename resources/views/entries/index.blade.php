@@ -26,7 +26,6 @@
                     </div>
                 </div>
                 <div class="collapse" id="collapseExample">
-                    <div class="card card-body">
                         <div class="d-flex justify-content-center mb-3">
                             <div class="input-group input-group-sm me-3">
                                 <input type="text" id="search-input" class="form-control form-control-sm" placeholder="Search...">
@@ -35,7 +34,6 @@
                                 <input type="text" id="date-range-picker" class="form-control form-control-sm" placeholder="Select date range">
                             </div>
                         </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -123,7 +121,7 @@
 
                         if (selectedData && selectedData.id) {
                            
-                            window.location.href = `/indicator_edit?id=${selectedData.id}`;
+                            window.location.href = `/entries_edit?id=${selectedData.id}`;
                             console.log(selectedData.id);
                         } else {
                             alert('No item selected or invalid ID.');
@@ -142,7 +140,7 @@
 
                         if (selectedData && selectedData.id) {
                         
-                            window.location.href = `/indicator_view?id=${selectedData.id}`;
+                            window.location.href = `/entries_view?id=${selectedData.id}`;
                             console.log(selectedData.id);
                         } else {
                             alert('No item selected or invalid ID.');
@@ -170,7 +168,7 @@
                             if (result.isConfirmed) {
                                 showLoader();
                                 $.ajax({
-                                    url: '{{ route('indicator.destroy') }}',
+                                    url: '{{ route('entries.destroy') }}',
                                     method: 'POST',
                                     data: {
                                         _token: '{{ csrf_token() }}',
@@ -181,7 +179,7 @@
                                         if (response.success) {
                                             Swal.fire(
                                                 'Deleted!',
-                                                'Indicator has been deleted.',
+                                                'Entry has been deleted.',
                                                 'success'
                                             );
                                             table.ajax.reload();

@@ -17,6 +17,7 @@
                                 <label for="org_id" class="required">Organizational Outcome</label>
                                 <select id="org_id" class="form-select capitalize" name="org_id">
                                 </select>
+                                <div class="invalid-feedback" id="org_idError"></div>
                             </div>
                         </div>
                     </div>
@@ -32,22 +33,31 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="form-group">
-                                    <label for="measures" class="required">Measure</label>
+                                    <label for="measures_0" class="required">Measure</label>
                                     <textarea type="text" class="form-control capitalize" name="measures[]" id="measures_0" aria-describedby=""></textarea>
+                                    <div class="invalid-feedback" id="measuresError_0"></div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="division_id" class="required">Division</label>
+                                    <label for="division_id_0" class="required">Division</label>
                                     <select id="division_id_0" class="division-select form-select" name="division_id[0][]" multiple="multiple">
                                     </select>
-                                    <div class="invalid-feedback" id="division_idError_[]"></div>
+                                    <div class="invalid-feedback" id="division_idError_0"></div>
                                 </div>
+                                <div class="row mt-3 mb-3">
+                                    <div class="col" id="targetFields_0">
+
+                                    </div>
+                                    
+                                </div>
+                            
                                 <div class="col">
                                     <div class="form-group">
-                                        <label for="target" class="required">Target</label>
-                                        <input type="text" class="form-control capitalize" name="target[]" id="target_0" aria-describedby="" disabled>
-                                        <div class="invalid-feedback" id="targetError[]"></div>
+                                        <label for="target_0" class="required">Target</label>
+                                        <input type="text" class="form-control capitalize target-input" name="target[]" id="target_0" aria-describedby="" disabled>
+                                        {{-- <input type="text" class="form-control capitalize target-input d-none" name="target[]" id="targetDivision_0" aria-describedby="" disabled> --}}
+                                        <div class="invalid-feedback" id="targetError_0"></div>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="form-group percent">
                                         <input class="form-check-input" type="radio" name="targetType_0" id="Percentage_0" value="percentage">
                                         <label class="form-check-label" for="Percentage_0">Percentage</label>
                                     </div>
@@ -62,9 +72,9 @@
                                 </div>
                                 <div class="col">
                                     <div class="form-group" class="required">
-                                        <label for="alloted_budget">Alloted Budget</label>
+                                        <label for="alloted_budget_0">Alloted Budget</label>
                                         <input type="number" class="form-control capitalize" name="alloted_budget[]" id="alloted_budget_0" aria-describedby="">
-                                        <div class="invalid-feedback" id="alloted_budgetError"></div>
+                                        <div class="invalid-feedback" id="alloted_budgetError_0"></div>
                                     </div>
                                 </div>
                                 <div class="col">
@@ -76,7 +86,7 @@
                                                 <option value="{{ $i }}">{{ date('F', mktime(0, 0, 0, $i, 10)) }}</option>
                                             @endfor
                                         </select>
-                                        <div class="invalid-feedback" id="monthsError_[]"></div>
+                                        <div class="invalid-feedback" id="monthsError_0"></div>
                                     </div>
                                 </div>
                             </div>
@@ -86,9 +96,6 @@
             </div>
 
         </div>
-       
-
-
 
         <div class="row mt-3">
             <div class="col">
@@ -113,69 +120,8 @@
 
 <script>
 $(document).ready(function() {
-    $('#org_id').select2({
-        placeholder: 'Select an Option',
-        allowClear: true,
-        ajax: {
-            url: '{{ route('org.getOrg') }}',
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-                return {
-                    q: params.term // search term
-                };
-            },
-            processResults: function (data) {
-                return {
-                    results: $.map(data, function (item) {
-                        return {
-                            id: item.id,
-                            text: item.organizational_outcome
-                        };
-                    })
-                };
-            },
-            cache: true
-        }
-    });
 
-    function initializeDivisionSelect() {
-        $('.division-select').select2({
-            placeholder: 'Select an Option',
-            allowClear: true,
-            ajax: {
-                url: '{{ route('indicator.getDivision') }}',
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    return {
-                        q: params.term // search term
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {
-                                id: item.id,
-                                text: item.division_name
-                            };
-                        })
-                    };
-                },
-                cache: true
-            }
-        });
-    }
-    initializeDivisionSelect();
-
-    function setCurrentMonth(index) {
-        const now = new Date();
-        const currentMonth = now.getMonth() + 1; // getMonth() returns 0-based index, so add 1
-        $(`#months_${index}`).val(currentMonth).prop('disabled', true);
-    }
-
-    setCurrentMonth(0);
-
+    //---------------------------------------------------START NEW CARD---------------------------------------------------//
 
     let outcomeIndex = 1;
 
@@ -188,7 +134,7 @@ $(document).ready(function() {
                         <div class="row">
                             <div class="form-group">
                                 <label for="measures_${outcomeIndex}" class="required">Measure</label>
-                                <input type="text" class="form-control capitalize" name="measures[]" id="measures_${outcomeIndex}" aria-describedby="">
+                                <textarea type="text" class="form-control capitalize" name="measures[]" id="measures_${outcomeIndex}" aria-describedby=""></textarea>
                                 <div class="invalid-feedback" id="measureError_${outcomeIndex}"></div>
                             </div>
                             <div class="form-group">
@@ -196,13 +142,16 @@ $(document).ready(function() {
                                 <select id="division_id_${outcomeIndex}" class="division-select form-select" name="division_id[${outcomeIndex}][]" multiple="multiple">
                                 </select>
                             </div>
+                             <div class="row mt-3 mb-3">
+                                <div id="targetFields_${outcomeIndex}" class="col"></div>
+                            </div>
                             <div class="col">
                                 <div class="form-group">
                                      <label for="target_${outcomeIndex}" class="required">Target</label>
                                     <input type="text" class="form-control capitalize" name="target[]" id="target_${outcomeIndex}" aria-describedby="" disabled>
                                     <div class="invalid-feedback" id="targetError_${outcomeIndex}"></div>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group percent">
                                     <input class="form-check-input target-type" type="radio" name="targetType_${outcomeIndex}" id="Percentage_${outcomeIndex}" value="percentage">
                                     <label class="form-check-label" for="Percentage_${outcomeIndex}">Percentage</label>
                                 </div>
@@ -257,6 +206,86 @@ $(document).ready(function() {
         $(`#cards-container_${index}`).remove();
     });
 
+    //---------------------------------------------------END NEW CARD---------------------------------------------------//
+
+
+
+    //---------------------------------------------------START GET OUTCOME---------------------------------------------------//
+
+    $('#org_id').select2({
+        placeholder: 'Select an Option',
+        allowClear: true,
+        ajax: {
+            url: '{{ route('org.getOrg') }}',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term // search term
+                };
+            },
+            processResults: function (data) {
+                return {
+                    results: $.map(data, function (item) {
+                        return {
+                            id: item.id,
+                            text: item.organizational_outcome
+                        };
+                    })
+                };
+            },
+            cache: true
+        }
+    });
+    //---------------------------------------------------END GET OUTCOME---------------------------------------------------//
+
+
+    //---------------------------------------------------START GET DIVISION---------------------------------------------------//
+
+    function initializeDivisionSelect() {
+        $('.division-select').select2({
+            placeholder: 'Select an Option',
+            allowClear: true,
+            ajax: {
+                url: '{{ route('indicator.getDivision') }}',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        q: params.term // search term
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                id: item.id,
+                                text: item.division_name
+                            };
+                        })
+                    };
+                },
+                cache: true
+            }
+        });
+    }
+    initializeDivisionSelect();
+
+    //---------------------------------------------------END GET DIVISION---------------------------------------------------//
+
+    //---------------------------------------------------START GET CURRENT MONTH---------------------------------------------------//
+
+    function setCurrentMonth(index) {
+        const now = new Date();
+        const currentMonth = now.getMonth() + 1;
+        $(`#months_${index}`).val(currentMonth).prop('disabled', true);
+    }
+
+    setCurrentMonth(0);
+    //---------------------------------------------------END GET CURRENT MONTH---------------------------------------------------//
+
+    //---------------------------------------------------START JS FOR TARGET TYPE---------------------------------------------------//
+
 
     $(document).on('change', 'input[name^="targetType"]', function() {
         const index = $(this).closest('.card').find('input[name^="targetType"]').attr('id').split('_').pop();
@@ -306,11 +335,157 @@ $(document).ready(function() {
         }
     });
 
+    //---------------------------------------------------END JS FOR TARGET TYPE---------------------------------------------------//
+
+    //---------------------------------------------------START JS FOR DIVISION'S INPUTS---------------------------------------------------//
+
+
+    
+    function updateTargetFields(index, selectedDivisions) {
+        const targetContainer = $(`#targetFields_${index}`);
+        targetContainer.empty(); 
+        
+        if (selectedDivisions.length > 0) {
+            selectedDivisions.forEach((divisionId) => {
+                const divisionName = $(`#division_id_${index} option[value="${divisionId}"]`).text();
+                const cleanedDivisionName = divisionName.replace(/\s*PO$/, '');
+
+                if (divisionName.includes("PO")) {
+                    const targetHtml = `
+                        <div class="form-group">
+                            <label for="target_${divisionId}_${index}" class="required">${divisionName} Target</label>
+                            <input type="text" class="form-control capitalize target-input" name="${cleanedDivisionName}_target[]" id="target_${divisionId}_${index}" aria-describedby="" disabled>
+                            <div class="invalid-feedback" id="targetError_${divisionId}_${index}"></div>
+                        </div>
+                    `;
+                    targetContainer.append(targetHtml);
+
+                    // Enable the target input and attach the input event to calculate total
+                    const targetInput = $(`#target_${divisionId}_${index}`);
+                    // $(`#target_${index}`).addClass('d-none');
+                    // $(`#target_${index}`).removeClass('d-none')
+                    // $(`#targetDivision_${index}`).removeAttr('disabled')
+                        $(`.percent`).addClass('d-none')
+                    // targetInput.removeAttr('disabled');
+                    targetInput.on('input', function() {
+                        let total = 0;
+                        $(`#targetFields_${index} .target-input`).each(function() {
+                            const value = parseFloat($(this).val().replace('%', ''));
+                            if (!isNaN(value)) {
+                                total += value;
+                            }
+                        });
+
+                        $(`#target_${index}`).val(total);
+                    });
+                }else{
+                    $(`.percent`).removeClass('d-none')
+                }
+            });
+        }
+    }
+
+    $(document).on('change', '.division-select', function() {
+        const index = $(this).attr('id').split('_').pop();
+        const selectedDivisions = $(this).val();
+
+        const hasPO = selectedDivisions.some((divisionId) => {
+            const divisionName = $(`#division_id_${index} option[value="${divisionId}"]`).text();
+            return divisionName.includes("PO");
+        });
+
+        updateTargetFields(index, selectedDivisions);
+
+        if (hasPO) {
+            updateTargetFields(index, selectedDivisions);
+        }
+    });
+
+
+    $(document).on('change', 'input[name^="targetType"]', function() {
+        const index = $(this).closest('.card').find('input[name^="targetType"]').attr('id').split('_').pop();
+        const selectedType = $(this).val();
+
+        $(`#targetFields_${index} .target-input`).each(function() {
+            const targetInput = $(this);
+            const currentValue = targetInput.val();
+            const divisionId = targetInput.attr('id').split('_')[1];
+
+            if (selectedType === 'percentage') {
+                targetInput
+                    .attr('type', 'text') // Set type to text to allow appending "%"
+                    .attr('min', '0')
+                    .attr('max', '100')
+                    .attr('placeholder', '%')
+                    .removeAttr('disabled')
+                    .val(currentValue.replace('Actual', ''))
+                    .off('input.percentage')
+                    .on('input.percentage', function() {
+                        // Remove non-numeric characters except '%'
+                        let value = $(this).val().replace(/[^\d%]/g, '');
+
+                        if (value.indexOf('%') !== -1) {
+                            value = value.substring(0, value.indexOf('%') + 1); // Keep only one "%"
+                        }
+                        // Ensure the value is within the range
+                        if ($.isNumeric(value) && value >= 0 && value <= 100) {
+                            $(this).val(`${value}%`);
+                        } else {
+                            $(this).val(value);
+                        }
+                    });
+
+            } else if (selectedType === 'number') {
+                targetInput
+                    .attr('type', 'number')
+                    .removeAttr('min')
+                    .removeAttr('max')
+                    .removeAttr('placeholder')
+                    .removeAttr('disabled')
+                    .val(currentValue.replace('%', ''))
+                    .off('input.percentage');
+
+                    let total = 0;
+                    $(`#targetFields_${index} .target-input`).each(function() {
+                        const value = parseFloat($(this).val().replace('%', ''));
+                        if (!isNaN(value)) {
+                            total += value;
+                        }
+                    });
+
+                    $(`#target_${index}`).val(total);
+
+                    // calculateTotalTarget(index);
+
+            } else if (selectedType === 'actual') {
+                targetInput
+                    .attr('type', 'text')
+                    .attr('disabled', 'disabled')
+                    .removeAttr('placeholder')
+                    .off('input.percentage')
+                    .val('Actual');
+                    $(`#target_${index}`).val('Actual')
+            }
+        });
+
+    });
+
+    $(document).on('input', '.target-input', function() {
+        const index = $(this).closest('.card').find('input[name^="targetType"]').attr('id').split('_').pop();
+        // calculateTotalTarget(index);
+    });
+
+    //---------------------------------------------------END JS FOR DIVISION'S INPUTS---------------------------------------------------//
+
+    //---------------------------------------------------START JS FOR SAVING THE DATA---------------------------------------------------//
 
 
     $('#NewIndicatorForm').on('submit', function(e) {
         e.preventDefault();
         showLoader();
+
+        // Client-side validation for division select
+        
 
         $.ajax({
             url: '{{ route('indicator.store') }}',
@@ -334,12 +509,15 @@ $(document).ready(function() {
                 hideLoader();
                 if (xhr.status === 422) {
                     const errors = xhr.responseJSON.errors;
+                    let isValid = true;
                     $('.invalid-feedback').html(''); // Clear any previous error messages
                     for (let key in errors) {
                         const keyParts = key.split('.');
+                        console.log(keyParts);
                         if (keyParts.length > 1) {
                             const index = keyParts[1];
                             const errorKey = keyParts[0];
+                            console.log(errorKey);
                             $(`#${errorKey}Error_${index}`).html(errors[key][0]).show();
                         } else {
                             $(`#${key}Error`).html(errors[key][0]).show();
@@ -351,6 +529,27 @@ $(document).ready(function() {
                         html: 'Please fill out the required fields with asterisk',
                         showConfirmButton: true,
                     });
+
+                    $('.division-select').each(function() {
+                        const index = $(this).attr('id').split('_').pop();
+                        if ($(this).val().length === 0) { // Check if no value is selected
+                            $(`#division_idError_${index}`).html('Please select at least one division.').show();
+                            isValid = false;
+                        } else {
+                            $(`#division_idError_${index}`).html('').hide();
+                        }
+                    });
+
+                    if (!isValid) {
+                        hideLoader();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Validation Errors!',
+                            html: 'Please fill out the required fields with asterisk',
+                            showConfirmButton: true,
+                        });
+                        return;
+                    }
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -363,8 +562,12 @@ $(document).ready(function() {
         });
     });
 
-});
+    //---------------------------------------------------END JS FOR SAVING THE DATA---------------------------------------------------//
 
+
+
+
+});
 
 
 </script>

@@ -41,8 +41,17 @@ class AuthController extends Controller
             return response()->json(['success' => false,'errors' => $validator->errors()], 200);
         }
         $credentials = $request->only('email', 'password');
+        $remember = $request->has('remember');
+        // dd($request->remember);
 
-        if (auth()->attempt($credentials)) {
+        if($request->remember == 1){
+            $attempt = auth()->attempt($credentials, $remember);
+        }else{
+            $attempt = auth()->attempt($credentials);
+        }
+
+
+        if ($attempt) {
             if (auth()->user()->status == 'Active') {
                 $loginS = new LoginModel();
                 $loginS->status = 'Logged In';

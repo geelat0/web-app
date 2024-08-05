@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -23,6 +24,46 @@ class EntriesController extends Controller
 
         $user=Auth::user();
         return view('entries.create', compact('user'));
+    }
+    public function edit(Request $request){
+
+        $id = $request->query('id');
+
+        $entries = Entries::find(Crypt::decrypt($id));
+
+        if ($entries && $entries->file) {
+            // Decode the Base64 file to get the original contents
+            $fileContents = base64_decode($entries->file);
+            // Save the file temporarily or just pass the necessary data to the view
+            $fileName = 'entry_' . $entries->id . '.pdf'; // Example file name
+            Storage::put('public/entries/' . $fileName, $fileContents);
+            $fileUrl = Storage::url('public/entries/' . $fileName);
+        } else {
+            $fileUrl = null;
+        }
+
+        $user=Auth::user();
+        return view('entries.edit', compact('user', 'entries', 'fileUrl'));
+    }
+    public function view(Request $request){
+
+        $id = $request->query('id');
+
+        $entries = Entries::find(Crypt::decrypt($id));
+
+        if ($entries && $entries->file) {
+            // Decode the Base64 file to get the original contents
+            $fileContents = base64_decode($entries->file);
+            // Save the file temporarily or just pass the necessary data to the view
+            $fileName = 'entry_' . $entries->id . '.pdf'; // Example file name
+            Storage::put('public/entries/' . $fileName, $fileContents);
+            $fileUrl = Storage::url('public/entries/' . $fileName);
+        } else {
+            $fileUrl = null;
+        }
+
+        $user=Auth::user();
+        return view('entries.view', compact('user', 'entries', 'fileUrl'));
     }
     public function getIndicator(Request $request){
         $searchTerm = $request->input('q'); // Capture search term
@@ -84,9 +125,9 @@ class EntriesController extends Controller
         if ($request->has('search') && !empty($request->search)) {
             $searchTerm = $request->search;
 
-            $query->where(function($subQuery) use ($searchTerm) {
-                $subQuery->where('name', 'like', "%{$searchTerm}%")
-                        //  ->orWhere('created_by', 'like', "%{$searchTerm}%")
+            $query->whereHas('indicator',function($subQuery) use ($searchTerm) {
+                $subQuery->where('target', 'like', "%{$searchTerm}%")
+                         ->orWhere('measures', 'like', "%{$searchTerm}%")
                          ->orWhere('status', 'like', "%{$searchTerm}%");
 
             });
@@ -109,5 +150,60 @@ class EntriesController extends Controller
             })
            
             ->make(true);
+    }
+
+    public function update(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'indicator_id' => 'required|exists:success_indc,id',
+            'file' => 'nullable|file|mimes:pdf|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $entry = Entries::find($request->input('id'));
+
+        if ($request->hasFile('file')) {
+            // Handle the file
+            $file = $request->file('file');
+            $fileContents = file_get_contents($file->getRealPath()); // Get the file contents
+            $base64File = base64_encode($fileContents); // Convert to Base64
+
+            // Validate the Base64 data (Check for PDF magic number)
+            if (substr($fileContents, 0, 4) !== '%PDF') {
+                return response()->json(['errors' => ['file' => 'Invalid PDF file']], 422);
+            }
+           
+        }
+        $entry->indicator_id = $request->input('indicator_id');
+        $entry->months = Carbon::now()->month;
+        $entry->file = $base64File;
+        $entry->status = 'Active';
+        $entry->created_by = Auth::user()->user_name;
+        $entry->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Entry updated successfully!',
+            'entry' => $entry
+        ]);
+    }
+
+    public function destroy(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            // 'id' => 'required|exists:org_otc,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 200);
+        }
+
+        $role = Entries::findOrFail(Crypt::decrypt($request->id));
+        $role->delete();
+
+        return response()->json(['success' => true, 'message' => 'Entry deleted successfully']);
     }
 }

@@ -116,10 +116,10 @@
                 </div>
               </div>
               <div class="mb-3">
-                <div class="form-check">
+                {{-- <div class="form-check">
                   <input class="form-check-input" type="checkbox" id="remember-me" name="remember"/>
                   <label class="form-check-label" for="remember-me"> Remember Me </label>
-                </div>
+                </div> --}}
               </div>
               <button type="submit" class="btn btn-primary d-grid w-100">Sign in</button>
             </form>
@@ -193,7 +193,7 @@
         data: {
           email: $('#email').val(),
           password: $('#password').val(),
-          // remember: $('#remember').is(':checked') ? 1 : 0,
+          // remember: $('#remember-me').is(':checked') ? 1 : 0,
           _token: '{{ csrf_token() }}'
         },
         success: function(response) {
