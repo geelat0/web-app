@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('org_otc', function (Blueprint $table) {
+        Schema::create('transaction_history', function (Blueprint $table) {
             $table->id();
-            $table->integer('order')->default('0');
-            $table->string('organizational_outcome');
-            $table->string('status')->default('Active');
-            $table->string('created_by');
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('indicator_id');
             $table->timestamps();
-            $table->softDeletes();
+
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('indicator_id')->references('id')->on('success_indc');
         });
     }
 
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('org_otc');
+        Schema::dropIfExists('transaction_history');
     }
 };

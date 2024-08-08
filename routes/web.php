@@ -79,8 +79,14 @@ Route::middleware(['auth_check'])->group(function () {
         Route::get('indicator/getDivision', [IndicatorController::class, 'getDivision'])->name('indicator.getDivision');
         Route::post('indicator/store', [IndicatorController::class, 'store'])->name('indicator.store');
         Route::match(['post', 'put'], 'indicator/update', [IndicatorController::class, 'update'])->name('indicator.update');
+        Route::match(['post', 'put'], 'indicator/update_2', [IndicatorController::class, 'update_nonSuperAdmin'])->name('indicator.update_nonSuperAdmin');
+        Route::match(['post', 'put'], 'indicator/update_v2', [IndicatorController::class, 'update_nonSuperAdminV2'])->name('indicator.update_nonSuperAdminV2');
         Route::get('indicator_view', [IndicatorController::class, 'view'])->name('indicator.view');
         Route::post('indicator/destroy', [IndicatorController::class, 'destroy'])->name('indicator.destroy');
+        Route::get('getIndicator', [IndicatorController::class, 'getIndicator'])->name('getIndicator');
+
+        Route::get('getMeasureDetails', [IndicatorController::class, 'getMeasureDetails'])->name('indicator.getMeasureDetails');
+
 
         Route::get('entries', [EntriesController::class, 'index'])->name('entries');
         Route::get('entries_create', [EntriesController::class, 'create'])->name('create');

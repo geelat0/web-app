@@ -24,7 +24,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="row">
-                                <div class="col mt-2">
+                                <div class="col">
                                     <div class="mb-3">
                                         <div class="form-group">
                                             <label for="indicator_id" class="required">Indicator</label>
@@ -33,7 +33,11 @@
                                             <div id="indicator_idError" class="invalid-feedback"></div>
                                         </div>
                                     </div>
-
+                                    
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
                                     <div class="mb-3">
                                         <div class="form-group">
                                             <label for="months">Month</label>
@@ -53,13 +57,6 @@
                                             <label for="file" class="required">Upload</label>
                                             <input class="form-control" name="file" type="file" id="file">
                                             <div id="fileError" class="invalid-feedback"></div>
-
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <div class="form-group">
-                                            <label for="create_by" class="form-label">Created By</label>
-                                            <input type="text" class="form-control" id="create_by" value="{{$user->user_name}}" disabled/>
                                         </div>
                                     </div>
                                 </div>

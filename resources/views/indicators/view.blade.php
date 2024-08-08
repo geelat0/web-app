@@ -13,6 +13,7 @@
                             View</h4>
                         <div class="row">
                             <input type="hidden" name="id" value="{{ $indicator->id }}">
+                            @if(in_array(Auth::user()->role->name, ['IT', 'SAP']))
                             <div class="form-group">
                                 <label for="org_id" class="required">Organizational Outcome</label>
                                 <select id="org_id" class="form-select capitalize" name="org_id" disabled>
@@ -21,6 +22,7 @@
                                     @endif
                                 </select>
                             </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -33,13 +35,13 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="row">
-                                <div class="form-group">
+                                <div class="form-group mb-3">
                                     <label for="measures" class="required">Measure</label>
                                     <textarea type="text" class="form-control capitalize" name="measures" id="measures_0" aria-describedby="" disabled>{{ $indicator->measures }}</textarea>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group mb-3">
                                     <label for="division_id" class="required">Division</label>
-                                    <select id="division_id_0" class="division-select form-select" name="division_id[]" multiple="multiple" disabled>
+                                    <select id="division_id_0" class="division-select form-select" name="division_id[]" multiple="multiple" disabled >
                                         @if($indicator)
                                             @foreach( $division_ids as $division)
                                                 <option value="{{ $division }}" selected>{{ App\Models\Division::find($division)->division_name }}</option>
@@ -48,48 +50,24 @@
                                     </select>
                                     <div class="invalid-feedback" id="division_idError"></div>
                                 </div>
-                                <div class="row mt-3 mb-3">
-                                    <div class="col" id="targetFields_0">
-
-                                    </div>
-                                    
+                            </div>
+                            <div class="row row-cols-4 mb-3" id="targetFields_0">
+                                <div class="col mb-3" >
                                 </div>
+                            </div>
+                            <div class="row">
                                 <div class="col">
-                                    <div class="form-group">
+                                    <div class="form-group mb-3">
                                         <label for="target" class="required">Target</label>
-                                        <input type="text" class="form-control capitalize" name="target" id="target_0" aria-describedby="" value="{{ $indicator->target }}" {{ $indicator->targetType == 'actual' ? 'disabled' : '' }} disabled>
+                                        <input type="text" class="form-control capitalize" name="target" id="target_0" aria-describedby="" value="{{ $indicator->target }}" {{ $indicator->targetType == 'actual' ? 'disabled' : '' }} disabled >
                                         <div class="invalid-feedback" id="targetError[]"></div>
                                     </div>
-                                    {{-- <div class="form-group">
-                                        <input class="form-check-input" type="radio" name="targetType_0" id="Percentage_0" value="percentage" {{ $indicator->targetType == 'percentage' ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="Percentage_0">Percentage</label>
-                                    </div>
-                                    <div class="form-group">
-                                        <input class="form-check-input" type="radio" name="targetType_0" id="Number_0" value="number" {{ $indicator->targetType == 'number' ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="Number_0">Number</label>
-                                    </div>
-                                    <div class="form-group">
-                                        <input class="form-check-input" type="radio" name="targetType_0" id="Actual_0" value="actual" {{ $indicator->targetType == 'actual' ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="Actual_0">Actual</label>
-                                    </div> --}}
                                 </div>
                                 <div class="col">
                                     <div class="form-group">
                                         <label for="alloted_budget" class="required">Alloted Budget</label>
                                         <input type="number" class="form-control capitalize" name="alloted_budget" id="alloted_budget_0" aria-describedby="" value="{{ $indicator->alloted_budget }}" disabled>
                                         <div class="invalid-feedback" id="alloted_budgetError"></div>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="form-group">
-                                        <label for="months_0">Month</label>
-                                        <select id="months_0" class="months form-select" name="months">
-                                            <option value="">Select Month</option>
-                                            @for ($i = 1; $i <= 12; $i++)
-                                                <option value="{{ $i }}" {{ $indicator->month == $i ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 10)) }}</option>
-                                            @endfor
-                                        </select>
-                                        <div class="invalid-feedback" id="monthsError_[]"></div>
                                     </div>
                                 </div>
                             </div>
@@ -99,13 +77,6 @@
             </div>
         </div>
 
-        {{-- <div class="row mt-3">
-            <div class="col">
-                <div class="d-flex justify-content-end">
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </div>
-            </div>
-        </div> --}}
     </form>
 </div>
 @endsection
@@ -184,20 +155,14 @@ $(document).ready(function() {
     }
     // initializeDivisionSelect();
 
-    function setCurrentMonth(index) {
-        const now = new Date();
-        const currentMonth = now.getMonth() + 1; // getMonth() returns 0-based index, so add 1
-        $(`#months_${index}`).val(currentMonth).prop('disabled', true);
-    }
-
-    setCurrentMonth(0);
 
     // Handle target type change
     $(document).on('change', 'input[name^="targetType"]', function() {
         const index = $(this).closest('.card').find('input[name^="targetType"]').attr('id').split('_').pop();
         const selectedType = $(this).val();
         const targetInput = $(`#target_${index}`);
-        const currentValue = targetInput.val();
+        let currentValue = targetInput.val();
+        // const currentValue = targetInput.val().replace('%', '')
 
         if (selectedType == 'percentage') {
             targetInput
@@ -206,7 +171,7 @@ $(document).ready(function() {
             .attr('max', '100')
             .attr('placeholder', '%')
             .removeAttr('disabled')
-            .val(currentValue.replace('Actual', ''))
+            .val(currentValue.includes('Actual') ? '' : `${currentValue.replace('%', '')}%`)
             .off('input.percentage')
             .on('input.percentage', function() {
                 // Remove non-numeric characters except '%'
@@ -229,7 +194,7 @@ $(document).ready(function() {
             .removeAttr('max')
             .removeAttr('placeholder')
             .removeAttr('disabled')
-            .val(currentValue.replace('%', ''))
+            .val(currentValue.replace('%', '').replace('Actual', ''))
             .off('input.percentage');
         } else if (selectedType == 'actual') {
             targetInput
@@ -238,6 +203,7 @@ $(document).ready(function() {
             .removeAttr('placeholder')
             .off('input.percentage')
             .val('Actual');
+            $(`#target_${index}`).val('Actual');
         }
     });
 
@@ -255,34 +221,63 @@ $(document).ready(function() {
                 const cleanedDivisionName = divisionName.replace(/\s*PO$/, '');
 
                 if (divisionName.includes("PO")) {
-                    const targetValue = @json($division_targets)[divisionId] || 0;
+                    const targetValue = @json($division_targets)[divisionId];
+                    const budgetValue = @json($division_budget)[divisionId];
                     const targetHtml = `
+                        <div class= "col mb-3">
                         <div class="form-group">
                             <label for="target_${divisionId}_${index}" class="required">${divisionName} Target</label>
                             <input type="text" class="form-control capitalize target-input" name="${cleanedDivisionName}_target[]" id="target_${divisionId}_${index}" aria-describedby="" value="${targetValue}" disabled>
                             <div class="invalid-feedback" id="targetError_${divisionId}_${index}"></div>
                         </div>
+                    </div>
+                    <div class= "col mb-3">
+                        <div class="form-group">
+                            <label for="budget_${divisionId}_${index}" class="required">${divisionName} Budget</label>
+                            <input type="number" class="form-control capitalize alloted-budget" name="${cleanedDivisionName}_budget[]" id="budget_${divisionId}_${index}" value="${budgetValue}" aria-describedby="" disabled>
+                            <div class="invalid-feedback" id="budgetError_${divisionId}_${index}"></div>
+                        </div>
+                    </div>
                     `;
                     targetContainer.append(targetHtml);
 
                     // Enable the target input and attach the input event to calculate total
                     const targetInput = $(`#target_${divisionId}_${index}`);
                     if (!isInitialLoad) {
-                        // targetInput.removeAttr('disabled');
+                        
                     } else {
                         const targetValue = $(`#target_${index}`).val();
-                        // targetInput.val(targetValue).removeAttr('disabled');
+                        targetInput.val(targetValue).removeAttr('disabled');
                     }
 
                     targetInput.on('input', function() {
                         let total = 0;
+                        let selectedType = $(`#Percentage_${index}`).val();
+                        console.log(selectedType);
+
                         $(`#targetFields_${index} .target-input`).each(function() {
-                            const value = parseFloat($(this).val().replace('%', ''));
+                            let value = parseFloat($(this).val());
                             if (!isNaN(value)) {
                                 total += value;
                             }
                         });
-                        $(`#target_${index}`).val(total);
+                        if (selectedType === 'percentage') {
+                            $(`#target_${index}`).val(`${total}%`);
+                        } else {
+                            $(`#target_${index}`).val(total);
+                        }
+                    });
+
+                    const budgetInput = $(`#budget_${divisionId}_${index}`);
+                    budgetInput.on('input', function() {
+                        let totalBudget = 0;
+                        $(`#targetFields_${index} .alloted-budget`).each(function() {
+                            const value = parseFloat($(this).val());
+                            if (!isNaN(value)) {
+                                totalBudget += value;
+                            }
+                        });
+                        $(`#alloted_budget_${index}`).val(totalBudget);
                     });
                 } else {
                     $(`.percent`).removeClass('d-none');
@@ -303,6 +298,8 @@ $(document).ready(function() {
             return divisionName.includes("PO");
         });
 
+        $(`.percent`).removeClass('d-none')
+
         updateTargetFields(index, selectedDivisions);
 
         if (hasPO) {
@@ -310,33 +307,29 @@ $(document).ready(function() {
         }
     });
 
-
     $(document).on('change', 'input[name^="targetType"]', function() {
         const index = $(this).closest('.card').find('input[name^="targetType"]').attr('id').split('_').pop();
         const selectedType = $(this).val();
 
         $(`#targetFields_${index} .target-input`).each(function() {
             const targetInput = $(this);
-            const currentValue = targetInput.val();
-            const divisionId = targetInput.attr('id').split('_')[1];
+            // const currentValue = targetInput.val().replace('%', ''); // Remove % if present
+            let currentValue = targetInput.val();
 
             if (selectedType === 'percentage') {
                 targetInput
-                    .attr('type', 'text') // Set type to text to allow appending "%"
+                    .attr('type', 'text')
                     .attr('min', '0')
                     .attr('max', '100')
                     .attr('placeholder', '%')
                     .removeAttr('disabled')
-                    .val(currentValue.replace('Actual', ''))
+                    .val(currentValue.includes('Actual') ? '' : `${currentValue.replace('%', '')}%`)
                     .off('input.percentage')
                     .on('input.percentage', function() {
-                        // Remove non-numeric characters except '%'
                         let value = $(this).val().replace(/[^\d%]/g, '');
-
                         if (value.indexOf('%') !== -1) {
                             value = value.substring(0, value.indexOf('%') + 1); // Keep only one "%"
                         }
-                        // Ensure the value is within the range
                         if ($.isNumeric(value) && value >= 0 && value <= 100) {
                             $(this).val(`${value}%`);
                         } else {
@@ -351,21 +344,18 @@ $(document).ready(function() {
                     .removeAttr('max')
                     .removeAttr('placeholder')
                     .removeAttr('disabled')
-                    .val(currentValue.replace('%', ''))
+                    .val(currentValue.replace('%', '').replace('Actual', ''))
                     .off('input.percentage');
 
-                    let total = 0;
-                    $(`#targetFields_${index} .target-input`).each(function() {
-                        const value = parseFloat($(this).val().replace('%', ''));
-                        if (!isNaN(value)) {
-                            total += value;
-                        }
-                    });
+                let total = 0;
+                $(`#targetFields_${index} .target-input`).each(function() {
+                    const value = parseFloat($(this).val().replace('%', ''));
+                    if (!isNaN(value)) {
+                        total += value;
+                    }
+                });
 
-                    $(`#target_${index}`).val(total);
-
-                    // calculateTotalTarget(index);
-
+                $(`#target_${index}`).val(total);
             } else if (selectedType === 'actual') {
                 targetInput
                     .attr('type', 'text')
@@ -373,21 +363,18 @@ $(document).ready(function() {
                     .removeAttr('placeholder')
                     .off('input.percentage')
                     .val('Actual');
-                    $(`#target_${index}`).val('Actual')
+                $(`#target_${index}`).val('Actual');
             }
         });
 
     });
 
-    $(document).on('input', '.target-input', function() {
-        const index = $(this).closest('.card').find('input[name^="targetType"]').attr('id').split('_').pop();
-        // calculateTotalTarget(index);
-    });
+
 
     //---------------------------------------------------END JS FOR DIVISION'S INPUTS---------------------------------------------------//
 
-
     // Form submission
+    @if(in_array(Auth::user()->role->name, ['IT', 'SAP']))
     $('#NewIndicatorForm').on('submit', function(e) {
         e.preventDefault();
         showLoader();
@@ -440,6 +427,88 @@ $(document).ready(function() {
             }
         });
     });
+    @endif
+
+    @if(!in_array(Auth::user()->role->name, ['IT', 'SAP']))
+    $('#NewIndicatorForm').on('submit', function(e) {
+            e.preventDefault();
+            showLoader();
+
+            $.ajax({
+                url: '{{ route('indicator.update_nonSuperAdminV2') }}',
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function(response) {
+                    hideLoader();
+                    window.location.href = '/indicator';
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: response.message,
+                            showConfirmButton: false,
+                        });
+                        $('#NewIndicatorForm')[0].reset(); // Reset the form
+                        $('#cards-containers').html($('.cards-container:first').clone());
+                    }
+                },
+                error: function(xhr) {
+                    hideLoader();
+                    if (xhr.status === 422) {
+                        const errors = xhr.responseJSON.errors;
+                        let isValid = true;
+                        $('.invalid-feedback').html(''); // Clear any previous error messages
+                        for (let key in errors) {
+                            const keyParts = key.split('.');
+                            console.log(keyParts);
+                            if (keyParts.length > 1) {
+                                const index = keyParts[1];
+                                const errorKey = keyParts[0];
+                                console.log(errorKey);
+                                $(`#${errorKey}Error_${index}`).html(errors[key][0]).show();
+                            } else {
+                                $(`#${key}Error`).html(errors[key][0]).show();
+                            }
+                        }
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Validation Errors!',
+                            html: 'Please fill out the required fields with asterisk',
+                            showConfirmButton: true,
+                        });
+
+                        $('.division-select').each(function() {
+                            const index = $(this).attr('id').split('_').pop();
+                            if ($(this).val().length === 0) { // Check if no value is selected
+                                $(`#division_idError_${index}`).html('Please select at least one division.').show();
+                                isValid = false;
+                            } else {
+                                $(`#division_idError_${index}`).html('').hide();
+                            }
+                        });
+
+                        if (!isValid) {
+                            hideLoader();
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Validation Errors!',
+                                html: 'Please fill out the required fields with asterisk',
+                                showConfirmButton: true,
+                            });
+                            return;
+                        }
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oh no!',
+                            text: 'Something went wrong.',
+                            showConfirmButton: true,
+                        });
+                    }
+                }
+            });
+        });
+        @endif
 });
 </script>
 @endsection

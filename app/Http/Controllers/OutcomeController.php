@@ -69,9 +69,11 @@ class OutcomeController extends Controller
         }, 'The :input has already been taken.');
 
         $validator = Validator::make($request->all(), [
+           
             'organizational_outcome.*' => 'required|string|max:255|unique_with_soft_delete:org_otc,organizational_outcome',
+            'order.*' => 'required',
             'status' => 'required|string',
-            'organizational_outcome_order' => 'required'
+           
         ]);
 
         if ($validator->fails()) {
@@ -81,7 +83,7 @@ class OutcomeController extends Controller
         foreach ($request->organizational_outcome as $index => $outcome) {
             $organizational = new Organizational();
             $organizational->organizational_outcome = ucfirst($outcome);
-            $organizational->organizational_outcome_order = $request->organizational_outcome_order[$index];
+            $organizational->order = $request->order[$index];
             $organizational->status = ucfirst($request->status);
             $organizational->created_by = Auth::user()->user_name;
             $organizational->save();
@@ -95,6 +97,7 @@ class OutcomeController extends Controller
         $id = Crypt::decrypt($request->id);
         // dd($id);
         $validator = Validator::make($request->all(), [
+            'order' => 'required',
             'organizational_outcome' => [
             'required',
             'string',
@@ -110,7 +113,7 @@ class OutcomeController extends Controller
         $org = Organizational::findOrFail($id);
 
         $org->organizational_outcome = ucfirst($request->organizational_outcome);
-        $org->organizational_outcome_order = ucfirst($request->organizational_outcome_order);
+        $org->order = ucfirst($request->order);
         $org->status = ucfirst($request->status);
         $org->created_by = Auth::user()->user_name;
         $org->save();

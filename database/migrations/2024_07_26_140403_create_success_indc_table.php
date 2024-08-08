@@ -21,10 +21,15 @@ return new class extends Migration
             $table->string('Catanduanes_target')->nullable();
             $table->string('Masbate_target')->nullable();
             $table->string('Sorsogon_target')->nullable();
+            $table->unsignedBigInteger('Albay_budget')->nullable();
+            $table->unsignedBigInteger('Camarines_Sur_budget')->nullable();
+            $table->unsignedBigInteger('Camarines_Norte_budget')->nullable();
+            $table->unsignedBigInteger('Catanduanes_budget')->nullable();
+            $table->unsignedBigInteger('Masbate_budget')->nullable();
+            $table->unsignedBigInteger('Sorsogon_budget')->nullable();
             $table->string('measures');
             $table->unsignedBigInteger('alloted_budget');
             $table->json('division_id')->nullable();
-            $table->unsignedBigInteger('months');
             $table->string('status')->default('Active');
             $table->string('created_by');
             $table->string('updated_by')->nullable();

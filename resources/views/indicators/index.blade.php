@@ -142,6 +142,7 @@
                         }
                     }
                 },
+                @if(in_array(Auth::user()->role->name, ['IT', 'SAP']))
                 {
                     text: 'Delete',
                     className: 'btn btn-danger user_btn',
@@ -200,6 +201,7 @@
                         });
                     }
                 },
+                @endif
 
 
             ],

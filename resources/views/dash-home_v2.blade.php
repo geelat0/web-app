@@ -51,10 +51,12 @@
                         </div>
                     </div>
                 </div>
+                @if(Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP')
                 <div class="card-footer d-flex justify-content-between align-items-center">
                     <a href="/user" class="text-primary">View Details</a>
                     <a href="/user" class="text-primary"><i class="fas fa-arrow-circle-right text-primary"></i></a>
                 </div>
+                @endif
             </div>
         </div>
 
@@ -71,10 +73,12 @@
                         </div>
                     </div>
                 </div>
+                @if(Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP')
                 <div class="card-footer d-flex justify-content-between align-items-center">
                     <a href="/roles" class="text-success">View Details</a>
                     <a href="/roles" class="text-success"><i class="fas fa-arrow-circle-right text-success"></i></a>
                 </div>
+                @endif
             </div>
         </div>
     </div>

@@ -68,6 +68,26 @@
 
     $(document).ready(function() {
 
+        $('#addOutcomeBtn').click(function () {
+            const newOutcomeHtml = `
+            <div id="organizational_outcome_group_${outcomeIndex}">
+                <div class="form-group mt-3" >
+                    <label for="order_${outcomeIndex}" class="required">Order</label>
+                    <input type="text" class="form-control capitalize" name="order[]" id="order_${outcomeIndex}" aria-describedby="">
+                    <div class="invalid-feedback" id="orderError_${outcomeIndex}"></div>
+                </div>
+                <div class="form-group mt-3">
+                    <label for="organizational_outcome_${outcomeIndex}" class="required">Organization Outcome</label>
+                    <input type="text" class="form-control capitalize" name="organizational_outcome[]" id="organizational_outcome_${outcomeIndex}" aria-describedby="">
+                    <div class="invalid-feedback" id="organizational_outcomeError_${outcomeIndex}"></div>
+                </div>
+                <button type="button" class="btn btn-danger btn-sm mt-2 removeOutcomeBtn" data-index="${outcomeIndex}"><i class='bx bx-trash'></i></button>
+            </div>
+            `;
+            $('#organizational_outcomes').append(newOutcomeHtml);
+            outcomeIndex++;
+        });
+
         var table;
 
         flatpickr("#date-range-picker", {
@@ -123,7 +143,7 @@
 
                         $('#createOrgForm').off('submit').on('submit', function(e) {
                             e.preventDefault();
-                            // showLoader();
+                            showLoader();
                             // Handle form submission, e.g., via AJAX
                             var formData = $(this).serialize();
                             $.ajax({
@@ -133,7 +153,7 @@
                                 success: function(response) {
                                     if (response.success) {
                                         $('#createOrgModal').modal('hide');
-                                        // hideLoader();
+                                        hideLoader();
                                             Swal.fire({
                                                 icon: 'success',
                                                 title: 'Success!',
@@ -143,22 +163,44 @@
                                             table.ajax.reload();
                                         }
                                         else{
-                                            // hideLoader();
-                                            var errorMessage = '';
-                                            $.each(response.errors, function(index, value) {
-                                                errorMessage += value + '<br>';
-                                            });
+                                            hideLoader();
+                                            const errors = response.errors;
+                                            $('.invalid-feedback').html(''); // Clear any previous error messages
+                                            $('.is-invalid').removeClass('is-invalid');
+                                            for (let key in errors) {
+                                                const keyParts = key.split('.');
+                                                console.log(keyParts);
+                                                if (keyParts.length > 1) {
+                                                    const index = keyParts[1];
+                                                    const errorKey = keyParts[0];
+                                                    console.log(errorKey);
+                                                    $(`#${errorKey}_${index}`).addClass('is-invalid');
+                                                    $(`#${errorKey}Error_${index}`).html(errors[key][0]).show();
+                                                } else {
+                                                    $(`#${key}`).addClass('is-invalid');
+                                                    $(`#${key}Error`).html(errors[key][0]).show();
+                                                }
+                                            }
+                                            // var errorMessage = '';
+                                            // $.each(response.errors, function(index, value) {
+                                            //     errorMessage += value + '<br>';
+                                            // });
                                             Swal.fire({
                                                 icon: 'error',
                                                 title: 'Validation Error',
-                                                html: errorMessage,
+                                                html: 'Please fill out the required fields with asterisk',
+                                               
                                             });
                                         }
                                 },
                                 error: function(xhr) {
-                                    // hideLoader();
-                                    // Handle error
-                                    console.log(xhr.responseText);
+                                    hideLoader();
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Oh no!',
+                                        text: 'Something went wrong.',
+                                        showConfirmButton: true,
+                                    });  
                                 }
                             });
                         });
@@ -173,9 +215,9 @@
 
                         var selectedData = dt.row({ selected: true }).data();
                         $('#edit_role_id').val(selectedData.id);
-                        $('#edit_name').val(selectedData.organizational_outcome);
+                        $('#edit_organizational_outcome').val(selectedData.organizational_outcome);
                         $('#edit_status').val(selectedData.status);
-                        $('#edit_organizational_outcome_order').val(selectedData.organizational_outcome_order);
+                        $('#edit_order').val(selectedData.order);
 
                         $('#editOrgForm').off('submit').on('submit', function(e) {
                                 e.preventDefault();
@@ -200,10 +242,27 @@
 
                                         } else {
                                             hideLoader();
-                                            var errorMessage = '';
-                                            $.each(response.errors, function(index, value) {
-                                                errorMessage += value + '<br>';
-                                            });
+                                            const errors = response.errors;
+                                            $('.invalid-feedback').html(''); // Clear any previous error messages
+                                            $('.is-invalid').removeClass('is-invalid');
+                                            for (let key in errors) {
+                                                const keyParts = key.split('.');
+                                                console.log(keyParts);
+                                                if (keyParts.length > 1) {
+                                                    const index = keyParts[1];
+                                                    const errorKey = keyParts[0];
+                                                    console.log(errorKey);
+                                                    $(`#edit_${errorKey}`).addClass('is-invalid');
+                                                    $(`#${errorKey}Error`).html(errors[key][0]).show();
+                                                } else {
+                                                    $(`#edit_${key}`).addClass('is-invalid');
+                                                    $(`#${key}Error`).html(errors[key][0]).show();
+                                                }
+                                            }
+                                            // var errorMessage = '';
+                                            // $.each(response.errors, function(index, value) {
+                                            //     errorMessage += value + '<br>';
+                                            // });
                                             Swal.fire({
                                                 icon: 'error',
                                                 title: 'Validation Error',
@@ -231,7 +290,7 @@
                         $('#view_name').val(selectedData.organizational_outcome);
                         $('#view_status').val(selectedData.status);
                         $('#viewOrgModal').modal('show');
-                        $('#view_organizational_outcome_order').val(selectedData.organizational_outcome_order);
+                        $('#view_order').val(selectedData.order);
 
 
                     }
@@ -300,7 +359,7 @@
 
             columns: [
                 { data: 'id', name: 'id', title: 'ID', visible: false },
-                { data: 'organizational_outcome_order', name: 'organizational_outcome_order', title: 'Order' },
+                { data: 'order', name: 'order', title: 'Order' },
                 { data: 'organizational_outcome', name: 'organizational_outcome', title: 'Organizational Outcome' },
                 { data: 'status', name: 'status', title: 'Status' },
                 { data: 'created_by', name: 'created_by', title: 'Created By' },
@@ -342,25 +401,7 @@
 
         let outcomeIndex = 1;
 
-        $('#addOutcomeBtn').click(function () {
-            const newOutcomeHtml = `
-            <div id="organizational_outcome_group_${outcomeIndex}">
-                <div class="form-group mt-3" >
-                    <label for="organizational_outcome_order_${outcomeIndex}" class="required">Order</label>
-                    <input type="text" class="form-control capitalize" name="organizational_outcome_order[]" id="organizational_outcome_order_${outcomeIndex}" aria-describedby="">
-                    <div class="invalid-feedback" id="organizational_outcome_order_${outcomeIndex}Error"></div>
-                </div>
-                <div class="form-group mt-3">
-                    <label for="organizational_outcome_${outcomeIndex}" class="required">Organization Outcome</label>
-                    <input type="text" class="form-control capitalize" name="organizational_outcome[]" id="organizational_outcome_${outcomeIndex}" aria-describedby="">
-                    <div class="invalid-feedback" id="organizational_outcome_${outcomeIndex}Error"></div>
-                </div>
-                <button type="button" class="btn btn-danger btn-sm mt-2 removeOutcomeBtn" data-index="${outcomeIndex}"><i class='bx bx-trash'></i></button>
-            </div>
-            `;
-            $('#organizational_outcomes').append(newOutcomeHtml);
-            outcomeIndex++;
-        });
+
 
 
         $(document).on('click', '.removeOutcomeBtn', function () {

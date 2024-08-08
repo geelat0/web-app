@@ -12,16 +12,17 @@
                     <div class="row">
                         <div class="col">
                             <input type="hidden" name="id" id="edit_role_id">
-                            <div class="form-group">
-                                <label for="edit_organizational_outcome_order" class="required">Order</label>
-                                <input type="number" class="form-control capitalize" name="organizational_outcome_order" id="edit_organizational_outcome_order" aria-describedby="">
+                            <div class="form-group mb-3">
+                                <label for="edit_order" class="required">Order</label>
+                                <input type="number" class="form-control capitalize" name="order" id="edit_order" aria-describedby="">
+                                <div class="invalid-feedback" id="orderError"></div>
                             </div>
-                            <div class="form-group">
-                                <label for="edit_name" class="required capitalize">Organization Outcome</label>
-                                <input type="text" class="form-control" id="edit_name" name="organizational_outcome">
+                            <div class="form-group mb-3">
+                                <label for="edit_organizational_outcome" class="required capitalize">Organization Outcome</label>
+                                <input type="text" class="form-control" id="edit_organizational_outcome" name="organizational_outcome">
                                 <div class="invalid-feedback" id="organizational_outcomeError"></div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group mb-3">
                                 <label for="edit_status" class="required">Status</label>
                                 <select class="form-select capitalize" id="edit_status" name="status">
                                     <option value="Active">Active</option>

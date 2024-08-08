@@ -27,5 +27,19 @@ class RoleSeeder extends Seeder
                 
             ]
           );
+        Role::create(
+            [
+                'name'=> 'Budget Office',
+                'created_by'=> 'IT',
+                
+            ]
+          );
+        Role::create(
+            [
+                'name'=> 'Planning',
+                'created_by'=> 'IT',
+                
+            ]
+          );
     }
 }

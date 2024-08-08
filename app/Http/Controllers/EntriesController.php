@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Entries;
 use App\Models\SuccessIndicator;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -66,14 +67,40 @@ class EntriesController extends Controller
         return view('entries.view', compact('user', 'entries', 'fileUrl'));
     }
     public function getIndicator(Request $request){
-        $searchTerm = $request->input('q'); // Capture search term
-        $data = SuccessIndicator::where('status', 'Active')
-                              ->whereNull('deleted_at')
-                              ->where('target', 'like', "%{$searchTerm}%")
-                              ->orWhere('measures', 'like', "%{$searchTerm}%")
-                              ->get(['id', 'target', 'measures']);
-        return response()->json($data);
 
+        if(in_array(Auth::user()->role->name, ['IT', 'SAP'])){
+            $searchTerm = $request->input('q'); // Capture search term
+            $data = SuccessIndicator::where('status', 'Active')
+                                  ->whereNull('deleted_at')
+                                  ->where('target', 'like', "%{$searchTerm}%")
+                                  ->orWhere('measures', 'like', "%{$searchTerm}%")
+                                  ->get(['id', 'target', 'measures']);
+            return response()->json($data);
+
+        }else{
+            $searchTerm = $request->input('q');
+    
+            // Get the current user's division IDs
+            $userDivisionIds = User::where('id', Auth::user()->id)
+                ->pluck('division_id')
+                ->first();
+            $userDivisionIds = json_decode($userDivisionIds, true);
+            $userDivisionIds = array_map('intval', $userDivisionIds);
+        
+            // Fetch success indicators where the user's division_id exists in the success indicator's division_id field
+            $data = SuccessIndicator::where('status', 'Active')
+                ->whereNull('deleted_at')
+                ->where('measures', 'like', "%{$searchTerm}%")
+                ->get(['id', 'measures', 'division_id', 'target'])
+                ->filter(function($indicator) use ($userDivisionIds) {
+                    $indicatorDivisionIds = json_decode($indicator->division_id, true);
+                    $indicatorDivisionIds = array_map('intval', $indicatorDivisionIds);
+                    return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
+                })
+                ->values(); // Re-index the array
+        
+            return response()->json($data);
+        }
     }
     public function store(Request $request)
     {
