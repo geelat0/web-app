@@ -188,7 +188,7 @@
                                             Swal.fire({
                                                 icon: 'error',
                                                 title: 'Deletion Failed',
-                                                html: errorMessage
+                                                html:  response.errors
                                             });
                                         }
                                     },
@@ -208,10 +208,11 @@
 
             columns: [
                 { data: 'id', name: 'id', title: 'ID', visible: false },
+                
                 { data: 'org_id', name: 'org_id', title: 'Organizational Outcome'},
                 { data: 'measures', name: 'measures', title: 'Measure', className: 'wrap-text' },
                 { data: 'target', name: 'target', title: 'Target' },
-                { data: 'division_id', name: 'division_id', title: 'Division' },
+                // { data: 'division_id', name: 'division_id', title: 'Division' },
                 { data: 'alloted_budget', name: 'alloted_budget', title: 'Alloted Budget' },
                 { data: 'created_by', name: 'created_by', title: 'Created By' },
                 { data: 'updated_by', name: 'updated_by', title: 'Updated By' },

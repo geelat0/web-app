@@ -13,7 +13,9 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use App\Mail\TempPasswordMail;
 use App\Models\Division;
+use App\Models\Entries;
 use App\Models\LoginModel;
+use App\Models\SuccessIndicator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 
@@ -32,7 +34,46 @@ class UserController extends Controller
     public function user_create()
     {
         $user=Auth::user();
-        return view('user_page.user', compact('user'));
+       
+        $currentYear = Carbon::now()->format('Y');
+        $currentUser = Auth::user();
+        $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+
+        $indicators = $entriesCount->get();
+        
+        $userDivisionIds = json_decode($currentUser->division_id, true);
+        $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
+            $indicatorDivisionIds = json_decode($indicator->division_id, true);
+            
+            return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
+        });
+
+        $currentMonth = Carbon::now()->format('m');
+        $current_Year = Carbon::now()->format('Y');
+
+        $currentDate = Carbon::now();
+
+        if ($currentDate->day > 5) {
+            $targetMonth = $currentDate->month;
+            // $targetMonth = $currentDate->addMonth()->month;
+        } else {
+            $targetMonth = $currentDate->subMonth()->month;
+        }
+
+        $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
+            $completedEntries = Entries::where('indicator_id', $indicator->id)
+                                    ->whereMonth('created_at', $targetMonth)
+                                    ->whereYear('created_at', $current_Year)
+                                    ->where('status', 'Completed')
+                                    ->where('user_id',  Auth::user()->id)
+                                    ->exists();
+            return !$completedEntries;
+        });
+          
+            // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
+        $entriesCount = $filteredIndicators->count();
+
+        return view('user_page.user', compact('user', 'entriesCount'));
     }
 
     public function list(Request $request)
@@ -262,7 +303,15 @@ class UserController extends Controller
             return response()->json(['success' => false, 'errors' => $validator->errors()], 200);
         }
 
+        $ifExist = Entries::whereNull('deleted_at')->where('user_id', Crypt::decrypt($request->id))->exists();
+
+        if($ifExist){
+            
+            return response()->json(['success' => false, 'errors' => 'The user has existing entries, Cannot be deleted']);
+        }
+
         $user = User::findOrFail(Crypt::decrypt($request->id));
+        $user->created_by = Auth::user()->user_name;
         $user->delete();
 
         return response()->json(['success' => true, 'message' => 'User deleted successfully']);
@@ -279,7 +328,7 @@ class UserController extends Controller
         $user->save();
 
         // Send the temporary password to the user's email
-        Mail::to($user->email)->send(new TempPasswordMail($randomString));
+        Mail::to($user->email)->send(new TempPasswordMail($randomString, $user->email));
 
         return response()->json(['data' => $randomString, 'success' => true, 'message' => 'Successfully created a temporary password.']);
     }

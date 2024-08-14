@@ -85,7 +85,7 @@
                                 <div class="col">
                                     <div class="form-group">
                                         <label for="alloted_budget" class="required">Alloted Budget</label>
-                                        <input type="number" class="form-control capitalize" name="alloted_budget" id="alloted_budget_0" aria-describedby="" value="{{ $indicator->alloted_budget }}">
+                                        <input type="number" class="form-control capitalize" name="alloted_budget" id="alloted_budget" aria-describedby="" value="{{ $indicator->alloted_budget }}">
                                         <div class="invalid-feedback" id="alloted_budgetError"></div>
                                     </div>
                                 </div>
@@ -302,17 +302,27 @@ $(document).ready(function() {
 
                     const budgetInput = $(`#budget_${divisionId}_${index}`);
                     budgetInput.on('input', function() {
-                        let totalBudget = 0;
-                        $(`#targetFields_${index} .alloted-budget`).each(function() {
-                            const value = parseFloat($(this).val());
-                            if (!isNaN(value)) {
-                                totalBudget += value;
-                            }
-                        });
-                        $(`#alloted_budget_${index}`).val(totalBudget);
+                        let totalBudget = parseFloat($('#alloted_budget').val()) || 0;
+                        let currentBudgetValue = parseFloat(budgetInput.data('initial-value')) || 0;
+
+                        if (isNaN(totalBudget)) {
+                            totalBudget = 0;
+                        }
+
+                        if (isNaN(currentBudgetValue)) {
+                            currentBudgetValue = 0;
+                        }
+
+                        const newValue = parseFloat(budgetInput.val()) || 0;
+                        totalBudget = totalBudget - currentBudgetValue + newValue;
+
+                        budgetInput.data('initial-value', newValue);
+                        $('#alloted_budget').val(totalBudget);
                     });
+                    // Store the initial budget value for accurate calculations
+                    budgetInput.data('initial-value', budgetValue);
                 } else {
-                    $(`.percent`).removeClass('d-none');
+                    $('.percent').removeClass('d-none');
                 }
             });
         }

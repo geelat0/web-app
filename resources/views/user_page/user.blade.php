@@ -114,6 +114,7 @@
                     className: 'btn btn-success user_btn',
                     enabled: true,
                     action: function (e, dt, node, config) {
+                        $('#create_division_id').val(null).change();
                         $('#createUserModal').modal('show');
                         $('#createUserForm').off('submit').on('submit', function(e) {
                             e.preventDefault();
@@ -340,7 +341,7 @@
                                             Swal.fire({
                                                 icon: 'error',
                                                 title: 'Deletion Failed',
-                                                html: errorMessage
+                                                html: response.errors
                                             });
                                         }
                                     },
@@ -563,7 +564,7 @@
                 { data: 'position', name: 'position', title: 'Position' },
                 { data: 'province', name: 'province', title: 'Province' },
                 { data: 'role', name: 'role', title: 'Role' },
-                { data: 'division_id', name: 'division_id', title: 'Division' },
+                // { data: 'division_id', name: 'division_id', title: 'Division' },
                 { data: 'status', name: 'status', title: 'Status' },
                 { data: 'created_by', name: 'created_by', title: 'Created By' },
                 { data: 'created_at', name: 'created_at', title: 'Created At' },

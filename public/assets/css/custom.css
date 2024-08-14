@@ -49,8 +49,8 @@ label.required::after {
 
   .profile-picture img.rounded-circle {
     border-radius: 50%;
-    width: 300px; /* or your preferred width */
-    height: 270px; /* or your preferred height */
+    width: 400px; /* or your preferred width */
+    height: 250px; /* or your preferred height */
     object-fit: cover;
   }
 
@@ -63,5 +63,9 @@ label.required::after {
 .invalid-feedback {
   display: block;
   color: #dc3545; /* Bootstrap red for validation errors */
+}
+
+.dash-icon{
+  font-size: 5rem;
 }
   

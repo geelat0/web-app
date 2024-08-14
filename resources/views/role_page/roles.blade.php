@@ -279,7 +279,7 @@
                                             Swal.fire({
                                                 icon: 'error',
                                                 title: 'Deletion Failed',
-                                                html: errorMessage
+                                                html: response.errors
                                             });
                                         }
                                     },

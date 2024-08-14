@@ -3,10 +3,7 @@
 @section('content')
 <div class="container">
 
-    <h2 class="mt-4">Dashboard</h2>
-    <p class="mb-3">Welcome to your dashboard, {{ $user->user_name }}</p>
-
-    <div class="row mb-4 justify-content-center">
+    <div class="row mb-3 justify-content-center">
         <div class="col">
             <div class="input-group">
                 <input type="text" class="form-control" placeholder="YYYY-MM-DD to YYYY-MM-DD" id="flatpickr-range" />
@@ -36,6 +33,54 @@
     </div>
 
     <div class="row">
+        <div class="col mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="card-title">Pending Entries</h3>
+                            <h1 id="entriesCount" class="{{ $entriesCount == 0 ? 'text-warning' : 'text-danger' }} mt-1">
+                                {{ $entriesCount }}
+                            </h1>
+                        </div>
+                        <div>
+                            <i class="bx bxs-time {{ $entriesCount == 0 ? 'text-warning' : 'text-danger' }} dash-icon"></i>
+                        </div>
+                    </div>
+                </div>
+                {{-- @if(Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP') --}}
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <a href="/entries" class="{{ $entriesCount == 0 ? 'text-warning' : 'text-danger' }}">View Details</a>
+                    <a href="/entries" class="{{ $entriesCount == 0 ? 'text-warning' : 'text-danger' }}"><i class="fas fa-arrow-circle-right text-primary"></i></a>
+                </div>
+                {{-- @endif --}}
+        </div>
+    </div>
+{{-- 
+        <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="card-title">Roles</h2>
+                            <h3 id="roleCount">{{ $roleCount }}</h3>
+                        </div>
+                        <div>
+                            <i class="fas fa-user-tag fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+                @if(Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP')
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <a href="/roles" class="text-success">View Details</a>
+                    <a href="/roles" class="text-success"><i class="fas fa-arrow-circle-right text-success"></i></a>
+                </div>
+                @endif
+            </div>
+        </div> --}}
+    </div>
+
+    <div class="row">
         <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
             <div class="card h-100 shadow-sm">
                 <div class="card-body">
@@ -45,7 +90,7 @@
                             <h3 id="userCount">{{ $userCount }}</h3>
                         </div>
                         <div>
-                            <i class="fas fa-users fa-2x text-primary"></i>
+                            <i class="bx bxs-user text-primary dash-icon"></i>
                         </div>
                     </div>
                 </div>
@@ -67,7 +112,7 @@
                             <h3 id="roleCount">{{ $roleCount }}</h3>
                         </div>
                         <div>
-                            <i class="fas fa-user-tag fa-2x text-success"></i>
+                            <i class="bx bxs-purchase-tag text-success dash-icon"></i>
                         </div>
                     </div>
                 </div>

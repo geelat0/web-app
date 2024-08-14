@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Entries;
 use App\Models\LoginModel;
+use App\Models\SuccessIndicator;
+use App\Models\User;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -14,6 +17,60 @@ class LogController extends Controller
 {
     public function index()
     {
+        
+        // dd($filteredIndicators->count());
+       
+
+
+        // $currentYear = Carbon::now()->format('Y');
+        // dd($currentYear);
+
+        
+    // if (!$hasAccess) {
+    //     return response()->json([
+    //         'success' => false,
+    //         'message' => 'You do not have permission to update this indicator.'
+    //     ], 403);
+    // }
+
+        $indicators = SuccessIndicator::all();
+        $matchingUserIds = [];
+        
+        foreach ($indicators as $indicator) {
+            // Decode the division_id from JSON string to an array in the indicator
+            $indicatorDivisionIds = json_decode($indicator->division_id, true);
+        
+            if (is_array($indicatorDivisionIds)) {
+                // Fetch all users
+                $users = User::all();
+        
+                foreach ($users as $user) {
+                    // Decode the division_id from JSON string to an array in the user
+                    $userDivisionIds = json_decode($user->division_id, true);
+        
+                    if (is_array($userDivisionIds)) {
+                        // Check if there is any common division_id between the indicator and the user
+                        $commonDivisions = array_intersect($indicatorDivisionIds, $userDivisionIds);
+        
+                        if (!empty($commonDivisions)) {
+                            // If a match is found, add the user id to the array
+                            $matchingUserIds[] = $user->id;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // // Remove duplicate user IDs (if any)
+        // $matchingUserIds = array_unique($matchingUserIds);
+        
+        
+        
+        // $indicator = SuccessIndicator::all();
+
+        // dd($matchingUserIds);
+
+
         $logPath = storage_path('logs');
         $files = File::files($logPath);
 
@@ -32,7 +89,46 @@ class LogController extends Controller
     public function login_in()
     {
         $user=Auth::user();
-        return view('logs.login_in', compact('user')); 
+
+        $currentYear = Carbon::now()->format('Y');
+        $currentUser = Auth::user();
+        $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+
+        $indicators = $entriesCount->get();
+        
+        $userDivisionIds = json_decode($currentUser->division_id, true);
+        $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
+            $indicatorDivisionIds = json_decode($indicator->division_id, true);
+            
+            return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
+        });
+
+        $currentMonth = Carbon::now()->format('m');
+        $current_Year = Carbon::now()->format('Y');
+
+        $currentDate = Carbon::now();
+
+            if ($currentDate->day > 5) {
+                $targetMonth = $currentDate->month;
+                // $targetMonth = $currentDate->addMonth()->month;
+            } else {
+                $targetMonth = $currentDate->subMonth()->month;
+            }
+
+            $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
+                $completedEntries = Entries::where('indicator_id', $indicator->id)
+                                        ->whereMonth('created_at', $targetMonth)
+                                        ->whereYear('created_at', $current_Year)
+                                        ->where('status', 'Completed')
+                                        ->where('user_id',  Auth::user()->id)
+                                        ->exists();
+                return !$completedEntries;
+            });
+          
+            // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
+        $entriesCount = $filteredIndicators->count();
+        
+        return view('logs.login_in', compact('user', 'entriesCount')); 
     }
 
 

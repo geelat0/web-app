@@ -47,4 +47,8 @@ class SuccessIndicator extends Model
     {
         return $this->belongsTo(Organizational::class);
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

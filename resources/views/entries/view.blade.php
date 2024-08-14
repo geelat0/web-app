@@ -35,6 +35,15 @@
                                             </select>
                                             <div id="indicator_idError" class="invalid-feedback"></div>
                                         </div>
+                                        <div class="mb-3">
+                                            <div class="form-group">
+                                                <label for="accomplishment" class="required">Accomplishment</label>
+                                                <textarea type="text" id="accomplishment" class="form-control" name="accomplishment" disabled>
+                                                    {{ trim($entries->accomplishment) }}
+                                                </textarea>
+                                                <div id="accomplishmentError" class="invalid-feedback"></div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -42,15 +51,18 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="mb-3">
-                                        <div class="form-group">
-                                            <label for="months">Month</label>
-                                            <select id="months" class="months form-select" name="months">
-                                                <option value="">Select Month</option>
-                                                @for ($i = 1; $i <= 12; $i++)
-                                                    <option value="{{ $entries->months }}">{{ date('F', mktime(0, 0, 0, $entries->months, 10)) }}</option>
-                                                @endfor
-                                            </select>
-                                            <div class="invalid-feedback" id="monthsError"></div>
+                                        <div class="mb-3">
+                                            <div class="form-group">
+                                                <label for="months">Month</label>
+                                                <select id="months" class="months form-select" name="months" disabled>
+                                                    <option value="">Select Month</option>
+                                                    @for ($i = 1; $i <= 12; $i++)
+                                                        <option selected>{{ date('F', mktime(0, 0, 0, $entries->months, 10)) }}</option>
+                                                    @endfor
+                                                </select>
+                                                <div class="invalid-feedback" id="monthsError"></div>
+                                            </div>
+                                            
                                         </div>
                                     </div>
                                 </div>
@@ -117,14 +129,6 @@ $(document).ready(function() {
     //         instance.input.disabled = true;  // Disable the input field
     //     }
     // });
-
-    function setCurrentMonth(index) {
-        const now = new Date();
-        const currentMonth = now.getMonth() + 1; // getMonth() returns 0-based index, so add 1
-        $(`#months`).val(currentMonth).prop('disabled', true);
-    }
-
-    setCurrentMonth(0);
 
     $('#NewEntriesForm').on('submit', function(e) {
         e.preventDefault();

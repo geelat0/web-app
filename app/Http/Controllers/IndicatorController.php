@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Division;
+use App\Models\Entries;
 use App\Models\History;
+use App\Models\Role;
 use App\Models\SuccessIndicator;
 use App\Models\User;
 use Carbon\Carbon;
@@ -19,15 +21,132 @@ class IndicatorController extends Controller
 {
     public function index(){
         $user=Auth::user();
-        return view('indicators.index', compact('user'));
+        
+        $currentYear = Carbon::now()->format('Y');
+        $currentUser = Auth::user();
+        $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+
+        $indicators = $entriesCount->get();
+        
+        $userDivisionIds = json_decode($currentUser->division_id, true);
+        $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
+            $indicatorDivisionIds = json_decode($indicator->division_id, true);
+            
+            return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
+        });
+
+        $currentMonth = Carbon::now()->format('m');
+        $current_Year = Carbon::now()->format('Y');
+
+        $currentDate = Carbon::now();
+
+            if ($currentDate->day > 5) {
+                $targetMonth = $currentDate->month;
+                // $targetMonth = $currentDate->addMonth()->month;
+            } else {
+                $targetMonth = $currentDate->subMonth()->month;
+            }
+
+            $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
+                $completedEntries = Entries::where('indicator_id', $indicator->id)
+                                        ->whereMonth('created_at', $targetMonth)
+                                        ->whereYear('created_at', $current_Year)
+                                        ->where('status', 'Completed')
+                                        ->where('user_id',  Auth::user()->id)
+                                        ->exists();
+                return !$completedEntries;
+            });
+          
+            // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
+        $entriesCount = $filteredIndicators->count();
+        return view('indicators.index', compact('user', 'entriesCount'));
     }
 
     public function create(){
         $user=Auth::user();
+
         if(Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP'){
-            return view('indicators.create', compact('user'));
+            
+            $currentYear = Carbon::now()->format('Y');
+            $currentUser = Auth::user();
+            $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+
+            $indicators = $entriesCount->get();
+            
+            $userDivisionIds = json_decode($currentUser->division_id, true);
+            $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
+                $indicatorDivisionIds = json_decode($indicator->division_id, true);
+                
+                return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
+            });
+
+            $currentMonth = Carbon::now()->format('m');
+            $current_Year = Carbon::now()->format('Y');
+
+            $currentDate = Carbon::now();
+
+            if ($currentDate->day > 5) {
+                $targetMonth = $currentDate->month;
+                // $targetMonth = $currentDate->addMonth()->month;
+            } else {
+                $targetMonth = $currentDate->subMonth()->month;
+            }
+
+            $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
+                $completedEntries = Entries::where('indicator_id', $indicator->id)
+                                        ->whereMonth('created_at', $targetMonth)
+                                        ->whereYear('created_at', $current_Year)
+                                        ->where('status', 'Completed')
+                                        ->where('user_id',  Auth::user()->id)
+                                        ->exists();
+                return !$completedEntries;
+            });
+              
+                // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
+            $entriesCount = $filteredIndicators->count();
+
+            return view('indicators.create', compact('user', 'entriesCount'));
         }else{
-            return view('indicators.createv2', compact('user'));
+
+            $currentYear = Carbon::now()->format('Y');
+            $currentUser = Auth::user();
+            $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+
+            $indicators = $entriesCount->get();
+            
+            $userDivisionIds = json_decode($currentUser->division_id, true);
+            $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
+                $indicatorDivisionIds = json_decode($indicator->division_id, true);
+                
+                return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
+            });
+
+            $currentMonth = Carbon::now()->format('m');
+            $current_Year = Carbon::now()->format('Y');
+
+            $currentDate = Carbon::now();
+
+            if ($currentDate->day > 5) {
+                $targetMonth = $currentDate->month;
+                // $targetMonth = $currentDate->addMonth()->month;
+            } else {
+                $targetMonth = $currentDate->subMonth()->month;
+            }
+
+            $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
+                $completedEntries = Entries::where('indicator_id', $indicator->id)
+                                        ->whereMonth('created_at', $targetMonth)
+                                        ->whereYear('created_at', $current_Year)
+                                        ->where('status', 'Completed')
+                                        ->where('user_id',  Auth::user()->id)
+                                        ->exists();
+                return !$completedEntries;
+            });
+              
+                // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
+            $entriesCount = $filteredIndicators->count();
+
+            return view('indicators.createv2', compact('user', 'entriesCount'));
         }
     
     }
@@ -103,9 +222,49 @@ class IndicatorController extends Controller
         // Variables for all roles
         $division_targets = [];
         $division_ids = [];
+
+        $currentYear = Carbon::now()->format('Y');
+        $currentUser = Auth::user();
+        $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+
+        $indicators = $entriesCount->get();
+        
+        $userDivisionIds = json_decode($currentUser->division_id, true);
+        $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
+            $indicatorDivisionIds = json_decode($indicator->division_id, true);
+            
+            return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
+        });
+
+        $currentMonth = Carbon::now()->format('m');
+        $current_Year = Carbon::now()->format('Y');
+
+        $currentDate = Carbon::now();
+
+        if ($currentDate->day > 5) {
+            $targetMonth = $currentDate->month;
+            // $targetMonth = $currentDate->addMonth()->month;
+        } else {
+            $targetMonth = $currentDate->subMonth()->month;
+        }
+
+        $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
+            $completedEntries = Entries::where('indicator_id', $indicator->id)
+                                    ->whereMonth('created_at', $targetMonth)
+                                    ->whereYear('created_at', $current_Year)
+                                    ->where('status', 'Completed')
+                                    ->where('user_id',  Auth::user()->id)
+                                    ->exists();
+            return !$completedEntries;
+        });
+          
+            // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
+        $entriesCount = $filteredIndicators->count();
     
         // If user is IT or SAP, show all divisions
         if (Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP') {
+           
+
             $division_ids = json_decode($indicator->division_id);
     
             foreach ($division_ids as $division_id) {
@@ -119,6 +278,7 @@ class IndicatorController extends Controller
             }
 
         } else {
+
             // Filter divisions based on user's divisions
             $indicatorDivisionIds = json_decode($indicator->division_id, true);
             $indicatorDivisionIds = array_map('intval', $indicatorDivisionIds);
@@ -140,7 +300,7 @@ class IndicatorController extends Controller
         }
     
         $user=Auth::user();
-        return view('indicators.edit', compact('indicator', 'division_ids', 'division_targets', 'user', 'division_budget'));
+        return view('indicators.edit', compact('indicator', 'division_ids', 'division_targets', 'user', 'division_budget', 'entriesCount'));
     }
 
     public function view(Request $request){
@@ -159,6 +319,45 @@ class IndicatorController extends Controller
         // Variables for all roles
         $division_targets = [];
         $division_ids = [];
+
+
+        $currentYear = Carbon::now()->format('Y');
+        $currentUser = Auth::user();
+        $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+
+        $indicators = $entriesCount->get();
+        
+        $userDivisionIds = json_decode($currentUser->division_id, true);
+        $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
+            $indicatorDivisionIds = json_decode($indicator->division_id, true);
+            
+            return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
+        });
+
+        $currentMonth = Carbon::now()->format('m');
+        $current_Year = Carbon::now()->format('Y');
+
+        $currentDate = Carbon::now();
+
+            if ($currentDate->day > 5) {
+                $targetMonth = $currentDate->month;
+                // $targetMonth = $currentDate->addMonth()->month;
+            } else {
+                $targetMonth = $currentDate->subMonth()->month;
+            }
+
+            $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
+                $completedEntries = Entries::where('indicator_id', $indicator->id)
+                                        ->whereMonth('created_at', $targetMonth)
+                                        ->whereYear('created_at', $current_Year)
+                                        ->where('status', 'Completed')
+                                        ->where('user_id',  Auth::user()->id)
+                                        ->exists();
+                return !$completedEntries;
+            });
+          
+            // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
+        $entriesCount = $filteredIndicators->count();
     
         // If user is IT or SAP, show all divisions
         if (Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP') {
@@ -175,6 +374,7 @@ class IndicatorController extends Controller
             }
 
         } else {
+
             // Filter divisions based on user's divisions
             $indicatorDivisionIds = json_decode($indicator->division_id, true);
             $indicatorDivisionIds = array_map('intval', $indicatorDivisionIds);
@@ -196,7 +396,7 @@ class IndicatorController extends Controller
         }
     
         $user=Auth::user();
-        return view('indicators.view', compact('indicator', 'division_ids', 'division_targets', 'user', 'division_budget'));
+        return view('indicators.view', compact('indicator', 'division_ids', 'division_targets', 'user', 'division_budget', 'entriesCount'));
     }
 
     public function list(Request $request){
@@ -305,14 +505,12 @@ class IndicatorController extends Controller
         ]);
 
         $data = $request->all();
-        // dd($data);
 
-        $currentMonth = Carbon::now()->month;
+        $successIndicatorIds = [];
 
         foreach ($request->measures as $index => $measure) {
-            // dd($measure);
 
-            SuccessIndicator::create([
+            $successIndicator = SuccessIndicator::create([
                 'org_id' => $request->org_id,
                 'measures' => $measure,
                 'target' => $request->target[$index] ?? 'Actual',
@@ -330,10 +528,52 @@ class IndicatorController extends Controller
                 'Sorsogon_budget' => $request->Sorsogon_budget[$index] ?? 0,
                 'division_id' => json_encode($request->division_id[$index]), 
                 'alloted_budget' => $request->alloted_budget[$index] ?? 0,
-                'created_by' => auth()->user()->user_name,
+                'created_by' => Auth::user()->user_name,
             ]);
+
+            $successIndicatorIds[] = $successIndicator->id;
         }
 
+
+        // $indicators = SuccessIndicator::all();
+        // $matchingUserIds = [];
+        
+        // // Get all success indicator IDs
+        // foreach ($indicators as $indicator) {
+        //     $indicatorDivisionIds = json_decode($indicator->division_id, true);
+        
+        //     if (is_array($indicatorDivisionIds)) {
+
+        //         $excludedRoles = Role::whereIn('name', ['IT', 'SAP'])
+        //         ->pluck('id');
+        //         // Fetch all users
+        //         $users = User::whereNotIn('role_id', $excludedRoles)->get();
+        
+        //         foreach ($users as $user) {
+        //             $userDivisionIds = json_decode($user->division_id, true);
+        
+        //             if (is_array($userDivisionIds)) {
+        //                 $commonDivisions = array_intersect($indicatorDivisionIds, $userDivisionIds);
+        
+        //                 if (!empty($commonDivisions)) {
+        //                     $matchingUserIds[$user->id] = $user->id; 
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+        
+        // //Insert into entries table
+        // foreach ($matchingUserIds as $userId) {
+        //     foreach ($successIndicatorIds as $indicatorId) {
+        //         Entries::create([
+        //             'indicator_id' => $indicatorId,
+        //             'user_id' => $userId,
+        //             'created_by' => Auth::user()->user_name,
+        //         ]);
+        //     }
+        // }
+        
         return response()->json([
             'success' => true,
             'message' => 'Indicator have been successfully saved.'
@@ -350,7 +590,15 @@ class IndicatorController extends Controller
             return response()->json(['success' => false, 'errors' => $validator->errors()], 200);
         }
 
+        $ifExist = Entries::whereNull('deleted_at')->where('indicator_id', Crypt::decrypt($request->id))->exists();
+
+        if($ifExist){
+            
+            return response()->json(['success' => false, 'errors' => 'The Indicator is being used on Entries table']);
+        }
+
         $role = SuccessIndicator::findOrFail(Crypt::decrypt($request->id));
+        $role->updated_by = Auth::user()->user_name;
         $role->delete();
 
         return response()->json(['success' => true, 'message' => 'Indicator deleted successfully']);
@@ -422,15 +670,29 @@ class IndicatorController extends Controller
     
         // Find the success indicator by ID
         $indicator = SuccessIndicator::findOrFail($request->id);
+
+        // $po_budget = $indicator->Albay_budget + $indicator->Camarines_Sur_budget + $indicator->Camarines_Norte_budget +  $indicator->Catanduanes_budget + $indicator->Masbate_budget + $indicator->Sorsogon_budget;
+
+        // dd($indicator->alloted_budget -  $request->input('alloted_budget'));
         
        
         // Update the record with the new data
-        $indicator->Albay_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Albay_budget') ?? 0));
-        $indicator->Camarines_Sur_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Camarines_Sur_budget') ?? 0));
-        $indicator->Camarines_Norte_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Camarines_Norte_budget') ?? 0));
-        $indicator->Catanduanes_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Catanduanes_budget') ?? 0));
-        $indicator->Masbate_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Masbate_budget') ?? 0));
-        $indicator->Sorsogon_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Sorsogon_budget') ?? 0));
+        $indicator->Albay_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Albay_budget') ?? $indicator->Albay_budget));
+        
+        $indicator->Camarines_Sur_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Camarines_Sur_budget') ?? $indicator->Camarines_Sur_budget));
+        
+
+        $indicator->Camarines_Norte_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Camarines_Norte_budget') ?? $indicator->Camarines_Norte_budget));
+        
+      
+        $indicator->Catanduanes_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Catanduanes_budget') ?? $indicator->Catanduanes_budget));
+        
+        
+        $indicator->Masbate_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Masbate_budget') ?? $indicator->Masbate_budget));
+        
+       
+        $indicator->Sorsogon_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Sorsogon_budget') ?? $indicator->Sorsogon_budget ));
+        
         $indicator->alloted_budget = $request->input('alloted_budget');
         $indicator->updated_by = Auth::user()->user_name; // Assuming you store the username of the creator
         $indicator->updated_at =now(); // Assuming you store the username of the creator
@@ -459,14 +721,29 @@ class IndicatorController extends Controller
     
         // Find the success indicator by ID
         $indicator = SuccessIndicator::findOrFail($request->id);
+
+        // $po_budget = $indicator->Albay_budget + $indicator->Camarines_Sur_budget + $indicator->Camarines_Norte_budget +  $indicator->Catanduanes_budget + $indicator->Masbate_budget + $indicator->Sorsogon_budget;
+
+        // dd($indicator->alloted_budget -  $request->input('alloted_budget'));
+        
        
         // Update the record with the new data
-        $indicator->Albay_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Albay_budget') ?? 0));
-        $indicator->Camarines_Sur_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Camarines_Sur_budget') ?? 0));
-        $indicator->Camarines_Norte_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Camarines_Norte_budget') ?? 0));
-        $indicator->Catanduanes_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Catanduanes_budget') ?? 0));
-        $indicator->Masbate_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Masbate_budget') ?? 0));
-        $indicator->Sorsogon_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Sorsogon_budget') ?? 0));
+        $indicator->Albay_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Albay_budget') ?? $indicator->Albay_budget));
+        
+        $indicator->Camarines_Sur_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Camarines_Sur_budget') ?? $indicator->Camarines_Sur_budget));
+        
+
+        $indicator->Camarines_Norte_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Camarines_Norte_budget') ?? $indicator->Camarines_Norte_budget));
+        
+      
+        $indicator->Catanduanes_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Catanduanes_budget') ?? $indicator->Catanduanes_budget));
+        
+        
+        $indicator->Masbate_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Masbate_budget') ?? $indicator->Masbate_budget));
+        
+       
+        $indicator->Sorsogon_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Sorsogon_budget') ?? $indicator->Sorsogon_budget ));
+        
         $indicator->alloted_budget = $request->input('alloted_budget');
         $indicator->updated_by = Auth::user()->user_name; // Assuming you store the username of the creator
         $indicator->updated_at =now(); // Assuming you store the username of the creator

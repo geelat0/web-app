@@ -14,14 +14,19 @@ return new class extends Migration
         Schema::create('entries', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('indicator_id');
+            $table->unsignedBigInteger('user_id');
             $table->longText('file')->nullable();
-            $table->unsignedBigInteger('months');
-            $table->string('status')->default('Active');
+            $table->string('accomplishment')->nullable();
+            $table->unsignedBigInteger('months')->nullable();
+            $table->unsignedBigInteger('year')->nullable();
+            $table->string('status')->default('Completed');
             $table->string('created_by');
+            $table->string('updated_by')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
             $table->foreign('indicator_id')->references('id')->on('success_indc');
+            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 

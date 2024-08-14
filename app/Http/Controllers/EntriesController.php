@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Entries;
+use App\Models\Role;
 use App\Models\SuccessIndicator;
 use App\Models\User;
 use Carbon\Carbon;
@@ -18,14 +19,107 @@ class EntriesController extends Controller
     public function index(){
 
         $user=Auth::user();
-        return view('entries.index', compact('user'));
+
+        $currentYear = Carbon::now()->format('Y');
+        $currentUser = Auth::user();
+        $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+
+        $indicators = $entriesCount->get();
+        
+        $userDivisionIds = json_decode($currentUser->division_id, true);
+        $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
+            $indicatorDivisionIds = json_decode($indicator->division_id, true);
+            
+            return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
+        });
+
+        $currentMonth = Carbon::now()->format('m');
+        $current_Year = Carbon::now()->format('Y');
+
+        $currentDate = Carbon::now();
+
+        if ($currentDate->day > 5) {
+            $targetMonth = $currentDate->month;
+            // $targetMonth = $currentDate->addMonth()->month;
+        } else {
+            $targetMonth = $currentDate->subMonth()->month;
+        }
+
+        $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
+            $completedEntries = Entries::where('indicator_id', $indicator->id)
+                                    ->whereMonth('created_at', $targetMonth)
+                                    ->whereYear('created_at', $current_Year)
+                                    ->where('status', 'Completed')
+                                    ->where('user_id',  Auth::user()->id)
+                                    ->exists();
+            return !$completedEntries;
+        });
+          
+            // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
+        $entriesCount = $filteredIndicators->count();
+       
+        return view('entries.index', compact('user', 'entriesCount'));
     }
 
-    public function  create(){
+    public function  create(Request $request){
+        $id = $request->query('id');
+
+        $entries = SuccessIndicator::find(Crypt::decrypt($id));
+
+        if ($entries && $entries->file) {
+            // Decode the Base64 file to get the original contents
+            $fileContents = base64_decode($entries->file);
+            // Save the file temporarily or just pass the necessary data to the view
+            $fileName = 'entry_' . $entries->id . '.pdf'; // Example file name
+            Storage::put('public/entries/' . $fileName, $fileContents);
+            $fileUrl = Storage::url('public/entries/' . $fileName);
+        } else {
+            $fileUrl = null;
+        }
 
         $user=Auth::user();
-        return view('entries.create', compact('user'));
+
+        $currentYear = Carbon::now()->format('Y');
+        $currentUser = Auth::user();
+        $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+
+        $indicators = $entriesCount->get();
+        
+        $userDivisionIds = json_decode($currentUser->division_id, true);
+        $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
+            $indicatorDivisionIds = json_decode($indicator->division_id, true);
+            
+            return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
+        });
+
+        $currentMonth = Carbon::now()->format('m');
+        $current_Year = Carbon::now()->format('Y');
+
+        $currentDate = Carbon::now();
+
+        if ($currentDate->day > 5) {
+            $targetMonth = $currentDate->month;
+            // $targetMonth = $currentDate->addMonth()->month;
+        } else {
+            $targetMonth = $currentDate->subMonth()->month;
+        }
+
+        $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
+            $completedEntries = Entries::where('indicator_id', $indicator->id)
+                                    ->whereMonth('created_at', $targetMonth)
+                                    ->whereYear('created_at', $current_Year)
+                                    ->where('status', 'Completed')
+                                    ->where('user_id',  Auth::user()->id)
+                                    ->exists();
+            return !$completedEntries;
+        });
+          
+            // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
+        $entriesCount = $filteredIndicators->count();
+        
+        return view('entries.create', compact('user', 'entries', 'fileUrl', 'entriesCount'));
     }
+
     public function edit(Request $request){
 
         $id = $request->query('id');
@@ -44,8 +138,47 @@ class EntriesController extends Controller
         }
 
         $user=Auth::user();
-        return view('entries.edit', compact('user', 'entries', 'fileUrl'));
+       
+        $currentYear = Carbon::now()->format('Y');
+        $currentUser = Auth::user();
+        $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+
+        $indicators = $entriesCount->get();
+        
+        $userDivisionIds = json_decode($currentUser->division_id, true);
+        $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
+            $indicatorDivisionIds = json_decode($indicator->division_id, true);
+            
+            return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
+        });
+
+        $currentMonth = Carbon::now()->format('m');
+        $current_Year = Carbon::now()->format('Y');
+
+        $currentDate = Carbon::now();
+
+            if ($currentDate->day > 5) {
+                $targetMonth = $currentDate->month;
+                // $targetMonth = $currentDate->addMonth()->month;
+            } else {
+                $targetMonth = $currentDate->subMonth()->month;
+            }
+
+            $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
+                $completedEntries = Entries::where('indicator_id', $indicator->id)
+                                        ->whereMonth('created_at', $targetMonth)
+                                        ->whereYear('created_at', $current_Year)
+                                        ->where('status', 'Completed')
+                                        ->where('user_id',  Auth::user()->id)
+                                        ->exists();
+                return !$completedEntries;
+            });
+          
+            // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
+        $entriesCount = $filteredIndicators->count();
+        return view('entries.edit', compact('user', 'entries', 'fileUrl', 'entriesCount'));
     }
+
     public function view(Request $request){
 
         $id = $request->query('id');
@@ -64,8 +197,48 @@ class EntriesController extends Controller
         }
 
         $user=Auth::user();
-        return view('entries.view', compact('user', 'entries', 'fileUrl'));
+       
+        $currentYear = Carbon::now()->format('Y');
+        $currentUser = Auth::user();
+        $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+
+        $indicators = $entriesCount->get();
+        
+        $userDivisionIds = json_decode($currentUser->division_id, true);
+        $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
+            $indicatorDivisionIds = json_decode($indicator->division_id, true);
+            
+            return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
+        });
+
+        $currentMonth = Carbon::now()->format('m');
+        $current_Year = Carbon::now()->format('Y');
+
+        $currentDate = Carbon::now();
+
+            if ($currentDate->day > 5) {
+                $targetMonth = $currentDate->month;
+                // $targetMonth = $currentDate->addMonth()->month;
+            } else {
+                $targetMonth = $currentDate->subMonth()->month;
+            }
+
+            $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
+                $completedEntries = Entries::where('indicator_id', $indicator->id)
+                                        ->whereMonth('created_at', $targetMonth)
+                                        ->whereYear('created_at', $current_Year)
+                                        ->where('status', 'Completed')
+                                        ->where('user_id',  Auth::user()->id)
+                                        ->exists();
+                return !$completedEntries;
+            });
+          
+            // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
+        $entriesCount = $filteredIndicators->count();
+        return view('entries.view', compact('user', 'entries', 'fileUrl', 'entriesCount'));
     }
+
+
     public function getIndicator(Request $request){
 
         if(in_array(Auth::user()->role->name, ['IT', 'SAP'])){
@@ -102,44 +275,111 @@ class EntriesController extends Controller
             return response()->json($data);
         }
     }
-    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'indicator_id' => 'required|exists:success_indc,id',
-            'file' => 'required|file|mimes:pdf|max:2048',
-        ]);
-    
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-    
-        // Handle the file
-        $file = $request->file('file');
-        $fileContents = file_get_contents($file->getRealPath()); // Get the file contents
-        $base64File = base64_encode($fileContents); // Convert to Base64
 
-        // Validate the Base64 data (Check for PDF magic number)
-        if (substr($fileContents, 0, 4) !== '%PDF') {
-            return response()->json(['errors' => ['file' => 'Invalid PDF file']], 422);
+    public function list(Request $request){
+        $currentUser = Auth::user();
+        $currentYear = Carbon::now()->format('Y');
+    
+        // Build the initial query for SuccessIndicator
+        $query = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+    
+        // Filter by date range
+        if ($request->has('date_range') && !empty($request->date_range)) {
+            [$startDate, $endDate] = explode(' to ', $request->date_range);
+            $startDate = Carbon::createFromFormat('m/d/Y', $startDate)->startOfDay();
+            $endDate = Carbon::createFromFormat('m/d/Y', $endDate)->endOfDay();
+            $query->whereBetween('created_at', [$startDate, $endDate]);
         }
     
-        $entry = Entries::create([
-            'indicator_id' => $request->input('indicator_id'),
-            'file' => $base64File, // Store the Base64 string directly
-            'months' => Carbon::now()->month,
-            'status' => 'Active',
-            'created_by' => Auth::user()->user_name,
-        ]);
+        // Filter by search term
+        if ($request->has('search') && !empty($request->search)) {
+            $searchTerm = $request->search;
+            $query->where( function($subQuery) use ($searchTerm) {
+                $subQuery->where('target', 'like', "%{$searchTerm}%")
+                         ->orWhere('measures', 'like', "%{$searchTerm}%")
+                         ->orWhere('status', 'like', "%{$searchTerm}%");
+            });
+        }
     
-        return response()->json([
-            'success' => true,
-            'message' => 'Entry created successfully!',
-            'entry' => $entry
-        ]);
+        // Fetch all indicators
+        $indicators = $query->get();
+    
+        // Filter indicators based on current user's division_id
+        $userDivisionIds = json_decode($currentUser->division_id, true);
+        $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
+            $indicatorDivisionIds = json_decode($indicator->division_id, true);
+            return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
+        });
+    
+        // Get the current month
+        $currentMonth = Carbon::now()->format('m');
+        $current_Year = Carbon::now()->format('Y');
+        $current_day = Carbon::now()->format('d');
+
+
+        $currentDate = Carbon::now();
+
+        if ($currentDate->day > 5) {
+            $targetMonth = $currentDate->month;
+        } else {
+            $targetMonth = $currentDate->subMonth()->month;
+        }
+    
+        // Further filter indicators based on the entries table
+        $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
+            $completedEntries = Entries::where('indicator_id', $indicator->id)
+                                       ->whereMonth('created_at', $targetMonth)
+                                       ->whereYear('created_at', $current_Year)
+                                       ->where('status', 'Completed')
+                                       ->where('user_id',  Auth::user()->id)
+                                       ->exists();
+            return !$completedEntries;
+        });
+            
+        return DataTables::of($filteredIndicators)
+            ->addColumn('id', function($data) {
+                return Crypt::encrypt($data->id);
+            })
+            ->editColumn('indicator_id', function($data) {
+                return '(' . $data->target . ')' . '  ' . $data->measures;
+            })
+            ->editColumn('responsible_user', function($data) {
+                return Auth::user()->first_name. ' ' .Auth::user()->last_name;
+            })
+            ->editColumn('file', function($data) {
+                return ''; 
+            })
+            ->editColumn('status', function($data) {
+                return 'Pending'; 
+            })
+            ->editColumn('created_at', function($data) {
+                return $data->created_at->format('m/d/Y');
+            })
+            ->editColumn('year', function($data) {
+                return $data->created_at->format('Y');
+            })
+            ->editColumn('months', function($data) {
+                $currentDate = Carbon::now();
+
+                if ($currentDate->day > 5) {
+                    $targetMonth = $currentDate->month;
+                } else {
+                    $targetMonth = $currentDate->subMonth()->month;
+                }
+                return $data->months ? date('F', mktime(0, 0, 0, $data->months, 10)) : date('F', mktime(0, 0, 0, $targetMonth, 10));
+            })
+            ->make(true);
     }
-    
-    public function list(Request $request){
-        $query = Entries::whereNull('deleted_at')->with('indicator');
+
+    public function completed_list(Request $request){
+        if(in_array(Auth::user()->role->name, ['IT', 'SAP'])){
+
+            $query = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Completed');
+
+        }else{
+
+            $query = Entries::whereNull('deleted_at')->with(['indicator', 'user'])->where('status', 'Completed')->where('user_id', Auth::user()->id);
+        }
 
         if ($request->has('date_range') && !empty($request->date_range)) {
             [$startDate, $endDate] = explode(' to ', $request->date_range);
@@ -169,11 +409,17 @@ class EntriesController extends Controller
             ->editColumn('indicator_id', function($data) {
                 return '(' .$data->indicator->target .')' . '  '. $data->indicator->measures;
             })
+            ->editColumn('responsible_user', function($data) {
+                return  $data->user->first_name . ' ' .$data->user->last_name;
+            })
             ->editColumn('created_at', function($data) {
                 return $data->created_at->format('m/d/Y');
             })
+            ->editColumn('year', function($data) {
+                return $data->created_at->format('Y');
+            })
             ->editColumn('months', function($data) {
-                return date('F', mktime(0, 0, 0, $data->month, 10));
+                return $data->months ? date('F', mktime(0, 0, 0, $data->months, 10)): '';
             })
            
             ->make(true);
@@ -182,7 +428,7 @@ class EntriesController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'indicator_id' => 'required|exists:success_indc,id',
+            'accomplishment' => 'required|string',
             'file' => 'nullable|file|mimes:pdf|max:2048',
         ]);
 
@@ -195,19 +441,31 @@ class EntriesController extends Controller
         if ($request->hasFile('file')) {
             // Handle the file
             $file = $request->file('file');
-            $fileContents = file_get_contents($file->getRealPath()); // Get the file contents
-            $base64File = base64_encode($fileContents); // Convert to Base64
+            $fileContents = file_get_contents($file->getRealPath());
+            $base64File = base64_encode($fileContents);
 
             // Validate the Base64 data (Check for PDF magic number)
             if (substr($fileContents, 0, 4) !== '%PDF') {
                 return response()->json(['errors' => ['file' => 'Invalid PDF file']], 422);
             }
            
+        }else{
+            //fetch the existing file
+            $base64File = $entry->file;
         }
-        $entry->indicator_id = $request->input('indicator_id');
-        $entry->months = Carbon::now()->month;
+
+        $currentDate = Carbon::now();
+
+        if ($currentDate->day > 5) {
+            $targetMonth = $currentDate->addMonth()->month;
+        } else {
+            $targetMonth = $currentDate->subMonth()->month;
+        }
+
+        $entry->accomplishment = $request->input('accomplishment');
         $entry->file = $base64File;
-        $entry->status = 'Active';
+        // $entry->months = $targetMonth;
+        $entry->status = 'Completed';
         $entry->created_by = Auth::user()->user_name;
         $entry->save();
 
@@ -229,8 +487,59 @@ class EntriesController extends Controller
         }
 
         $role = Entries::findOrFail(Crypt::decrypt($request->id));
+        $role->updated_by = Auth::user();
         $role->delete();
 
         return response()->json(['success' => true, 'message' => 'Entry deleted successfully']);
+    }
+
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'indicator_id' => 'required|exists:success_indc,id',
+            'accomplishment' => 'required|string',
+            'file' => 'required|file|mimes:pdf|max:2048',
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+    
+        // Handle the file
+        $file = $request->file('file');
+        $fileContents = file_get_contents($file->getRealPath()); // Get the file contents
+        $base64File = base64_encode($fileContents); // Convert to Base64
+
+        // Validate the Base64 data (Check for PDF magic number)
+        if (substr($fileContents, 0, 4) !== '%PDF') {
+            return response()->json(['errors' => ['file' => 'Invalid PDF file']], 422);
+        }
+
+        $currentDate = Carbon::now();
+
+        if ($currentDate->day > 5) {
+            $targetMonth = $currentDate->month;
+            // $targetMonth = $currentDate->addMonth()->month;
+        } else {
+            $targetMonth = $currentDate->subMonth()->month;
+        }
+
+        $current_Year = Carbon::now()->format('Y');
+       
+        $entry = Entries::create([
+            'indicator_id' => $request->input('indicator_id'),
+            'file' => $base64File, // Store the Base64 string directly
+            'months' => $targetMonth,
+            'year' => $current_Year,
+            'accomplishment' => trim($request->input('accomplishment')),
+            'user_id' => Auth::user()->id,
+            'created_by' => Auth::user()->user_name,
+        ]);
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'Entry created successfully!',
+            'entry' => $entry
+        ]);
     }
 }

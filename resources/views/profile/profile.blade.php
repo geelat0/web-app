@@ -9,10 +9,10 @@
             <div class="card-body">
 
                 <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-                    <li class="nav-item" role="presentation">
+                    <li class="nav-item flex-fill" role="presentation">
                       <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Personal Information</button>
                     </li>
-                    <li class="nav-item" role="presentation">
+                    <li class="nav-item flex-fill" role="presentation">
                       <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Change Password</button>
                     </li>
                 </ul>
@@ -38,29 +38,56 @@
                             <div class="row mt-4">
                                 <div class="col-md-6">
                                     <input type="hidden" name="user_id" value="{{ $user->id }}">
-                                    <div class="form-group">
+                                    <div class="form-group mb-3">
                                         <label for="user_name">Username</label>
                                         <input type="text" class="form-control" id="user_name" name="user_name" value="{{ $user->user_name }}" disabled>
                                         <div id="user_nameError" class="invalid-feedback"></div>
                                     </div>
 
-                                    <div class="form-group">
-                                        <label for="email">Email</label>
-                                        <input type="email" class="form-control" id="email" name="email" value="{{ $user->email }}">
-                                        <div id="emailError" class="invalid-feedback"></div>
-                                    </div>
-
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="form-group mb-3">
                                         <label for="first_name">First Name</label>
                                         <input type="text" class="form-control" id="first_name" name="first_name" value="{{ $user->first_name }}">
                                         <div id="first_nameError" class="invalid-feedback"></div>
                                     </div>
 
-                                    <div class="form-group">
+                                    <div class="form-group mb-3">
+                                        <label for="last_name">Last Name</label>
+                                        <input type="text" class="form-control" id="last_name" name="last_name" value="{{ $user->last_name }}">
+                                        <div id="last_nameError" class="invalid-feedback"></div>
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        <label for="middle_name">Middle Name</label>
+                                        <input type="text" class="form-control" id="middle_name" name="middle_name" value="{{ $user->middle_name }}">
+                                        <div id="middle_nameError" class="invalid-feedback"></div>
+                                    </div>
+
+                                    
+
+                                </div>
+                                <div class="col-md-6">
+                                   
+                                    <div class="form-group mb-3">
+                                        <label for="email">Email</label>
+                                        <input type="email" class="form-control" id="email" name="email" value="{{ $user->email }}">
+                                        <div id="emailError" class="invalid-feedback"></div>
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        <label for="mobile_number">Mobile Number</label>
+                                        <input type="text" class="form-control" id="mobile_number" name="mobile_number" value="{{ $user->mobile_number }}">
+                                        <div id="mobile_numberError" class="invalid-feedback"></div>
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        <label for="position">Position</label>
+                                        <input type="text" class="form-control" id="position" name="position" value="{{ $user->position }}" disabled>
+                                        <div id="positionError" class="invalid-feedback"></div>
+                                    </div>
+
+                                    <div class="form-group mb-3">
                                         <label for="province">Province</label>
-                                        <select class="form-select capitalize" id="province" name="province" >
+                                        <select class="form-select capitalize" id="province" name="province" disabled>
                                             <option value="">Select a Province...</option>
                                             <option value="Albay" {{ $user->province == 'Albay' ? 'selected' : '' }}>Albay</option>
                                             <option value="Camarines Norte" {{ $user->province == 'Camarines Norte' ? 'selected' : '' }}>Camarines Norte</option>
@@ -73,31 +100,15 @@
                                     </div>
 
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="last_name">Last Name</label>
-                                        <input type="text" class="form-control" id="last_name" name="last_name" value="{{ $user->last_name }}">
-                                        <div id="last_nameError" class="invalid-feedback"></div>
-                                    </div>
+                                <div class="col-md-6 mb-3">
+                                    
 
-                                    <div class="form-group">
-                                        <label for="position">Position</label>
-                                        <input type="text" class="form-control" id="position" name="position" value="{{ $user->position }}">
-                                        <div id="positionError" class="invalid-feedback"></div>
-                                    </div>
+                                    
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="middle_name">Middle Name</label>
-                                        <input type="text" class="form-control" id="middle_name" name="middle_name" value="{{ $user->middle_name }}">
-                                        <div id="middle_nameError" class="invalid-feedback"></div>
-                                    </div>
+                                   
 
-                                    <div class="form-group">
-                                        <label for="mobile_number">Mobile Number</label>
-                                        <input type="text" class="form-control" id="mobile_number" name="mobile_number" value="{{ $user->mobile_number }}">
-                                        <div id="mobile_numberError" class="invalid-feedback"></div>
-                                    </div>
+                                   
                                 </div>
                             </div>
                             <div class="d-flex justify-content-end mt-4">
@@ -110,17 +121,17 @@
                         <form id="changePasswordForm">
                             @csrf
                             <input type="hidden" name="user_id" value="{{ $user->id }}">
-                            <div class="form-group">
+                            <div class="form-group mb-3">
                                 <label for="current_password">Current Password</label>
                                 <input type="password" class="form-control" id="current_password" name="current_password">
                                 <div id="current_passwordError" class="invalid-feedback"></div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group mb-3">
                                 <label for="new_password">New Password</label>
                                 <input type="password" class="form-control" id="new_password" name="new_password">
                                 <div id="new_passwordError" class="invalid-feedback"></div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group mb-3">
                                 <label for="new_password_confirmation">Confirm New Password</label>
                                 <input type="password" class="form-control" id="new_password_confirmation" name="new_password_confirmation">
                                 <div id="new_password_confirmationError" class="invalid-feedback"></div>

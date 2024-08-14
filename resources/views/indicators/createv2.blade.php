@@ -236,6 +236,7 @@
             targetContainer.empty();
 
             const divisionNames = new Set();
+            const initialBudget = parseFloat($(`#alloted_budget`).val()) || 0;
             
             if (selectedDivisions.length > 0) {
                 selectedDivisions.forEach((divisionId) => {
@@ -280,17 +281,27 @@
                             });
                             const budgetInput = $(`#budget_${divisionId}_${index}`);
                             budgetInput.on('input', function() {
-                                let totalBudget = 0;
-                                $(`#targetFields_${index} .alloted-budget`).each(function() {
-                                    const value = parseFloat($(this).val());
-                                    if (!isNaN(value)) {
-                                        totalBudget += value;
-                                    }
-                                });
-                                $(`#alloted_budget`).val(totalBudget);
-                            });
-                    }else{
-                        $(`.percent`).removeClass('d-none')
+                            let totalBudget = parseFloat($('#alloted_budget').val()) || 0;
+                            let currentBudgetValue = parseFloat(budgetInput.data('initial-value')) || 0;
+
+                            if (isNaN(totalBudget)) {
+                                totalBudget = 0;
+                            }
+
+                            if (isNaN(currentBudgetValue)) {
+                                currentBudgetValue = 0;
+                            }
+
+                            const newValue = parseFloat(budgetInput.val()) || 0;
+                            totalBudget = totalBudget - currentBudgetValue + newValue;
+
+                            budgetInput.data('initial-value', newValue);
+                            $('#alloted_budget').val(totalBudget);
+                        });
+                        // Store the initial budget value for accurate calculations
+                        budgetInput.data('initial-value', budgetValue);
+                    } else {
+                        $('.percent').removeClass('d-none');
                     }
                 });
             }

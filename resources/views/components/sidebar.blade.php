@@ -47,6 +47,7 @@
           <a href="/entries" class="menu-link">
             <i class='menu-icon tf-icons bx bx-file'></i>
             <div class="text-truncate" data-i18n="Page 2">Entries</div>
+            <span class="badge {{ $entriesCount == 0 ? 'bg-warning' : 'bg-danger'}}  badge-notifications p-1 fs-8">{{$entriesCount}}</span>
           </a>
         </li> 
         
@@ -63,6 +64,7 @@
             <div class="text-truncate" data-i18n="Page 2">Role</div>
           </a>
         </li>
+       
 
         <li class="menu-item {{ request()->is('user') ? 'active' : '' }}">
           <a href="/user" class="menu-link">

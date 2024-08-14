@@ -2,6 +2,11 @@
 
 @section('content')
 
+<div class="row">
+    <div class="col">
+        
+    </div>
+</div>
 
 <div class="row">
     <div class="col">
@@ -19,10 +24,11 @@
                         </p>
                     </div>
                     <div class="col d-flex justify-content-end mb-3" >
-    
-                        <div id="table-buttons" class="d-flex">
+                        <div id="pending-table-buttons"></div>
+                        <div id="completed-table-buttons"></div>
+                        {{-- <div id="table-buttons" class="d-flex">
                             <!-- Buttons will be appended here -->
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
                 <div class="collapse" id="collapseExample">
@@ -42,13 +48,31 @@
 
 <div class="row mt-4">
     <div class="col">
-        <div class="card">
-            <div class="card-body">
-                <div class="table-responsive pt-3">
-                    <table id="entry-table"  class="table table-striped" style="width: 100%">
-                      <tbody>
-                      </tbody>
-                    </table>
+        <div class="nav-align-top">
+            <ul class="nav nav-tabs w-100 d-flex" role="tablist">
+                <li class="nav-item flex-fill">
+                    <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-top-align-pending">Pending</button>
+                </li>
+                <li class="nav-item flex-fill">
+                    <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-top-align-complete">Completed</button>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="navs-top-align-pending">
+                    <div class="card-datatable table-responsive pt-0">
+                        <table id="pending-table"  class="datatables-basic table border-top">
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="navs-top-align-complete">
+                    <div class="card-datatable table-responsive pt-0">
+                        <table id="completed-table"  class="datatables-basic table border-top">
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -56,7 +80,6 @@
 </div>
 
 @include('entries.file')
-
 
 
 @endsection
@@ -68,6 +91,7 @@
     $(document).ready(function() {
 
         var table;
+        var completed_table;
 
         flatpickr("#date-range-picker", {
             mode: "range",
@@ -76,11 +100,12 @@
                 // Check if both start and end dates are selected
                 if (selectedDates.length === 2) {
                     table.ajax.reload(null, false);  
+                    completed_table.ajax.reload(null, false);  
                 }
             }
         });
 
-        table = $('#entry-table').DataTable({
+        table = $('#pending-table').DataTable({
             responsive: true,
             processing: false,
             serverSide: true,
@@ -103,116 +128,50 @@
             buttons: [
 
                 {
-                    text: 'Add',
+                    text: 'Add Entries',
+                    enabled: false,
                     className: 'btn btn-success user_btn',
                     action: function (e, dt, node, config) {
-                        // $('#createEntriesModal').modal('show');
-                        window.location.href = `/entries_create`;
-                        
-                    }
-                },
-                {
-                    text: 'Edit',
-                    className: 'btn btn-info user_btn',
-                    enabled: false,
-                    action: function (e, dt, node, config) {
-
-                        var selectedData = dt.row({ selected: true }).data();
-
-                        if (selectedData && selectedData.id) {
-                           
-                            window.location.href = `/entries_edit?id=${selectedData.id}`;
-                            console.log(selectedData.id);
-                        } else {
-                            alert('No item selected or invalid ID.');
-                        }
-
-                    }
-                },
-                {
-                    text: 'View',
-                    className: 'btn btn-warning user_btn',
-                    enabled: false,
-                    action: function (e, dt, node, config) {
-                        //alert('View Activated!');
-
                         var selectedData = dt.row({ selected: true }).data();
 
                         if (selectedData && selectedData.id) {
                         
-                            window.location.href = `/entries_view?id=${selectedData.id}`;
+                            window.location.href = `/entries_create?id=${selectedData.id}`;
                             console.log(selectedData.id);
                         } else {
                             alert('No item selected or invalid ID.');
-                        }
+                        } 
                     }
                 },
-                {
-                    text: 'Delete',
-                    className: 'btn btn-danger user_btn',
-                    enabled: false,
-                    action: function (e, dt, node, config) {
-                        //alert('Delete Activated!');
+                // {
+                //     text: 'View',
+                //     className: 'btn btn-warning user_btn',
+                //     enabled: false,
+                //     action: function (e, dt, node, config) {
+                //         //alert('View Activated!');
 
-                        var selectedUserId = table.row({ selected: true }).data().id; // Assuming you have selected a user row
+                //         var selectedData = dt.row({ selected: true }).data();
 
-                        Swal.fire({
-                            title: 'Are you sure?',
-                            text: "You won't be able to revert this!",
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonColor: '#3085d6',
-                            cancelButtonColor: '#d33',
-                            confirmButtonText: 'Yes, delete it!'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                showLoader();
-                                $.ajax({
-                                    url: '{{ route('entries.destroy') }}',
-                                    method: 'POST',
-                                    data: {
-                                        _token: '{{ csrf_token() }}',
-                                        id: selectedUserId
-                                    },
-                                    success: function(response) {
-                                        hideLoader();
-                                        if (response.success) {
-                                            Swal.fire(
-                                                'Deleted!',
-                                                'Entry has been deleted.',
-                                                'success'
-                                            );
-                                            table.ajax.reload();
-                                        } else {
-                                            var errorMessage = '';
-                                            Object.keys(response.errors).forEach(function(key) {
-                                                errorMessage += response.errors[key][0] + '<br>';
-                                            });
-                                            hideLoader();
-                                            Swal.fire({
-                                                icon: 'error',
-                                                title: 'Deletion Failed',
-                                                html: errorMessage
-                                            });
-                                        }
-                                    },
-                                    error: function(xhr) {
-                                        hideLoader();
-                                        console.log(xhr.responseText);
-                                    }
-                                });
-                            }
-                        });
-                    }
-                },
-
+                //         if (selectedData && selectedData.id) {
+                        
+                //             window.location.href = `/entries_view?id=${selectedData.id}`;
+                //             console.log(selectedData.id);
+                //         } else {
+                //             alert('No item selected or invalid ID.');
+                //         }
+                //     }
+                // },
+              
 
             ],
 
             columns: [
                 { data: 'id', name: 'id', title: 'ID', visible: false },
                 { data: 'indicator_id', name: 'indicator_id', title: 'Indicator'},
+                // { data: 'accomplishment', name: 'accomplishment', title: 'Accomplishment'},
                 { data: 'months', name: 'months', title: 'Month', className: 'wrap-text' },
+                { data: 'year', name: 'year', title: 'Year', className: 'wrap-text' },
+
                 {
                     data: 'file',
                     name: 'file',
@@ -233,7 +192,9 @@
                     },
                     orderable: false,
                     searchable: false
-                },      
+                },
+                { data: 'responsible_user', name: 'responsible_user', title: 'Responsible User' }, 
+                { data: 'status', name: 'status', title: 'Status' }, 
                 { data: 'created_at', name: 'created_at', title: 'Created At' },
                 { data: 'created_by', name: 'created_by', title: 'Created By' },
             ],
@@ -254,34 +215,233 @@
             }
         });
 
+        completed_table = $('#completed-table').DataTable({
+            responsive: true,
+            processing: false,
+            serverSide: true,
+            pageLength: 30,
+            lengthChange: false,
+            paging: false,
+            ordering: false,
+            scrollY: 400,
+            select: {
+                style: 'single'
+            },
+             ajax: {
+                url: '{{ route('entries.completed_list') }}',
+                data: function(d) {
+                    // Include the date range in the AJAX request
+                    d.date_range = $('#date-range-picker').val();
+                    d.search = $('#search-input').val();
+                },
+            },
+            buttons: [
+                // {
+                //     text: 'Edit',
+                //     className: 'btn btn-info user_btn',
+                //     enabled: false,
+                //     action: function (e, dt, node, config) {
+
+                //         var selectedData = dt.row({ selected: true }).data();
+
+                //         if (selectedData && selectedData.id) {
+                           
+                //             window.location.href = `/entries_edit?id=${selectedData.id}`;
+                //             console.log(selectedData.id);
+                //         } else {
+                //             alert('No item selected or invalid ID.');
+                //         }
+
+                //     }
+                // },
+                {
+                    text: 'View',
+                    className: 'btn btn-warning user_btn',
+                    enabled: false,
+                    action: function (e, dt, node, config) {
+                        //alert('View Activated!');
+
+                        var selectedData = dt.row({ selected: true }).data();
+
+                        if (selectedData && selectedData.id) {
+                        
+                            window.location.href = `/entries_view?id=${selectedData.id}`;
+                            console.log(selectedData.id);
+                        } else {
+                            alert('No item selected or invalid ID.');
+                        }
+                    }
+                },
+                // @if(in_array(Auth::user()->role->name, ['IT', 'SAP']))
+                // {
+                //     text: 'Delete',
+                //     className: 'btn btn-danger user_btn',
+                //     enabled: false,
+                //     action: function (e, dt, node, config) {
+                //         //alert('Delete Activated!');
+
+                //         var selectedUserId = table.row({ selected: true }).data().id;
+
+                //         Swal.fire({
+                //             title: 'Are you sure?',
+                //             text: "You won't be able to revert this!",
+                //             icon: 'warning',
+                //             showCancelButton: true,
+                //             confirmButtonColor: '#3085d6',
+                //             cancelButtonColor: '#d33',
+                //             confirmButtonText: 'Yes, delete it!'
+                //         }).then((result) => {
+                //             if (result.isConfirmed) {
+                //                 showLoader();
+                //                 $.ajax({
+                //                     url: '{{ route('entries.destroy') }}',
+                //                     method: 'POST',
+                //                     data: {
+                //                         _token: '{{ csrf_token() }}',
+                //                         id: selectedUserId
+                //                     },
+                //                     success: function(response) {
+                //                         hideLoader();
+                //                         if (response.success) {
+                //                             Swal.fire(
+                //                                 'Deleted!',
+                //                                 'Entry has been deleted.',
+                //                                 'success'
+                //                             );
+                //                             table.ajax.reload();
+                //                         } else {
+                //                             var errorMessage = '';
+                //                             Object.keys(response.errors).forEach(function(key) {
+                //                                 errorMessage += response.errors[key][0] + '<br>';
+                //                             });
+                //                             hideLoader();
+                //                             Swal.fire({
+                //                                 icon: 'error',
+                //                                 title: 'Deletion Failed',
+                //                                 html: errorMessage
+                //                             });
+                //                         }
+                //                     },
+                //                     error: function(xhr) {
+                //                         hideLoader();
+                //                         console.log(xhr.responseText);
+                //                     }
+                //                 });
+                //             }
+                //         });
+                //     }
+                // },
+                // @endif
+
+            ],
+
+            columns: [
+                { data: 'id', name: 'id', title: 'ID', visible: false },
+                { data: 'indicator_id', name: 'indicator_id', title: 'Indicator'},
+                // { data: 'accomplishment', name: 'accomplishment', title: 'Accomplishment'},
+                { data: 'months', name: 'months', title: 'Month', className: 'wrap-text' },
+                { data: 'year', name: 'year', title: 'Year', className: 'wrap-text' },
+                {
+                    data: 'file',
+                    name: 'file',
+                    title: 'File',
+                    render: function(data, type, row) {
+                        if (data) {
+                            return `
+                                <a href="#" class="file-preview" 
+                                data-file="${data}" 
+                                data-toggle="modal" 
+                                data-target="#fileModal">
+                                    <i class="bx bx-file"></i> Preview
+                                </a>`;
+                        } else {
+                            return 'No File';
+                        }
+                    },
+                    orderable: false,
+                    searchable: false
+                },
+                { data: 'responsible_user', name: 'responsible_user', title: 'Responsible User' }, 
+                { data: 'status', name: 'status', title: 'Status' }, 
+                { data: 'created_at', name: 'created_at', title: 'Created At' },
+                { data: 'created_by', name: 'created_by', title: 'Created By' },
+            ],
+
+            // rowGroup: {
+            //     dataSrc: 'org_id'
+            // },
+
+            language: {
+                emptyTable: "No data found",
+                search: "", // Remove "Search:" label
+                searchPlaceholder: "Search..." // Set placeholder text
+            },
+
+            dom: '<"d-flex justify-content-between flex-wrap"B>rtip',
+            createdRow: function(row, data, dataIndex) {
+                $(row).find('td:eq(1)').addClass('wrap-text');
+            }
+        });
+
+
         $('.navbar-toggler').on('click', function() {
-        // Reload the DataTable
-            table.ajax.reload(null, false); // false to keep the current paging
+       
+            table.ajax.reload(null, false);
+            completed_table.ajax.reload(null, false);
+        });
+        $('.nav-link').on('click', function() {
+       
+            table.ajax.reload(null, false);
+            completed_table.ajax.reload(null, false);
         });
 
         $('#search-input').on('keyup', function() {
-            table.ajax.reload();  // Reload the table when the search input changes
+            table.ajax.reload();
+            completed_table.ajax.reload();
         });
 
         // table.buttons().container().appendTo('#roles-table_wrapper .col-md-6:eq(0)');
-        table.buttons().container().appendTo('#table-buttons');
+        // completed_table.buttons().container().appendTo('#roles-table_wrapper .col-md-6:eq(0)');
 
-        table.on('select deselect', function() {
-            var selectedRows = table.rows({ selected: true }).count();
-            table.buttons(['.btn-warning', '.btn-info', '.btn-danger']).enable(selectedRows > 0);
+        $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+            let target = $(e.target).attr('data-bs-target'); // Get the active tab
+
+            if (target === '#navs-top-align-pending') {
+                $('#pending-table-buttons').show();
+                $('#completed-table-buttons').hide();
+                table.buttons().disable();
+                // completed_table.buttons().disable();
+            } else if (target === '#navs-top-align-complete') {
+                $('#pending-table-buttons').hide();
+                $('#completed-table-buttons').show();
+                // table.buttons().disable();
+                completed_table.buttons().disable();
+            }
         });
 
-        $('#createEntriesModal, #editRoleModal').on('hidden.bs.modal', function() {
-            $(this).find('form')[0].reset(); // Reset form fields
-            $(this).find('.is-invalid').removeClass('is-invalid'); // Remove validation error classes
-            $(this).find('.invalid-feedback').text(''); // Clear error messages
+        table.buttons().container().appendTo('#pending-table-buttons');
+        completed_table.buttons().container().appendTo('#completed-table-buttons');
+
+        // Hide completed buttons by default
+        $('#completed-table-buttons').hide();
+
+
+        // table.buttons().container().appendTo('#table-buttons');
+        // completed_table.buttons().container().appendTo('#table-buttons');
+        
+        table.on('select deselect', function() {
+            var selectedRows = table.rows({ selected: true }).count();
+            table.buttons(['.btn-success', '.btn-warning', '.btn-info', '.btn-danger']).enable(selectedRows > 0);
+        });
+
+        completed_table.on('select deselect', function() {
+            var selectedRows = completed_table.rows({ selected: true }).count();
+            completed_table.buttons([ '.btn-warning', '.btn-info', '.btn-danger']).enable(selectedRows > 0);
         });
 
         function getFileExtension(filename) {
             return filename.split('.').pop().toLowerCase();
         }
-
-
     });
 
     $(document).on('click', '.file-preview', function(e) {

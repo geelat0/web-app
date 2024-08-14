@@ -340,12 +340,12 @@
                                             Swal.fire({
                                                 icon: 'error',
                                                 title: 'Deletion Failed',
-                                                html: errorMessage
+                                                html: response.errors
                                             });
                                         }
                                     },
                                     error: function(xhr) {
-                                        // hideLoader();
+                                        hideLoader();
                                         console.log(xhr.responseText);
                                     }
                                 });

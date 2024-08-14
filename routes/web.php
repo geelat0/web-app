@@ -96,6 +96,7 @@ Route::middleware(['auth_check'])->group(function () {
         Route::post('entries/update', [EntriesController::class, 'update'])->name('entries.update');
         Route::post('entries/destroy', [EntriesController::class, 'destroy'])->name('entries.destroy');
         Route::get('entries/list', [EntriesController::class, 'list'])->name('entries.list');
+        Route::get('entries/completed_list', [EntriesController::class, 'completed_list'])->name('entries.completed_list');
         Route::get('entries/getIndicator', [EntriesController::class, 'getIndicator'])->name('entries.getIndicator');
 
 

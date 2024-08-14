@@ -11,8 +11,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title"> <a href="/entries" class="text-primary"><i class='bx bx-left-arrow-circle'></i></a>
-                            Create</h4>
-                       
+                            Add Entries</h4>
                     </div>
                 </div>
             </div>
@@ -27,13 +26,26 @@
                                 <div class="col">
                                     <div class="mb-3">
                                         <div class="form-group">
-                                            <label for="indicator_id" class="required">Indicator</label>
-                                            <select id="indicator_id" class="form-select capitalize" name="indicator_id">
+                                            <input type="hidden" id="indicator_id" name="indicator_id" value="{{ $entries->id }}">
+                                            <label for="indicator" class="required">Indicator</label>
+                                            <select id="indicator" class="form-select capitalize" >
+                                                @if($entries)
+                                                    <option value="{{ $entries->indicator_id }}" selected>{{ '('. $entries->target. ')'. '  ' .$entries->measures }}</option>
+                                                @endif
                                             </select>
-                                            <div id="indicator_idError" class="invalid-feedback"></div>
+                                            {{-- <div id="indicator_idError" class="invalid-feedback"></div> --}}
+
+                                            <div class="mb-3">
+                                                <div class="form-group">
+                                                    <label for="accomplishment" class="required">Accomplishment</label>
+                                                    <textarea type="text" id="accomplishment" class="form-control" name="accomplishment">
+                                                        {{ $entries->accomplishment }}
+                                                    </textarea>
+                                                    <div id="accomplishmentError" class="invalid-feedback"></div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    
                                 </div>
                             </div>
                             <div class="row">
@@ -41,14 +53,15 @@
                                     <div class="mb-3">
                                         <div class="form-group">
                                             <label for="months">Month</label>
-                                            <select id="months" class="months form-select" name="months">
+                                            <select id="months" class="months form-select" name="months" disabled>
                                                 <option value="">Select Month</option>
                                                 @for ($i = 1; $i <= 12; $i++)
-                                                    <option value="{{ $i }}">{{ date('F', mktime(0, 0, 0, $i, 10)) }}</option>
+                                                    <option selected>{{ date('F', mktime(0, 0, 0, $entries->months, 10)) }}</option>
                                                 @endfor
                                             </select>
                                             <div class="invalid-feedback" id="monthsError"></div>
                                         </div>
+                                        
                                     </div>
                                 </div>
                                 <div class="col">
@@ -80,58 +93,16 @@
 
 <script>
 $(document).ready(function() {
+    $('#indicator').prop('disabled', true);
 
-    // Get today's date in the format "YYYY-MM-DD"
-    const today = new Date().toISOString().split('T')[0];
-
-    flatpickr("#date-received", {
-        mode: "range",
-        dateFormat: "m/d/Y",
-        defaultDate: today,  // Set today's date as the default
-        onReady: function(selectedDates, dateStr, instance) {
-            instance.input.disabled = true;  // Disable the input field
-        }
-    });
-
-
-    $('#indicator_id').select2({
-            placeholder: 'Select an Option',
-            allowClear: true,
-            ajax: {
-                url: '{{ route('entries.getIndicator') }}',
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    return {
-                        q: params.term // search term
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {
-                                id: item.id,
-                                text: '(' + item.target+ ')' + '  ' + item.measures
-                            };
-                        })
-                    };
-                },
-                cache: true
-            }
-        });
-
-    function setCurrentMonth(index) {
-        const now = new Date();
-        const currentMonth = now.getMonth() + 1; // getMonth() returns 0-based index, so add 1
-        $(`#months`).val(currentMonth).prop('disabled', true);
-    }
-
-    setCurrentMonth(0);
 
     $('#NewEntriesForm').on('submit', function(e) {
         e.preventDefault();
         showLoader();
+
         var formData = new FormData(this);
+
+        // Re-disable the select field if needed
 
         $.ajax({
             url: '{{ route('entries.store') }}',
@@ -149,6 +120,7 @@ $(document).ready(function() {
                         text: response.message,
                         showConfirmButton: false,
                     });
+
                     $('#NewEntriesForm')[0].reset(); // Reset the form
                 }
             },
@@ -208,8 +180,6 @@ $(document).ready(function() {
     });
 
 });
-
-
 
 </script>
 @endsection

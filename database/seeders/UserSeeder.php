@@ -31,5 +31,39 @@ class UserSeeder extends Seeder
                 'created_by' => 'A.bong',
             ]
           );
+        User::create(
+            [
+                'first_name' => 'Ana',
+                'middle_name' => 'Smith',
+                'last_name' => 'Doe',
+                'user_name' => 'A.doe',
+                'province' => 'Albay',
+                'position' => 'Developer',
+                'mobile_number' => '09123456789',
+                'email' => 'anadoe@gmail.com',
+                'role_id' => '4',
+                'division_id' => '["1", "2", "3", "4", "5", "6", "7", "8", "9"]',
+                'status' => 'Active',
+                'password' => Hash::make('123456'),
+                'created_by' => 'A.bong',
+            ]
+          );
+        User::create(
+            [
+                'first_name' => 'John',
+                'middle_name' => 'Smith',
+                'last_name' => 'Doe',
+                'user_name' => 'J.doe',
+                'province' => 'Albay',
+                'position' => 'Developer',
+                'mobile_number' => '09123456789',
+                'email' => 'johndoe@gmail.com',
+                'role_id' => '3',
+                'division_id' => '["1", "2", "3", "4", "5", "6", "7", "8", "9"]',
+                'status' => 'Active',
+                'password' => Hash::make('123456'),
+                'created_by' => 'A.bong',
+            ]
+          );
     }
 }

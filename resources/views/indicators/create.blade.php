@@ -33,7 +33,7 @@
                             <div class="row">
                                 <div class="form-group mb-3">
                                     <label for="measures_0" class="required">Measure</label>
-                                    <textarea type="text" class="form-control capitalize" name="measures[]" id="measures_0" aria-describedby=""></textarea>
+                                    <textarea type="text" class="form-control" name="measures[]" id="measures_0" aria-describedby=""></textarea>
                                     <div class="invalid-feedback" id="measuresError_0"></div>
                                 </div>
                                 <div class="form-group mb-3">

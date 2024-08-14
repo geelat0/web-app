@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Entries;
 use App\Models\Role;
+use App\Models\SuccessIndicator;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +17,45 @@ class DashboardController extends Controller
             $userCount = User::count();
             $roleCount = Role::count();
             $user = Auth::user();
-            return view('dashboard', compact('user', 'userCount', 'roleCount'));
+            
+            $currentYear = Carbon::now()->format('Y');
+            $currentUser = Auth::user();
+            $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+
+            $indicators = $entriesCount->get();
+            
+            $userDivisionIds = json_decode($currentUser->division_id, true);
+            $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
+                $indicatorDivisionIds = json_decode($indicator->division_id, true);
+                
+                return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
+            });
+
+            $currentMonth = Carbon::now()->format('m');
+            $current_Year = Carbon::now()->format('Y');
+
+            $currentDate = Carbon::now();
+
+            if ($currentDate->day > 5) {
+                $targetMonth = $currentDate->month;
+                // $targetMonth = $currentDate->addMonth()->month;
+            } else {
+                $targetMonth = $currentDate->subMonth()->month;
+            }
+
+            $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
+                $completedEntries = Entries::where('indicator_id', $indicator->id)
+                                        ->whereMonth('created_at', $targetMonth)
+                                        ->whereYear('created_at', $current_Year)
+                                        ->where('status', 'Completed')
+                                        ->where('user_id',  Auth::user()->id)
+                                        ->exists();
+                return !$completedEntries;
+            });
+              
+                // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
+            $entriesCount = $filteredIndicators->count();
+            return view('dashboard', compact('user', 'userCount', 'roleCount', 'entriesCount'));
     }
 
     public function filter(Request $request)

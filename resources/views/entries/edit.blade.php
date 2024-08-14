@@ -28,12 +28,22 @@
                                         <div class="form-group">
                                             <input type="hidden" name="id" value="{{ $entries->id }}">
                                             <label for="edit_indicator_id" class="required">Indicator</label>
-                                            <select id="edit_indicator_id" class="form-select capitalize" name="indicator_id">
+                                            <select id="edit_indicator_id" class="form-select capitalize" name="indicator_id" disabled>
                                                 @if($entries)
                                                     <option value="{{ $entries->indicator_id }}" selected>{{ '('. $entries->indicator->target. ')'. '  ' .$entries->indicator->measures }}</option>
                                                 @endif
                                             </select>
                                             <div id="indicator_idError" class="invalid-feedback"></div>
+
+                                            <div class="mb-3">
+                                                <div class="form-group">
+                                                    <label for="accomplishment" class="required">Accomplishment</label>
+                                                    <textarea type="text" id="accomplishment" class="form-control" name="accomplishment">
+                                                        {{ $entries->accomplishment }}
+                                                    </textarea>
+                                                    <div id="accomplishmentError" class="invalid-feedback"></div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -45,14 +55,15 @@
                                     <div class="mb-3">
                                         <div class="form-group">
                                             <label for="months">Month</label>
-                                            <select id="months" class="months form-select" name="months">
+                                            <select id="months" class="months form-select" name="months" disabled>
                                                 <option value="">Select Month</option>
                                                 @for ($i = 1; $i <= 12; $i++)
-                                                    <option value="{{ $entries->months }}">{{ date('F', mktime(0, 0, 0, $entries->months, 10)) }}</option>
+                                                    <option selected>{{ date('F', mktime(0, 0, 0, $entries->months, 10)) }}</option>
                                                 @endfor
                                             </select>
                                             <div class="invalid-feedback" id="monthsError"></div>
                                         </div>
+                                        
                                     </div>
                                 </div>
                                 <div class="col">
@@ -122,13 +133,7 @@ $(document).ready(function() {
     //     }
     // });
 
-    function setCurrentMonth(index) {
-        const now = new Date();
-        const currentMonth = now.getMonth() + 1; // getMonth() returns 0-based index, so add 1
-        $(`#months`).val(currentMonth).prop('disabled', true);
-    }
-
-    setCurrentMonth(0);
+    
 
     $('#NewEntriesForm').on('submit', function(e) {
         e.preventDefault();
