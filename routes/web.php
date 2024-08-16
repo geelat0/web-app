@@ -100,6 +100,11 @@ Route::middleware(['auth_check'])->group(function () {
         Route::get('entries/getIndicator', [EntriesController::class, 'getIndicator'])->name('entries.getIndicator');
 
 
+        Route::get('generate', [ReportController::class, 'index'])->name('generate');
+        Route::post('/generate-pdf', [ReportController::class, 'generatePDF'])->name('generate.pdf');
+        Route::get('pdf', [ReportController::class, 'pdf'])->name('show.pdf');
+
+
     });
 
     Route::get('auth/otp', [AuthController::class, 'OTP'])->name('auth.otp');

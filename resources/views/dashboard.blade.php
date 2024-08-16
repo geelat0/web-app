@@ -79,53 +79,53 @@
             </div>
         </div> --}}
     </div>
-
-    <div class="row">
-        <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h2 class="card-title">Users</h2>
-                            <h3 id="userCount">{{ $userCount }}</h3>
-                        </div>
-                        <div>
-                            <i class="bx bxs-user text-primary dash-icon"></i>
-                        </div>
-                    </div>
-                </div>
-                @if(Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP')
-                <div class="card-footer d-flex justify-content-between align-items-center">
-                    <a href="/user" class="text-primary">View Details</a>
-                    <a href="/user" class="text-primary"><i class="fas fa-arrow-circle-right text-primary"></i></a>
-                </div>
-                @endif
-            </div>
-        </div>
-
-        <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h2 class="card-title">Roles</h2>
-                            <h3 id="roleCount">{{ $roleCount }}</h3>
-                        </div>
-                        <div>
-                            <i class="bx bxs-purchase-tag text-success dash-icon"></i>
+    @if(Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP')
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h2 class="card-title">Users</h2>
+                                <h3 id="userCount">{{ $userCount }}</h3>
+                            </div>
+                            <div>
+                                <i class="bx bxs-user text-primary dash-icon"></i>
+                            </div>
                         </div>
                     </div>
+                    @if(Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP')
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                        <a href="/user" class="text-primary">View Details</a>
+                        <a href="/user" class="text-primary"><i class="fas fa-arrow-circle-right text-primary"></i></a>
+                    </div>
+                    @endif
                 </div>
-                @if(Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP')
-                <div class="card-footer d-flex justify-content-between align-items-center">
-                    <a href="/roles" class="text-success">View Details</a>
-                    <a href="/roles" class="text-success"><i class="fas fa-arrow-circle-right text-success"></i></a>
+            </div>
+
+            <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h2 class="card-title">Roles</h2>
+                                <h3 id="roleCount">{{ $roleCount }}</h3>
+                            </div>
+                            <div>
+                                <i class="bx bxs-purchase-tag text-success dash-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                    @if(Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP')
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                        <a href="/roles" class="text-success">View Details</a>
+                        <a href="/roles" class="text-success"><i class="fas fa-arrow-circle-right text-success"></i></a>
+                    </div>
+                    @endif
                 </div>
-                @endif
             </div>
         </div>
-    </div>
-
+    @endif
 </div>
 @endsection
 
@@ -167,6 +167,7 @@
                     hideLoader();
                     $('#userCount').text(data.userCount);
                     $('#roleCount').text(data.roleCount);
+                    $('#entriesCount').text(data.entriesCount);
                 }
             });
         });

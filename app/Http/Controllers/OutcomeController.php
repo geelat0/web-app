@@ -47,7 +47,7 @@ class OutcomeController extends Controller
 
         $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
             $completedEntries = Entries::where('indicator_id', $indicator->id)
-                                    ->whereMonth('created_at', $targetMonth)
+                                    ->where('months', $targetMonth)
                                     ->whereYear('created_at', $current_Year)
                                     ->where('status', 'Completed')
                                     ->where('user_id',  Auth::user()->id)
@@ -62,7 +62,7 @@ class OutcomeController extends Controller
 
     public function list(Request $request)
     {
-        $query = Organizational::whereNull('deleted_at');
+        $query = Organizational::whereNull('deleted_at')->orderBy('created_at', 'desc');
 
         if ($request->has('date_range') && !empty($request->date_range)) {
             [$startDate, $endDate] = explode(' to ', $request->date_range);

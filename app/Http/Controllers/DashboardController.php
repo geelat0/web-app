@@ -45,7 +45,7 @@ class DashboardController extends Controller
 
             $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
                 $completedEntries = Entries::where('indicator_id', $indicator->id)
-                                        ->whereMonth('created_at', $targetMonth)
+                                        ->where('months', $targetMonth)
                                         ->whereYear('created_at', $current_Year)
                                         ->where('status', 'Completed')
                                         ->where('user_id',  Auth::user()->id)
@@ -94,9 +94,60 @@ class DashboardController extends Controller
         $userCount = $userQuery->count();
         $roleCount = $roleQuery->count();
 
-        return response()->json([
-            'userCount' => $userCount,
-            'roleCount' => $roleCount
-        ]);
+
+
+
+        
+
+        $currentYear = Carbon::now()->format('Y');
+    $currentUser = Auth::user();
+    $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+
+    // Apply date range filter for SuccessIndicator entries
+    if ($startDate && $endDate) {
+        $entriesCount->whereBetween('created_at', [$startDate, $endDate]);
+    } else if ($startDate) {
+        $entriesCount->where('created_at', '>=', $startDate);
+    } else if ($endDate) {
+        $entriesCount->where('created_at', '<=', $endDate);
+    }
+
+    // Apply month and year filters for SuccessIndicator entries
+    if ($month) {
+        $entriesCount->whereMonth('created_at', $month);
+    }
+
+    if ($year) {
+        $entriesCount->whereYear('created_at', $year);
+    }
+
+    $indicators = $entriesCount->get();
+    $userDivisionIds = json_decode($currentUser->division_id, true);
+    $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
+        $indicatorDivisionIds = json_decode($indicator->division_id, true);
+        return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
+    });
+
+    $currentDate = Carbon::now();
+
+    $targetMonth = $currentDate->day > 5 ? $currentDate->month : $currentDate->subMonth()->month;
+
+    $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $currentYear) {
+        $completedEntries = Entries::where('indicator_id', $indicator->id)
+            ->where('months', $targetMonth)
+            ->whereYear('created_at', $currentYear)
+            ->where('status', 'Completed')
+            ->where('user_id', Auth::user()->id)
+            ->exists();
+        return !$completedEntries;
+    });
+
+    $entriesCount = $filteredIndicators->count();
+
+    return response()->json([
+        'userCount' => $userCount,
+        'roleCount' => $roleCount,
+        'entriesCount' => $entriesCount,
+    ]);
     }
 }

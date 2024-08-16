@@ -62,7 +62,7 @@ class UserController extends Controller
 
         $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
             $completedEntries = Entries::where('indicator_id', $indicator->id)
-                                    ->whereMonth('created_at', $targetMonth)
+                                    ->where('months', $targetMonth)
                                     ->whereYear('created_at', $current_Year)
                                     ->where('status', 'Completed')
                                     ->where('user_id',  Auth::user()->id)
@@ -78,7 +78,7 @@ class UserController extends Controller
 
     public function list(Request $request)
     {
-        $query = User::with(['role', 'division'])->whereNull('deleted_at');
+        $query = User::with(['role', 'division'])->whereNull('deleted_at')->orderBy('created_at', 'desc');
     
         if ($request->has('date_range') && !empty($request->date_range)) {
             [$startDate, $endDate] = explode(' to ', $request->date_range);
@@ -172,6 +172,7 @@ class UserController extends Controller
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
         $user->status = ucfirst($request->status);
+        $user->expiration_date = Carbon::now()->addDays(90);
         $user->created_by = ucfirst(strtolower(substr($request->first_name, 0, 1) . '.' . substr($request->last_name, 0, 4)));
         $user->save();
 

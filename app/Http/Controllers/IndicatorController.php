@@ -49,7 +49,7 @@ class IndicatorController extends Controller
 
             $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
                 $completedEntries = Entries::where('indicator_id', $indicator->id)
-                                        ->whereMonth('created_at', $targetMonth)
+                                        ->where('months', $targetMonth)
                                         ->whereYear('created_at', $current_Year)
                                         ->where('status', 'Completed')
                                         ->where('user_id',  Auth::user()->id)
@@ -94,7 +94,7 @@ class IndicatorController extends Controller
 
             $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
                 $completedEntries = Entries::where('indicator_id', $indicator->id)
-                                        ->whereMonth('created_at', $targetMonth)
+                                        ->where('months', $targetMonth)
                                         ->whereYear('created_at', $current_Year)
                                         ->where('status', 'Completed')
                                         ->where('user_id',  Auth::user()->id)
@@ -135,7 +135,7 @@ class IndicatorController extends Controller
 
             $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
                 $completedEntries = Entries::where('indicator_id', $indicator->id)
-                                        ->whereMonth('created_at', $targetMonth)
+                                        ->where('months', $targetMonth)
                                         ->whereYear('created_at', $current_Year)
                                         ->where('status', 'Completed')
                                         ->where('user_id',  Auth::user()->id)
@@ -250,7 +250,7 @@ class IndicatorController extends Controller
 
         $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
             $completedEntries = Entries::where('indicator_id', $indicator->id)
-                                    ->whereMonth('created_at', $targetMonth)
+                                    ->where('months', $targetMonth)
                                     ->whereYear('created_at', $current_Year)
                                     ->where('status', 'Completed')
                                     ->where('user_id',  Auth::user()->id)
@@ -348,7 +348,7 @@ class IndicatorController extends Controller
 
             $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
                 $completedEntries = Entries::where('indicator_id', $indicator->id)
-                                        ->whereMonth('created_at', $targetMonth)
+                                        ->where('months', $targetMonth)
                                         ->whereYear('created_at', $current_Year)
                                         ->where('status', 'Completed')
                                         ->where('user_id',  Auth::user()->id)
@@ -401,7 +401,7 @@ class IndicatorController extends Controller
 
     public function list(Request $request){
         if(Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP'){
-            $query = SuccessIndicator::whereNull('deleted_at')->with(['division', 'org']);
+            $query = SuccessIndicator::whereNull('deleted_at')->with(['division', 'org']) ->orderBy('created_at', 'desc');
         }
         else{
             $userId = Auth::id();
@@ -410,7 +410,8 @@ class IndicatorController extends Controller
             
             $query = SuccessIndicator::whereNull('deleted_at')
             ->whereIn('id', $indicatorIds)
-            ->with(['division', 'org']);
+            ->with(['division', 'org'])
+            ->orderBy('created_at', 'desc');
         }
        
 

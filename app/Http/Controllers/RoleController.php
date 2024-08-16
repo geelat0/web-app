@@ -48,7 +48,7 @@ class RoleController extends Controller
 
         $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
             $completedEntries = Entries::where('indicator_id', $indicator->id)
-                                    ->whereMonth('created_at', $targetMonth)
+                                    ->where('months', $targetMonth)
                                     ->whereYear('created_at', $current_Year)
                                     ->where('status', 'Completed')
                                     ->where('user_id',  Auth::user()->id)
@@ -71,7 +71,7 @@ class RoleController extends Controller
 
     public function list(Request $request)
     {
-        $query = Role::whereNull('deleted_at');
+        $query = Role::whereNull('deleted_at') ->orderBy('created_at', 'desc');
 
         if ($request->has('date_range') && !empty($request->date_range)) {
             [$startDate, $endDate] = explode(' to ', $request->date_range);

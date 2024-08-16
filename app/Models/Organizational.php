@@ -23,4 +23,9 @@ class Organizational extends Model
         'created_by',
     ];
 
+    public function successIndicators()
+    {
+        return $this->hasMany(SuccessIndicator::class, 'org_id');
+    }
+
 }

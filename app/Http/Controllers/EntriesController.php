@@ -47,7 +47,7 @@ class EntriesController extends Controller
 
         $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
             $completedEntries = Entries::where('indicator_id', $indicator->id)
-                                    ->whereMonth('created_at', $targetMonth)
+                                    ->where('months', $targetMonth)
                                     ->whereYear('created_at', $current_Year)
                                     ->where('status', 'Completed')
                                     ->where('user_id',  Auth::user()->id)
@@ -106,7 +106,7 @@ class EntriesController extends Controller
 
         $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
             $completedEntries = Entries::where('indicator_id', $indicator->id)
-                                    ->whereMonth('created_at', $targetMonth)
+                                    ->where('months', $targetMonth)
                                     ->whereYear('created_at', $current_Year)
                                     ->where('status', 'Completed')
                                     ->where('user_id',  Auth::user()->id)
@@ -166,7 +166,7 @@ class EntriesController extends Controller
 
             $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
                 $completedEntries = Entries::where('indicator_id', $indicator->id)
-                                        ->whereMonth('created_at', $targetMonth)
+                                        ->where('months', $targetMonth)
                                         ->whereYear('created_at', $current_Year)
                                         ->where('status', 'Completed')
                                         ->where('user_id',  Auth::user()->id)
@@ -225,7 +225,7 @@ class EntriesController extends Controller
 
             $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
                 $completedEntries = Entries::where('indicator_id', $indicator->id)
-                                        ->whereMonth('created_at', $targetMonth)
+                                        ->where('months', $targetMonth)
                                         ->whereYear('created_at', $current_Year)
                                         ->where('status', 'Completed')
                                         ->where('user_id',  Auth::user()->id)
@@ -281,7 +281,7 @@ class EntriesController extends Controller
         $currentYear = Carbon::now()->format('Y');
     
         // Build the initial query for SuccessIndicator
-        $query = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+        $query = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear) ->orderBy('created_at', 'desc');
     
         // Filter by date range
         if ($request->has('date_range') && !empty($request->date_range)) {
@@ -328,7 +328,7 @@ class EntriesController extends Controller
         // Further filter indicators based on the entries table
         $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
             $completedEntries = Entries::where('indicator_id', $indicator->id)
-                                       ->whereMonth('created_at', $targetMonth)
+                                       ->where('months', $targetMonth)
                                        ->whereYear('created_at', $current_Year)
                                        ->where('status', 'Completed')
                                        ->where('user_id',  Auth::user()->id)
@@ -374,11 +374,11 @@ class EntriesController extends Controller
     public function completed_list(Request $request){
         if(in_array(Auth::user()->role->name, ['IT', 'SAP'])){
 
-            $query = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Completed');
+            $query = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Completed')->orderBy('created_at', 'desc');
 
         }else{
 
-            $query = Entries::whereNull('deleted_at')->with(['indicator', 'user'])->where('status', 'Completed')->where('user_id', Auth::user()->id);
+            $query = Entries::whereNull('deleted_at')->with(['indicator', 'user'])->where('status', 'Completed')->where('user_id', Auth::user()->id)->orderBy('created_at', 'desc');
         }
 
         if ($request->has('date_range') && !empty($request->date_range)) {

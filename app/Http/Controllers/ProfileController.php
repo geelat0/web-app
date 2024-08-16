@@ -46,7 +46,7 @@ class ProfileController extends Controller
 
             $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
                 $completedEntries = Entries::where('indicator_id', $indicator->id)
-                                        ->whereMonth('created_at', $targetMonth)
+                                        ->where('months', $targetMonth)
                                         ->whereYear('created_at', $current_Year)
                                         ->where('status', 'Completed')
                                         ->where('user_id',  Auth::user()->id)
@@ -112,6 +112,8 @@ class ProfileController extends Controller
             return response()->json(['success' => false, 'errors' => ['current_password' => ['Current password is incorrect']]]);
         }
         $user->is_change_password = 0;
+        $user->expiration_date = Carbon::now()->addDays(90);
+        // $user->expiration_date = Carbon::now();
         $user->update(['password' => Hash::make($request->new_password)]);
 
         return response()->json(['success' => true, 'message' => 'Password changed successfully!']);

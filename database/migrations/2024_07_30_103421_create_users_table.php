@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('password')->nullable();
             $table->string('proxy_password')->nullable();
             $table->date('last_date_change')->nullable();
+            $table->date('expiration_date')->nullable();
             $table->string('twofa_secret', 255)->nullable();
             $table->rememberToken();
             $table->string('status');
@@ -48,12 +49,16 @@ return new class extends Migration
 
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
+            // $table->unsignedBigInteger('user_id');
+            // $table->foreign('user_id')->references('id')->on('user');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade')->index();
             //$table->foreignId('user_id')->nullable()->index();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longText('payload');
             $table->integer('last_activity')->index();
+
+            
         });
     }
 

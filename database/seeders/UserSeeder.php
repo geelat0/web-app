@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
@@ -27,6 +28,7 @@ class UserSeeder extends Seeder
                 'role_id' => '1',
                 'division_id' => '["1", "2", "3", "4", "5", "6", "7", "8", "9"]',
                 'status' => 'Active',
+                'expiration_date' => Carbon::now()->addDays(90),
                 'password' => Hash::make('123456'),
                 'created_by' => 'A.bong',
             ]
@@ -44,6 +46,7 @@ class UserSeeder extends Seeder
                 'role_id' => '4',
                 'division_id' => '["1", "2", "3", "4", "5", "6", "7", "8", "9"]',
                 'status' => 'Active',
+                'expiration_date' => Carbon::now()->addDays(90),
                 'password' => Hash::make('123456'),
                 'created_by' => 'A.bong',
             ]
@@ -61,6 +64,25 @@ class UserSeeder extends Seeder
                 'role_id' => '3',
                 'division_id' => '["1", "2", "3", "4", "5", "6", "7", "8", "9"]',
                 'status' => 'Active',
+                'expiration_date' => Carbon::now()->addDays(90),
+                'password' => Hash::make('123456'),
+                'created_by' => 'A.bong',
+            ]
+          );
+        User::create(
+            [
+                'first_name' => 'Carl',
+                'middle_name' => 'Smith',
+                'last_name' => 'Doe',
+                'user_name' => 'C.doe',
+                'province' => 'Albay',
+                'position' => 'Developer',
+                'mobile_number' => '09123456789',
+                'email' => 'carldoe@gmail.com',
+                'role_id' => '3',
+                'division_id' => '["1", "2", "3", "4", "5", "6", "7", "8", "9"]',
+                'status' => 'Active',
+                'expiration_date' => Carbon::now()->addDays(90),
                 'password' => Hash::make('123456'),
                 'created_by' => 'A.bong',
             ]

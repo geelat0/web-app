@@ -50,6 +50,14 @@
             <span class="badge {{ $entriesCount == 0 ? 'bg-warning' : 'bg-danger'}}  badge-notifications p-1 fs-8">{{$entriesCount}}</span>
           </a>
         </li> 
+
+        <li class="menu-item {{ request()->is('generate') ? 'active' : '' }}">
+          <a href="/generate" class="menu-link">
+            <i class='menu-icon tf-icons bx bxs-file-export'></i>
+            <div class="text-truncate" data-i18n="Page 2">Generate</div>
+            {{-- <span class="badge {{ $entriesCount == 0 ? 'bg-warning' : 'bg-danger'}}  badge-notifications p-1 fs-8">{{$entriesCount}}</span> --}}
+          </a>
+        </li> 
         
         @if(Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP')
 

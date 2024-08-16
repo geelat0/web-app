@@ -50,15 +50,17 @@ class AuthController extends Controller
             $attempt = auth()->attempt($credentials);
         }
 
+        $currentDate = Carbon::now();
+        $formatDate = $currentDate->format('Y-m-d');
 
         if ($attempt) {
-            if (auth()->user()->status == 'Active') {
+            if (auth()->user()->status == 'Active' ) {
                 $loginS = new LoginModel();
                 $loginS->status = 'Logged In';
                 $loginS->user_id = Auth::id();
                 $loginS->save();
 
-                if (auth()->user()->is_change_password) {
+                if (auth()->user()->is_change_password || auth()->user()->expiration_date ==  $formatDate) {
                     return response()->json(['success' => true, 'redirect' => route('change-password')]);
                 }
 
@@ -118,6 +120,7 @@ class AuthController extends Controller
                 $user->forceFill([
                     'password' => Hash::make($password),
                     'remember_token' => Str::random(60),
+                    'expiration_date' => Carbon::now()->addDays(90),
                 ])->save();
 
                 event(new PasswordReset($user));
