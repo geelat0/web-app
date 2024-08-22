@@ -24,16 +24,14 @@
                   </div>
               </div>
               <div class="collapse" id="collapseExample">
-                  <div class="card card-body">
-                      <div class="d-flex justify-content-center mb-3">
-                          <div class="input-group input-group-sm me-3">
-                              <input type="text" id="search-input" class="form-control form-control-sm" placeholder="Search...">
-                          </div>
-                          <div class="input-group input-group-sm">
-                              <input type="text" id="date-range-picker" class="form-control form-control-sm" placeholder="Select date range">
-                          </div>
-                      </div>
-                  </div>
+                <div class="d-flex justify-content-center mb-3">
+                    <div class="input-group me-3">
+                        <input type="text" id="search-input" class="form-control" placeholder="Search...">
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="date-range-picker" class="form-control" placeholder="Select date range">
+                    </div>
+                </div>
               </div>
       
             </div>

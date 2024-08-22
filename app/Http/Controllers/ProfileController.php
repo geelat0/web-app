@@ -65,9 +65,7 @@ class ProfileController extends Controller
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . Auth::id(),
-            'province' => 'required|string|max:255',
-            'position' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . Auth::user()->id,
             'mobile_number' => 'required|string|max:15',
             'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);

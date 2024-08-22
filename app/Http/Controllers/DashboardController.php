@@ -95,59 +95,55 @@ class DashboardController extends Controller
         $roleCount = $roleQuery->count();
 
 
-
-
-        
-
         $currentYear = Carbon::now()->format('Y');
-    $currentUser = Auth::user();
-    $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+        $currentUser = Auth::user();
+        $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
 
-    // Apply date range filter for SuccessIndicator entries
-    if ($startDate && $endDate) {
-        $entriesCount->whereBetween('created_at', [$startDate, $endDate]);
-    } else if ($startDate) {
-        $entriesCount->where('created_at', '>=', $startDate);
-    } else if ($endDate) {
-        $entriesCount->where('created_at', '<=', $endDate);
-    }
+        // Apply date range filter for SuccessIndicator entries
+        // if ($startDate && $endDate) {
+        //     $entriesCount->whereBetween('created_at', [$startDate, $endDate]);
+        // } else if ($startDate) {
+        //     $entriesCount->where('created_at', '>=', $startDate);
+        // } else if ($endDate) {
+        //     $entriesCount->where('created_at', '<=', $endDate);
+        // }
 
-    // Apply month and year filters for SuccessIndicator entries
-    if ($month) {
-        $entriesCount->whereMonth('created_at', $month);
-    }
+        // Apply month and year filters for SuccessIndicator entries
+        // if ($month) {
+        //     $entriesCount->whereMonth('created_at', $month);
+        // }
 
-    if ($year) {
-        $entriesCount->whereYear('created_at', $year);
-    }
+        if ($year) {
+            $entriesCount->whereYear('created_at', $year);
+        }
 
-    $indicators = $entriesCount->get();
-    $userDivisionIds = json_decode($currentUser->division_id, true);
-    $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
-        $indicatorDivisionIds = json_decode($indicator->division_id, true);
-        return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
-    });
+        $indicators = $entriesCount->get();
+        $userDivisionIds = json_decode($currentUser->division_id, true);
+        $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
+            $indicatorDivisionIds = json_decode($indicator->division_id, true);
+            return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
+        });
 
-    $currentDate = Carbon::now();
+        $currentDate = Carbon::now();
 
-    $targetMonth = $currentDate->day > 5 ? $currentDate->month : $currentDate->subMonth()->month;
+        $targetMonth = $currentDate->day > 5 ? $currentDate->month : $currentDate->subMonth()->month;
 
-    $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $currentYear) {
-        $completedEntries = Entries::where('indicator_id', $indicator->id)
-            ->where('months', $targetMonth)
-            ->whereYear('created_at', $currentYear)
-            ->where('status', 'Completed')
-            ->where('user_id', Auth::user()->id)
-            ->exists();
-        return !$completedEntries;
-    });
+        $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $currentYear) {
+            $completedEntries = Entries::where('indicator_id', $indicator->id)
+                ->where('months', $targetMonth)
+                ->whereYear('created_at', $currentYear)
+                ->where('status', 'Completed')
+                ->where('user_id', Auth::user()->id)
+                ->exists();
+            return !$completedEntries;
+        });
 
-    $entriesCount = $filteredIndicators->count();
+        $entriesCount = $filteredIndicators->count();
 
-    return response()->json([
-        'userCount' => $userCount,
-        'roleCount' => $roleCount,
-        'entriesCount' => $entriesCount,
-    ]);
+        return response()->json([
+            'userCount' => $userCount,
+            'roleCount' => $roleCount,
+            'entriesCount' => $entriesCount,
+        ]);
     }
 }

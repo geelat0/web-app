@@ -54,7 +54,7 @@
         <li class="menu-item {{ request()->is('generate') ? 'active' : '' }}">
           <a href="/generate" class="menu-link">
             <i class='menu-icon tf-icons bx bxs-file-export'></i>
-            <div class="text-truncate" data-i18n="Page 2">Generate</div>
+            <div class="text-truncate" data-i18n="Page 2">Generate Report</div>
             {{-- <span class="badge {{ $entriesCount == 0 ? 'bg-warning' : 'bg-danger'}}  badge-notifications p-1 fs-8">{{$entriesCount}}</span> --}}
           </a>
         </li> 
@@ -67,7 +67,8 @@
 
         <li class="menu-item {{ request()->is('roles') ? 'active' : '' }}">
           <a href="/roles" class="menu-link">
-            <i class='menu-icon bx bx-purchase-tag-alt'></i>
+            {{-- <i class='menu-icon bx bx-purchase-tag-alt'></i> --}}
+            <i class='menu-icon bx bx-shield-plus'></i>
             {{-- <i class='menu-icon tf-icons bx bx-group'></i> --}}
             <div class="text-truncate" data-i18n="Page 2">Role</div>
           </a>

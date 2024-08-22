@@ -7,14 +7,12 @@ use App\Models\Entries;
 use App\Models\Organizational;
 use App\Models\Report;
 use App\Models\SuccessIndicator;
-use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
 use PDF;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Validator;
-use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\DB;
+
 
 class ReportController extends Controller
 {
@@ -70,23 +68,97 @@ class ReportController extends Controller
     public function generatePDF(Request $request)
     {
         $year = $request->input('year');
+        $period = $request->input('period');
+        $semiannual = $request->input('semiannual');
+        $divisionIds = $request->input('division_id');
+        $province = $request->input('province');
     
-        // Fetch data from org_otc and success_indc
-        $orgOutcomes = Organizational::with(['successIndicators.division' => function($query) use ($year) {
+        // Fetch all indicators
+        $indicators = SuccessIndicator::all();
+    
+        // Initialize the collection of indicator IDs
+        $indicatorIds = collect();
+    
+        if (!empty($divisionIds)) {
+            // Filter indicators based on the divisionIds
+            $filteredIndicators = $indicators->filter(function ($indicator) use ($divisionIds) {
+                $indicatorDivisionIds = json_decode($indicator->division_id, true);
+                return !empty(array_intersect($divisionIds, $indicatorDivisionIds));
+            });
+    
+            $indicatorIds = $filteredIndicators->pluck('id');
+        } else {
+            $indicatorIds = $indicators->pluck('id');
+        }
+    
+        // Fetch organizational outcomes with their success indicators based on filters
+        $orgOutcomes = Organizational::with(['successIndicators' => function($query) use ($year, $period, $indicatorIds) {
+            if ($indicatorIds->isNotEmpty()) {
+                $query->whereIn('id', $indicatorIds); 
+            }
             if ($year) {
                 $query->whereYear('created_at', $year);
             }
-        }])->whereHas('successIndicators', function($query) use ($year) {
-            if ($year) {
-                $query->whereYear('created_at', $year);
+            if ($period) {
+                $months = $this->getMonthsForPeriod($period);
+                $query->whereIn(DB::raw('MONTH(created_at)'), $months);
             }
-        })->get();
+        }])
+        ->where(function($query) use ($year, $period, $indicatorIds) {
+            $query->whereHas('successIndicators', function($query) use ($year, $period, $indicatorIds) {
+                if ($indicatorIds->isNotEmpty()) {
+                    $query->whereIn('id', $indicatorIds); 
+                }
+                if ($year) {
+                    $query->whereYear('created_at', $year);
+                }
+                if ($period) {
+                    $months = $this->getMonthsForPeriod($period);
+                    $query->whereIn(DB::raw('MONTH(created_at)'), $months);
+                }
+            });
+            // ->orWhereDoesntHave('successIndicators');
+        })
+        ->orderBy('order','ASC') 
+        ->get();
     
-        // Generate the PDF
-        $pdf = PDF::loadView('generate.pdf', compact('orgOutcomes'))
-                  ->setPaper('a4', 'landscape');
-        
-        // Stream the generated PDF to the browser
+        // Fetch entries based on filters
+        $entries = Entries::whereYear('created_at', $year)
+                    ->when($period, function($query) use ($period) {
+                        $months = $this->getMonthsForPeriod($period);
+                        $query->whereIn(DB::raw('MONTH(created_at)'), $months);
+                    })
+                    ->when($province, function($query) use ($province) {
+                        $query->whereHas('user', function($query) use ($province) {
+                            $query->where('province', $province);
+                        });
+                    })
+                    ->get()
+                    ->groupBy('indicator_id');
+                    
+        $pdf = PDF::loadView('generate.pdf', compact('orgOutcomes', 'entries', 'divisionIds'))
+                ->setPaper('a4', 'landscape');
+    
         return $pdf->stream('OPCR-RO5.pdf');
     }
+    
+
+    private function getMonthsForPeriod($period)
+    {
+        switch ($period) {
+            case 'Q1':
+                return [1, 2, 3];
+            case 'Q2':
+                return [4, 5, 6];
+            case 'Q3':
+                return [7, 8, 9];
+            case 'Q4':
+                return [10, 11, 12];
+            case 'H1':
+                return [1, 2, 3, 4, 5, 6];
+            case 'H2':
+                return [7, 8, 9, 10, 11, 12];
+        }
+    }
+
 }

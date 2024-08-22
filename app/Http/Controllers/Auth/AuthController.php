@@ -100,6 +100,7 @@ class AuthController extends Controller
     {
         return view('auth.forget-pass', ['token' => $token]);
     }
+    
     public function ChangePassForm()
     {
         $user=Auth::user();

@@ -28,7 +28,6 @@
     {{-- START SCRIPT --}}
     <script>
          const user = @json(Auth::user());
-         console.log(user);
 
         function showLoader() {
             document.getElementById('loader').style.display = 'flex';
