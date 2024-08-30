@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CheckPermission;
 use App\Http\Middleware\NotAuthenticated;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\SuperAdminMiddleware;
@@ -30,6 +31,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('superadmin', [
             SuperAdminMiddleware::class        
         ]);
+
+        $middleware->alias([
+            'permission' => CheckPermission::class
+        ]);
+
+
         
     })
     ->withExceptions(function (Exceptions $exceptions) {

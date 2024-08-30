@@ -136,6 +136,8 @@
                                                 showConfirmButton: true,
                                             })
                                             table.ajax.reload();
+                                            table.buttons('.user_btn').disable(); // Disable all user buttons
+                                            table.buttons('.btn-success').enable(); // Enable only the "Add" button
                                         }
                                         else{
 
@@ -146,6 +148,8 @@
                                                 $('#createUserForm #' + key + 'Error').text(errors[key][0]);
                                             });
                                             hideLoader();
+                                            table.buttons('.user_btn').disable(); // Disable all user buttons
+                                            table.buttons('.btn-success').enable(); // Enable only the "Add" button
 
                                         }
 
@@ -153,6 +157,8 @@
                                 error: function(xhr) {
                                     hideLoader();
                                     console.log(xhr.responseText);
+                                    table.buttons('.user_btn').disable(); // Disable all user buttons
+                                    table.buttons('.btn-success').enable(); // Enable only the "Add" button
                                 }
                             });
                         });
@@ -195,12 +201,18 @@
                                     });
 
                                     $('#edit_division_id').trigger('change');
+                                    table.buttons('.user_btn').disable(); // Disable all user buttons
+                                    table.buttons('.btn-success').enable(); // Enable only the "Add" button
                                 } else {
                                     console.error('Failed to fetch divisions');
+                                    table.buttons('.user_btn').disable(); // Disable all user buttons
+                                    table.buttons('.btn-success').enable(); // Enable only the "Add" button
                                 }
                             },
                             error: function(xhr) {
                                 console.error(xhr.responseText);
+                                table.buttons('.user_btn').disable(); // Disable all user buttons
+                                table.buttons('.btn-success').enable(); // Enable only the "Add" button
                             }
                         });
 
@@ -248,7 +260,7 @@
                 },
                 {
                     text: 'View',
-                    className: 'btn btn-warning user_bt',
+                    className: 'btn btn-warning user_btn',
                     enabled: false,
                     action: function (e, dt, node, config) {
                         //alert('View Activated!');
@@ -332,6 +344,8 @@
                                                 'success'
                                             );
                                             table.ajax.reload();
+                                            table.buttons('.user_btn').disable(); // Disable all user buttons
+                                            table.buttons('.btn-success').enable(); // Enable only the "Add" button
                                         } else {
                                             var errorMessage = '';
                                             Object.keys(response.errors).forEach(function(key) {
@@ -343,11 +357,15 @@
                                                 title: 'Deletion Failed',
                                                 html: response.errors
                                             });
+                                            table.buttons('.user_btn').disable(); // Disable all user buttons
+                                            table.buttons('.btn-success').enable(); // Enable only the "Add" button
                                         }
                                     },
                                     error: function(xhr) {
                                         hideLoader();
                                         console.log(xhr.responseText);
+                                        table.buttons('.user_btn').disable(); // Disable all user buttons
+                                        table.buttons('.btn-success').enable(); // Enable only the "Add" button
                                     }
                                 });
                             }

@@ -123,18 +123,35 @@ class ReportController extends Controller
         ->get();
     
         // Fetch entries based on filters
-        $entries = Entries::whereYear('created_at', $year)
-                    ->when($period, function($query) use ($period) {
-                        $months = $this->getMonthsForPeriod($period);
-                        $query->whereIn(DB::raw('MONTH(created_at)'), $months);
-                    })
-                    ->when($province, function($query) use ($province) {
-                        $query->whereHas('user', function($query) use ($province) {
-                            $query->where('province', $province);
-                        });
-                    })
-                    ->get()
-                    ->groupBy('indicator_id');
+        if (Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP') {
+            $entries = Entries::whereYear('created_at', $year)
+                        ->when($period, function($query) use ($period) {
+                            $months = $this->getMonthsForPeriod($period);
+                            $query->whereIn(DB::raw('MONTH(created_at)'), $months);
+                        })
+                        ->when($province, function($query) use ($province) {
+                            $query->whereHas('user', function($query) use ($province) {
+                                $query->where('province', $province);
+                            });
+                        })
+                        ->get()
+                        ->groupBy('indicator_id');
+        }else{
+            $entries = Entries::whereYear('created_at', $year)
+                ->where('created_by', Auth::user()->user_name)
+                ->when($period, function($query) use ($period) {
+                    $months = $this->getMonthsForPeriod($period);
+                    $query->whereIn(DB::raw('MONTH(created_at)'), $months);
+                })
+                ->when($province, function($query) use ($province) {
+                    $query->whereHas('user', function($query) use ($province) {
+                        $query->where('province', $province);
+                    });
+                })
+                ->get()
+                ->groupBy('indicator_id');
+
+        }
                     
         $pdf = PDF::loadView('generate.pdf', compact('orgOutcomes', 'entries', 'divisionIds'))
                 ->setPaper('a4', 'landscape');

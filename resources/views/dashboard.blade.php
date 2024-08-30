@@ -32,30 +32,32 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col mb-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h3 class="card-title">Pending Entries</h3>
-                            <h1 id="entriesCount" class="{{ $entriesCount == 0 ? 'text-warning' : 'text-danger' }} mt-1">
-                                {{ $entriesCount }}
-                            </h1>
-                        </div>
-                        <div>
-                            <i class="bx bxs-time {{ $entriesCount == 0 ? 'text-warning' : 'text-danger' }} dash-icon"></i>
+    @if(Auth::user()->role->name !== 'IT' )
+        <div class="row">
+            <div class="col mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="card-title">Pending Entries</h3>
+                                <h1 id="entriesCount" class="{{ $entriesCount == 0 ? 'text-warning' : 'text-danger' }} mt-1">
+                                    {{ $entriesCount }}
+                                </h1>
+                            </div>
+                            <div>
+                                <i class="bx bxs-time {{ $entriesCount == 0 ? 'text-warning' : 'text-danger' }} dash-icon"></i>
+                            </div>
                         </div>
                     </div>
-                </div>
-                {{-- @if(Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP') --}}
-                <div class="card-footer d-flex justify-content-between align-items-center">
-                    <a href="/entries" class="{{ $entriesCount == 0 ? 'text-warning' : 'text-danger' }}">View Details</a>
-                    <a href="/entries" class="{{ $entriesCount == 0 ? 'text-warning' : 'text-danger' }}"><i class="fas fa-arrow-circle-right text-primary"></i></a>
-                </div>
-                {{-- @endif --}}
+                    {{-- @if(Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP') --}}
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                        <a href="/entries" class="{{ $entriesCount == 0 ? 'text-warning' : 'text-danger' }}">View Details</a>
+                        <a href="/entries" class="{{ $entriesCount == 0 ? 'text-warning' : 'text-danger' }}"><i class="fas fa-arrow-circle-right text-primary"></i></a>
+                    </div>
+                    {{-- @endif --}}
+            </div>
         </div>
-    </div>
+    @endif
 {{-- 
         <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
             <div class="card h-100 shadow-sm">

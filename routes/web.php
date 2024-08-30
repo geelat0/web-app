@@ -21,30 +21,31 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth_check'])->group(function () {
     Route::middleware(['2fa'])->group(function () {
 
-        Route::middleware(['superadmin'])->group(function () {
+            Route::get('/permissions', [RoleController::class, 'editPermissions'])->name('roles.permissions.edit')->middleware('permission:manage_permissions');
+            Route::post('/permissions/update', [RoleController::class, 'updatePermissions'])->name('roles.permissions.update')->middleware('permission:manage_permissions');
+            Route::get('roles/permissions/fetch', [RoleController::class, 'fetchPermissions'])->name('roles.permissions.fetch')->middleware('permission:manage_permissions');
 
-            Route::get('/login_in', [LogController::class, 'login_in']);
-            Route::get('/list', [LogController::class, 'list'])->name('list');
+            Route::get('/login_in', [LogController::class, 'login_in'])->middleware('permission:manage_history');
+            Route::get('/list', [LogController::class, 'list'])->name('list')->middleware('permission:manage_history');
 
             Route::get('user', [UserController::class, 'user_create']);
 
-            Route::post('user/store', [UserController::class, 'store'])->name('user.store');
-            Route::post('users/store', [UserController::class, 'UserStore'])->name('users.store');
-            Route::post('users/update', [UserController::class, 'update'])->name('users.update');
-            Route::get('users/list', [UserController::class, 'list'])->name('user.list');
-            Route::post('users/destroy', [UserController::class, 'destroy'])->name('users.destroy');
-            Route::post('temp-password', [UserController::class, 'temp_password'])->name('users.temp-password');
-            Route::post('proxy', [UserController::class, 'proxy'])->name('users.gen-proxy');
-            Route::post('users/change-status', [UserController::class, 'changeStatus'])->name('users.change-status');
-            Route::get('getDivision', [UserController::class, 'getDivision'])->name('getDivision');
+            Route::post('user/store', [UserController::class, 'store'])->name('user.store')->middleware('permission:manage_users');
+            Route::post('users/store', [UserController::class, 'UserStore'])->name('users.store')->middleware('permission:manage_users');
+            Route::post('users/update', [UserController::class, 'update'])->name('users.update')->middleware('permission:manage_users');
+            Route::get('users/list', [UserController::class, 'list'])->name('user.list')->middleware('permission:manage_users');
+            Route::post('users/destroy', [UserController::class, 'destroy'])->name('users.destroy')->middleware('permission:manage_users');
+            Route::post('temp-password', [UserController::class, 'temp_password'])->name('users.temp-password')->middleware('permission:manage_users');
+            Route::post('proxy', [UserController::class, 'proxy'])->name('users.gen-proxy')->middleware('permission:manage_users');
+            Route::post('users/change-status', [UserController::class, 'changeStatus'])->name('users.change-status')->middleware('permission:manage_users');
+            Route::get('getDivision', [UserController::class, 'getDivision'])->name('getDivision')->middleware('permission:manage_users');
 
-
-            Route::get('roles', [RoleController::class, 'roles']);
-            Route::get('role/list', [RoleController::class, 'list'])->name('role.list');
-            Route::get('role/data', [RoleController::class, 'getRole'])->name('get.role');
-            Route::post('role/store', [RoleController::class, 'store'])->name('role.store');
-            Route::post('role/update', [RoleController::class, 'update'])->name('role.update');
-            Route::post('/role/destroy', [RoleController::class, 'destroy'])->name('role.destroy');
+            Route::get('roles', [RoleController::class, 'roles'])->middleware('permission:manage_roles');
+            Route::get('role/list', [RoleController::class, 'list'])->name('role.list')->middleware('permission:manage_roles');
+            Route::get('role/data', [RoleController::class, 'getRole'])->name('get.role')->middleware('permission:manage_roles');
+            Route::post('role/store', [RoleController::class, 'store'])->name('role.store')->middleware('permission:manage_roles');
+            Route::post('role/update', [RoleController::class, 'update'])->name('role.update')->middleware('permission:manage_roles');
+            Route::post('/role/destroy', [RoleController::class, 'destroy'])->name('role.destroy')->middleware('permission:manage_roles');
 
             Route::get('/logs', [LogController::class, 'index'])->name('logs.index');
             Route::post('/logs_clear', [LogController::class, 'clear'])->name('logs.clear');
@@ -53,7 +54,7 @@ Route::middleware(['auth_check'])->group(function () {
         });
 
         Route::get('dash-home', [DashboardController::class, 'index'])->name('dash-home');
-        Route::get('dashboard/filter', [DashboardController::class, 'filter'])->name('dashboard.filter');
+        Route::get('dashboard/filter', [DashboardController::class, 'filter'])->name('dashboard.filter')->middleware('permission:view_dashboard');
         Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
         Route::get('profile', [ProfileController::class, 'index']);
@@ -65,54 +66,50 @@ Route::middleware(['auth_check'])->group(function () {
 
         Route::get('change-password', [AuthController::class, 'ChangePassForm'])->name('change-password');
 
-        Route::get('outcome', [OutcomeController::class, 'index'])->name('organization_outcome');
-        Route::get('organiztional/outcome/list', [OutcomeController::class, 'list'])->name('org.list');
-        Route::post('organizational/outcome/store', [OutcomeController::class, 'store'])->name('org.store');
-        Route::post('organizational/outcome/update', [OutcomeController::class, 'update'])->name('org.update');
-        Route::post('organizational/outcome/destroy', [OutcomeController::class, 'destroy'])->name('org.destroy');
-        Route::get('organizational/outcome/getOrg', [OutcomeController::class, 'getOrg'])->name('org.getOrg');
+        Route::get('outcome', [OutcomeController::class, 'index'])->name('organization_outcome')->middleware('permission:manage_organizational_outcome');
+        Route::get('organiztional/outcome/list', [OutcomeController::class, 'list'])->name('org.list')->middleware('permission:manage_organizational_outcome');
+        Route::post('organizational/outcome/store', [OutcomeController::class, 'store'])->name('org.store')->middleware('permission:manage_organizational_outcome');
+        Route::post('organizational/outcome/update', [OutcomeController::class, 'update'])->name('org.update')->middleware('permission:manage_organizational_outcome');
+        Route::post('organizational/outcome/destroy', [OutcomeController::class, 'destroy'])->name('org.destroy')->middleware('permission:manage_organizational_outcome');
+        Route::get('organizational/outcome/getOrg', [OutcomeController::class, 'getOrg'])->name('org.getOrg')->middleware('permission:manage_organizational_outcome');
 
-        Route::get('indicator', [IndicatorController::class, 'index'])->name('indicator');
-        Route::get('indicator/list', [IndicatorController::class, 'list'])->name('indicator.list');
-        Route::get('indicator_create', [IndicatorController::class, 'create'])->name('indicator.create');
-        Route::get('indicator_edit', [IndicatorController::class, 'edit'])->name('indicator.edit');
-        Route::get('indicator/getDivision', [IndicatorController::class, 'getDivision'])->name('indicator.getDivision');
-        Route::post('indicator/store', [IndicatorController::class, 'store'])->name('indicator.store');
-        Route::match(['post', 'put'], 'indicator/update', [IndicatorController::class, 'update'])->name('indicator.update');
-        Route::match(['post', 'put'], 'indicator/update_2', [IndicatorController::class, 'update_nonSuperAdmin'])->name('indicator.update_nonSuperAdmin');
-        Route::match(['post', 'put'], 'indicator/update_v2', [IndicatorController::class, 'update_nonSuperAdminV2'])->name('indicator.update_nonSuperAdminV2');
-        Route::get('indicator_view', [IndicatorController::class, 'view'])->name('indicator.view');
-        Route::post('indicator/destroy', [IndicatorController::class, 'destroy'])->name('indicator.destroy');
-        Route::get('getIndicator', [IndicatorController::class, 'getIndicator'])->name('getIndicator');
+        Route::get('indicator', [IndicatorController::class, 'index'])->name('indicator')->middleware('permission:manage_indicator');
+        Route::get('indicator/list', [IndicatorController::class, 'list'])->name('indicator.list')->middleware('permission:manage_indicator');
+        Route::get('indicator_create', [IndicatorController::class, 'create'])->name('indicator.create')->middleware('permission:manage_indicator');
+        Route::get('indicator_edit', [IndicatorController::class, 'edit'])->name('indicator.edit')->middleware('permission:manage_indicator');
+        Route::get('indicator/getDivision', [IndicatorController::class, 'getDivision'])->name('indicator.getDivision')->middleware('permission:manage_indicator');
+        Route::post('indicator/store', [IndicatorController::class, 'store'])->name('indicator.store')->middleware('permission:manage_indicator');
+        Route::match(['post', 'put'], 'indicator/update', [IndicatorController::class, 'update'])->name('indicator.update')->middleware('permission:manage_indicator');
+        Route::match(['post', 'put'], 'indicator/update_2', [IndicatorController::class, 'update_nonSuperAdmin'])->name('indicator.update_nonSuperAdmin')->middleware('permission:manage_indicator');
+        Route::match(['post', 'put'], 'indicator/update_v2', [IndicatorController::class, 'update_nonSuperAdminV2'])->name('indicator.update_nonSuperAdminV2')->middleware('permission:manage_indicator');
+        Route::get('indicator_view', [IndicatorController::class, 'view'])->name('indicator.view')->middleware('permission:manage_indicator');
+        Route::post('indicator/destroy', [IndicatorController::class, 'destroy'])->name('indicator.destroy')->middleware('permission:manage_indicator');
+        Route::get('getIndicator', [IndicatorController::class, 'getIndicator'])->name('getIndicator')->middleware('permission:manage_indicator');
 
-        Route::get('getMeasureDetails', [IndicatorController::class, 'getMeasureDetails'])->name('indicator.getMeasureDetails');
-
-
-        Route::get('entries', [EntriesController::class, 'index'])->name('entries');
-        Route::get('entries_create', [EntriesController::class, 'create'])->name('create');
-        Route::get('entries_view', [EntriesController::class, 'view'])->name('view');
-        Route::get('entries_edit', [EntriesController::class, 'edit'])->name('edit');
-        Route::post('entries/store', [EntriesController::class, 'store'])->name('entries.store');
-        Route::post('entries/update', [EntriesController::class, 'update'])->name('entries.update');
-        Route::post('entries/destroy', [EntriesController::class, 'destroy'])->name('entries.destroy');
-        Route::get('entries/list', [EntriesController::class, 'list'])->name('entries.list');
-        Route::get('entries/completed_list', [EntriesController::class, 'completed_list'])->name('entries.completed_list');
-        Route::get('entries/getIndicator', [EntriesController::class, 'getIndicator'])->name('entries.getIndicator');
+        Route::get('getMeasureDetails', [IndicatorController::class, 'getMeasureDetails'])->name('indicator.getMeasureDetails')->middleware('permission:manage_indicator');
 
 
-        Route::get('generate', [ReportController::class, 'index'])->name('generate');
-        Route::post('/generate-pdf', [ReportController::class, 'generatePDF'])->name('generate.pdf');
-        Route::get('pdf', [ReportController::class, 'pdf'])->name('show.pdf');
+        Route::get('entries', [EntriesController::class, 'index'])->name('entries')->middleware('permission:access_entries');
+        Route::get('entries_create', [EntriesController::class, 'create'])->name('create')->middleware('permission:access_entries');
+        Route::get('entries_view', [EntriesController::class, 'view'])->name('view')->middleware('permission:access_entries');
+        Route::get('entries_edit', [EntriesController::class, 'edit'])->name('edit')->middleware('permission:access_entries');
+        Route::post('entries/store', [EntriesController::class, 'store'])->name('entries.store')->middleware('permission:access_entries');
+        Route::post('entries/update', [EntriesController::class, 'update'])->name('entries.update')->middleware('permission:access_entries');
+        Route::post('entries/destroy', [EntriesController::class, 'destroy'])->name('entries.destroy')->middleware('permission:access_entries');
+        Route::get('entries/list', [EntriesController::class, 'list'])->name('entries.list')->middleware('permission:access_entries');
+        Route::get('entries/completed_list', [EntriesController::class, 'completed_list'])->name('entries.completed_list')->middleware('permission:access_entries');
+        Route::get('entries/getIndicator', [EntriesController::class, 'getIndicator'])->name('entries.getIndicator')->middleware('permission:access_entries');
+
+
+        Route::get('generate', [ReportController::class, 'index'])->name('generate')->middleware('permission:access_report_generation');
+        Route::post('/generate-pdf', [ReportController::class, 'generatePDF'])->name('generate.pdf')->middleware('permission:access_report_generation');
+        Route::get('pdf', [ReportController::class, 'pdf'])->name('show.pdf')->middleware('permission:access_report_generation');
 
 
     });
 
     Route::get('auth/otp', [AuthController::class, 'OTP'])->name('auth.otp');
     Route::post('auth/otp/check', [AuthController::class, 'check'])->name('auth.otp.check');
-
-});
-
-
 
 Route::middleware(['guest'])->group(function () {
 

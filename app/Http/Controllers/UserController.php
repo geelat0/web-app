@@ -192,6 +192,7 @@ class UserController extends Controller
                             'string',
                             
                             'max:255',
+                            'regex:/^09\d{9}$/', // Ensures the number starts with 09 and is followed by 9 digits
                             Rule::unique('users')->whereNull('deleted_at'),
                         ],
             'email' => [
@@ -249,7 +250,7 @@ class UserController extends Controller
             'mobile_number' => [
                             'required',
                             'string',
-                            
+                            'regex:/^09\d{9}$/',
                             'max:255',
                             Rule::unique('users')->whereNull('deleted_at')->ignore($id),
                         ],
