@@ -23,8 +23,8 @@
             <div class="text-truncate" data-i18n="Page 1">Dashboard</div>
           </a>
         </li>
-        @can('view-organizational-outcome') ||
-        @can('view-indicator') || 
+        @can('view-organizational-outcome')
+        @can('view-indicator')
         @can('view-entries') 
         <li class="menu-item">
           <div style="margin-left: 5%; margin-top: 5%; color: #b4b0c4;">Reports</div>
@@ -71,9 +71,9 @@
           </a>
         </li> 
         @endcan
-        @can('manage-user-management') ||
-        @can('manage-roles') ||
-        @can('view-history') ||
+        @can('manage-user-management')
+        @can('manage-roles')
+        @can('view-history')
         @can('view-permissions')
         <li class="menu-item">
             <div style="margin-left: 5%; margin-top: 5%; color: #b4b0c4;">User Management</div>
