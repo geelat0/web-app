@@ -49,9 +49,9 @@
                                         <input class="form-check-input" type="radio" name="targetType_0" id="Percentage_0" value="percentage">
                                     <label class="form-check-label" for="Percentage_0">Percentage</label>
                                     </div>
-                                        <div class="form-check form-check-inline number">
+                                    <div class="form-check form-check-inline number">
                                         <input class="form-check-input" type="radio" name="targetType_0" id="Number_0" value="number">
-                                    <label class="form-check-label" for="Number_0">Number</label>
+                                        <label class="form-check-label" for="Number_0">Number</label>
                                     </div>
                                     <div class="form-check form-check-inline actual">
                                         <input class="form-check-input" type="radio" name="targetType_0" id="Actual_0" value="actual">
@@ -80,7 +80,7 @@
                                 <div class="col">
                                     <div class="form-group" class="required">
                                         <label for="alloted_budget_0">Alloted Budget</label>
-                                        <input type="number" class="form-control capitalize alloted-budget" name="alloted_budget[]" id="alloted_budget_0" aria-describedby="" placeholder="0" min="0">
+                                        <input type="number" step="any"  class="form-control capitalize alloted-budget" name="alloted_budget[]" id="alloted_budget_0" aria-describedby="" placeholder="0" min="0">
                                         <div class="invalid-feedback" id="alloted_budgetError_0"></div>
                                     </div>
                                 </div>
@@ -170,7 +170,7 @@ $(document).ready(function() {
                             <div class="col">
                                 <div class="form-group">
                                     <label for="alloted_budget_${outcomeIndex}">Alloted Budget</label>
-                                    <input type="number" class="form-control capitalize" name="alloted_budget[]" id="alloted_budget_${outcomeIndex}" aria-describedby="" placeholder="0" min="0">
+                                    <input type="number" step="any"  class="form-control capitalize" name="alloted_budget[]" id="alloted_budget_${outcomeIndex}" aria-describedby="" placeholder="0" min="0">
                                     <div class="invalid-feedback" id="alloted_budgetError_${outcomeIndex}"></div>
                                 </div>
                             </div>
@@ -345,7 +345,7 @@ $(document).ready(function() {
                     <div class= "col mb-3">
                         <div class="form-group">
                             <label for="budget_${divisionId}_${index}" class="required">${divisionName} Budget</label>
-                            <input type="number" class="form-control capitalize alloted-budget" name="${cleanedDivisionName}_budget[]" id="budget_${divisionId}_${index}" aria-describedby="">
+                            <input type="number" step="any"  class="form-control capitalize alloted-budget" name="${cleanedDivisionName}_budget[]" id="budget_${divisionId}_${index}" aria-describedby="">
                             <div class="invalid-feedback" id="budgetError_${divisionId}_${index}"></div>
                         </div>
                     </div>

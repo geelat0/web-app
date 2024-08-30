@@ -223,18 +223,22 @@ $(document).ready(function() {
                 if (divisionName.includes("PO")) {
                     const targetValue = @json($division_targets)[divisionId];
                     const budgetValue = @json($division_budget)[divisionId];
+
+                    const displayValue = targetValue == 0 ? 'Actual' : targetValue;
+                  
+
                     const targetHtml = `
                         <div class= "col mb-3">
                         <div class="form-group">
                             <label for="target_${divisionId}_${index}" class="required">${divisionName} Target</label>
-                            <input type="text" class="form-control capitalize target-input" name="${cleanedDivisionName}_target[]" id="target_${divisionId}_${index}" aria-describedby="" value="${targetValue}" disabled>
+                            <input type="text" class="form-control capitalize target-input" name="${cleanedDivisionName}_target[]" id="target_${divisionId}_${index}" aria-describedby="" value="${displayValue}" disabled>
                             <div class="invalid-feedback" id="targetError_${divisionId}_${index}"></div>
                         </div>
                     </div>
                     <div class= "col mb-3">
                         <div class="form-group">
                             <label for="budget_${divisionId}_${index}" class="required">${divisionName} Budget</label>
-                            <input type="number" class="form-control capitalize alloted-budget" name="${cleanedDivisionName}_budget[]" id="budget_${divisionId}_${index}" value="${budgetValue}" aria-describedby="" disabled>
+                            <input type="number" class="form-control capitalize alloted-budget" name="${cleanedDivisionName}_budget[]" id="budget_${divisionId}_${index}" value="${budgetValue}" disabled>
                             <div class="invalid-feedback" id="budgetError_${divisionId}_${index}"></div>
                         </div>
                     </div>

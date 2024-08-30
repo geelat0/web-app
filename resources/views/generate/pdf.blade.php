@@ -133,7 +133,7 @@
                                 <td>
                                     @if(empty($filteredDivisionIds))
                                         <!-- If no division is filtered, show the target and measures -->
-                                        {{ '(' . $indicator->target . ')' . ' ' . $indicator->measures }}
+                                        {{ '(' . ($indicator->target == 0 ? 'Actual' : $indicator->target) . ') ' . $indicator->measures }}
                                     @else
                                         <!-- If division is filtered, show the specific budget based on division -->
                                         @foreach($division_ids as $divisionId)
@@ -144,25 +144,25 @@
 
                                             @if($showDivision && $division)
                                                 @if($division->division_name === 'Albay PO')
-                                                {{ '(' . $indicator->Albay_target . ')' . ' ' . $indicator->measures }}
+                                                {{ '(' .($indicator->Albay_target  == 0 ? 'Actual' : $indicator->Albay_target ) . ')' . ' ' . $indicator->measures }}
                                                
                                                 @elseif($division->division_name === 'Camarines Norte PO')
-                                                {{ '(' . $indicator->Camarines_Norte_target . ')' . ' ' . $indicator->measures }}
+                                                {{ '(' . ($indicator->Camarines_Norte_target == 0 ? 'Actual' : $indicator->Camarines_Norte_target)  . ')' . ' ' . $indicator->measures }}
 
                                                 @elseif($division->division_name === 'Camarines Sur PO')
-                                                {{ '(' . $indicator->Camarines_Sur_target . ')' . ' ' . $indicator->measures }}
+                                                {{ '(' . ($indicator->Camarines_Sur_target == 0 ? 'Actual' :  $indicator->Camarines_Sur_target) . ')' . ' ' . $indicator->measures }}
                                                 
                                                 @elseif($division->division_name === 'Catanduanes PO')
-                                                {{ '(' . $indicator->Catanduanes_target . ')' . ' ' . $indicator->measures }}
+                                                {{ '(' . ($indicator->Catanduanes_target == 0 ? 'Actual' : $indicator->Catanduanes_target)   . ')' . ' ' . $indicator->measures }}
                                                 
                                                 @elseif($division->division_name === 'Masbate PO')
-                                                {{ '(' . $indicator->Masbate_target . ')' . ' ' . $indicator->measures }}
+                                                {{ '(' . ($indicator->Masbate_target  == 0 ? 'Actual' : $indicator->Masbate_target ) . ')' . ' ' . $indicator->measures }}
                                                 
                                                 @elseif($division->division_name === 'Sorsogon PO')
-                                                {{ '(' . $indicator->Sorsogon_target . ')' . ' ' . $indicator->measures }}
+                                                {{ '(' . ($indicator->Sorsogon_target== 0 ? 'Actual' : $indicator->Sorsogon_target)   . ')' . ' ' . $indicator->measures }}
                                                 
                                                 @else
-                                                {{ '(' . $indicator->target . ')' . ' ' . $indicator->measures }}
+                                                {{ '(' . ($indicator->target == 0 ? 'Actual' : $indicator->target) . ')' . ' ' . $indicator->measures }}
                                                 @endif
                                             @endif
                                         @endforeach

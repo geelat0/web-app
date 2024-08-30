@@ -78,14 +78,14 @@
                                 <div class="col">
                                     <div class="form-group mb-3">
                                         <label for="target" class="required">Target</label>
-                                        <input type="text" class="form-control capitalize" name="target" id="target_0" aria-describedby="" value="{{ $indicator->target }}" {{ $indicator->targetType == 'actual' ? 'disabled' : '' }} @if(!in_array(Auth::user()->role->name, ['IT', 'SAP'])) disabled @endif>
+                                        <input type="text" class="form-control capitalize" name="target" id="target_0" aria-describedby="" value="{{ $indicator->target }}" {{ $indicator->target == 'Actual' ? 'disabled' : '' }} @if(!in_array(Auth::user()->role->name, ['IT', 'SAP'])) disabled @endif>
                                         <div class="invalid-feedback" id="targetError[]"></div>
                                     </div>
                                 </div>
                                 <div class="col">
                                     <div class="form-group">
                                         <label for="alloted_budget" class="required">Alloted Budget</label>
-                                        <input type="number" class="form-control capitalize" name="alloted_budget" id="alloted_budget" aria-describedby="" value="{{ $indicator->alloted_budget }}">
+                                        <input type="number" step="any"  class="form-control capitalize" name="alloted_budget" id="alloted_budget" aria-describedby="" value="{{ $indicator->alloted_budget }}">
                                         <div class="invalid-feedback" id="alloted_budgetError"></div>
                                     </div>
                                 </div>
@@ -250,18 +250,21 @@ $(document).ready(function() {
                 if (divisionName.includes("PO")) {
                     const targetValue = @json($division_targets)[divisionId] || 0;
                     const budgetValue = @json($division_budget)[divisionId] || 0;
+
+                    const displayValue = targetValue == 0 ? 'Actual' : targetValue;
+                    const targetDisabled = targetValue == 0 ? 'disabled' : '';
                     const targetHtml = `
                         <div class= "col mb-3">
                             <div class="form-group">
                                 <label for="target_${divisionId}_${index}" class="required">${divisionName} Target</label>
-                                <input type="text" class="form-control capitalize target-input" name="${cleanedDivisionName}_target[]" id="target_${divisionId}_${index}" aria-describedby="" value="${targetValue}" disabled>
+                                <input type="text" class="form-control capitalize target-input" name="${cleanedDivisionName}_target[]" id="target_${divisionId}_${index}" aria-describedby="" value="${displayValue}" ${targetDisabled}>
                                 <div class="invalid-feedback" id="targetError_${divisionId}_${index}"></div>
                             </div>
                         </div>
                         <div class= "col mb-3">
                             <div class="form-group">
                                 <label for="budget_${divisionId}_${index}" class="required">${divisionName} Budget</label>
-                                <input type="number" class="form-control capitalize alloted-budget" name="${cleanedDivisionName}_budget[]" id="budget_${divisionId}_${index}" value="${budgetValue}" aria-describedby="">
+                                <input type="number" step="any"  class="form-control capitalize alloted-budget" name="${cleanedDivisionName}_budget[]" id="budget_${divisionId}_${index}" value="${budgetValue}">
                                 <div class="invalid-feedback" id="budgetError_${divisionId}_${index}"></div>
                             </div>
                         </div>
@@ -273,13 +276,13 @@ $(document).ready(function() {
                     if (!isInitialLoad) {
 
                     @if(in_array(Auth::user()->role->name, ['IT', 'SAP']))
-                        targetInput.removeAttr('disabled');
+                        // targetInput.removeAttr('disabled');
                     @endif
                         
                         
                     } else {
                         const targetValue = $(`#target_${index}`).val();
-                        targetInput.val(targetValue).removeAttr('disabled');
+                        // targetInput.val(targetValue).removeAttr('disabled');
                     }
 
                     targetInput.on('input', function() {

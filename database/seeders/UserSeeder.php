@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Division;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -15,6 +16,9 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+
+        $divisionIds = Division::pluck('id')->toArray();
+        $divisionIdsJson = json_encode($divisionIds);
         User::create(
             [
                 'first_name' => 'Angelica',
@@ -26,7 +30,7 @@ class UserSeeder extends Seeder
                 'mobile_number' => '09123456789',
                 'email' => 'angelicamae.bonganay@gmail.com',
                 'role_id' => '1',
-                'division_id' => '["1", "2", "3", "4", "5", "6", "7", "8", "9"]',
+                'division_id' => $divisionIdsJson,
                 'status' => 'Active',
                 'expiration_date' => Carbon::now()->addDays(90),
                 'password' => Hash::make('123456'),
@@ -43,8 +47,8 @@ class UserSeeder extends Seeder
                 'position' => 'Developer',
                 'mobile_number' => '09123456789',
                 'email' => 'anadoe@gmail.com',
-                'role_id' => '4',
-                'division_id' => '["1", "2", "3", "4", "5", "6", "7", "8", "9"]',
+                'role_id' => '2',
+                'division_id' => $divisionIdsJson,
                 'status' => 'Active',
                 'expiration_date' => Carbon::now()->addDays(90),
                 'password' => Hash::make('123456'),
@@ -79,7 +83,7 @@ class UserSeeder extends Seeder
                 'position' => 'Developer',
                 'mobile_number' => '09123456789',
                 'email' => 'carldoe@gmail.com',
-                'role_id' => '3',
+                'role_id' => '4',
                 'division_id' => '["1", "2", "3", "4", "5", "6", "7", "8", "9"]',
                 'status' => 'Active',
                 'expiration_date' => Carbon::now()->addDays(90),

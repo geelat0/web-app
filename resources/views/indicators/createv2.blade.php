@@ -67,7 +67,7 @@
                                 <div class="col">
                                     <div class="form-group" class="required">
                                         <label for="alloted_budget">Alloted Budget</label>
-                                        <input type="number" class="form-control capitalize" name="alloted_budget" id="alloted_budget" aria-describedby="">
+                                        <input type="number" step="any"  class="form-control capitalize" name="alloted_budget" id="alloted_budget" aria-describedby="">
                                         <div class="invalid-feedback" id="alloted_budgetError"></div>
                                     </div>
                                 </div>
@@ -260,7 +260,7 @@
                                 <div class="col mb-3 target-budget-group" data-division-id="${divisionId}">
                                     <div class="form-group">
                                         <label for="budget_${divisionId}_${index}" class="required">${nameValue} Budget</label>
-                                        <input type="number" class="form-control capitalize alloted-budget" name="${cleanedDivisionName}_budget[]" id="budget_${divisionId}_${index}" value="${budgetValue}" aria-describedby="">
+                                        <input type="number" step="any"  class="form-control capitalize alloted-budget" name="${cleanedDivisionName}_budget[]" id="budget_${divisionId}_${index}" value="${budgetValue}" aria-describedby="">
                                         <div class="invalid-feedback" id="budgetError_${divisionId}_${index}"></div>
                                     </div>
                                 </div>

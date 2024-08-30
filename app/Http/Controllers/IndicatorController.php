@@ -450,7 +450,7 @@ class IndicatorController extends Controller
                 return $data->updated_at->format('m/d/Y');
             })
             ->editColumn('alloted_budget', function($data) {
-                return '₱' . number_format($data->alloted_budget, 2);
+                return number_format($data->alloted_budget, 2);
             })
             ->editColumn('division_id', function($data) {
                 // Decode the JSON array of division IDs
