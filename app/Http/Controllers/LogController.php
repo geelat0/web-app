@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Entries;
 use App\Models\LoginModel;
+use App\Models\Role;
+use App\Models\Sessions;
 use App\Models\SuccessIndicator;
 use App\Models\User;
 use Illuminate\Support\Facades\File;
@@ -180,7 +182,19 @@ class LogController extends Controller
                 
             })
             ->addColumn('user', function($data) {
+                return ucfirst($data->user->first_name). ' ' . ucfirst(substr($data->user->middle_name, 0, 1)).'.'.' ' . ucfirst($data->user->last_name);
+            })
+            ->addColumn('user_name', function($data) {
                 return ucfirst($data->user->user_name);
+            })
+            ->addColumn('position', function($data) {
+                return ucfirst($data->user->position);
+            })
+
+            ->addColumn('role', function($data) {
+                $role = Role::where('id',  $data->user->role_id)->first();
+                return $role->name;
+               ;
             })
             ->editColumn('created_at', function($data) {
                 return $data->created_at->format('m/d/Y H:i:s');
@@ -188,4 +202,5 @@ class LogController extends Controller
 
             ->make(true);
     }
+ 
 }

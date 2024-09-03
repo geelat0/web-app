@@ -58,5 +58,11 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('view-permissions', function () {
             return Auth::user()->role->hasPermission('manage_permissions') || Auth::user()->role->name === 'IT' ||  Auth::user()->role->name === 'SAP';
         });
+        Gate::define('access_pending_entries', function () {
+            return Auth::user()->role->hasPermission('access_pending_entries') ||  Auth::user()->role->name === 'SAP';
+        });
+        Gate::define('filter_dashboard', function () {
+            return Auth::user()->role->hasPermission('filter_dashboard') || Auth::user()->role->name === 'IT'  ||  Auth::user()->role->name === 'SAP';
+        });
     }
 }

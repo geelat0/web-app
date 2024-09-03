@@ -68,4 +68,8 @@ label.required::after {
 .dash-icon{
   font-size: 5rem;
 }
+
+.hidden {
+  display: none;
+}
   

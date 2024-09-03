@@ -233,9 +233,9 @@ class RoleController extends Controller
         $validator = Validator::make($request->all(), [
             'role_id' => 'required|exists:role,id',
             'permissions' => 'array|exists:permissions,id',
-            'permissions' => 'required',
+            // 'permissions' => 'required',
         ],[
-            'permissions.required' => 'Please select atleast one permission.'
+            // 'permissions.required' => 'Please select atleast one permission.'
         ]
         );
     
@@ -252,6 +252,7 @@ class RoleController extends Controller
         // Redirect back with a success message
         return response()->json(['success' => true, 'message' => 'Permissions updated successfully']);
     }
+    
     public function fetchPermissions(Request $request)
     {
         $roleId = $request->input('role_id');

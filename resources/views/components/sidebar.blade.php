@@ -57,9 +57,9 @@
           <a href="/entries" class="menu-link">
             <i class='menu-icon tf-icons bx bx-file'></i>
             <div class="text-truncate" data-i18n="Page 2">Entries</div>
-            @if(Auth::user()->role->name !== 'IT' )
+            @can('access_pending_entries')
             <span class="badge {{ $entriesCount == 0 ? 'bg-warning' : 'bg-danger'}}  badge-notifications p-1 fs-8">{{$entriesCount}}</span>
-            @endif
+            @endcan
           </a>
         </li> 
         @endcan
@@ -92,6 +92,15 @@
           </a>
         </li>
         @endcan
+
+        @can('view-permissions')
+        <li class="menu-item" {{ request()->is('permissions') ? 'active' : '' }}>
+            <a href="/permissions" class="menu-link">
+              <i class='menu-icon tf-icons bx bx-key'></i>
+              <div class="text-truncate" data-i18n="Page 2">Permission</div>
+            </a>
+          </li>
+          @endcan
        
         @can('manage-user-management') 
         <li class="menu-item {{ request()->is('user') ? 'active' : '' }}">
@@ -109,13 +118,6 @@
             </a>
           </li>
           @endcan
-          @can('view-permissions')
-        <li class="menu-item" {{ request()->is('permissions') ? 'active' : '' }}>
-            <a href="/permissions" class="menu-link">
-              <i class='menu-icon tf-icons bx bx-history' ></i>
-              <div class="text-truncate" data-i18n="Page 2">Permission</div>
-            </a>
-          </li>
-          @endcan
+          
       </ul>
   </aside>

@@ -54,8 +54,11 @@ Route::middleware(['auth_check'])->group(function () {
         });
 
         Route::get('dash-home', [DashboardController::class, 'index'])->name('dash-home');
+        Route::get('dash-home/Loginlist', [DashboardController::class, 'Loginlist'])->name('Loginlist');
         Route::get('dashboard/filter', [DashboardController::class, 'filter'])->name('dashboard.filter')->middleware('permission:view_dashboard');
         Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+        Route::get('/dashboard-data', [DashboardController::class, 'fetchDashboardData'])->name('fetch.dashboard.data');
+
 
         Route::get('profile', [ProfileController::class, 'index']);
         Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');

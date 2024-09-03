@@ -210,7 +210,10 @@
 
             columns: [
                 // { data: 'id', name: 'id', title: 'ID', visible: false },
-                { data: 'user', name: 'user', title: 'User' },
+                { data: 'user', name: 'user', title: 'Name' },
+                { data: 'user_name', name: 'user_name', title: 'User Name' },
+                { data: 'position', name: 'position', title: 'Position' },
+                { data: 'role', name: 'role', title: 'Role' },
                 { data: 'status', name: 'status', title: 'Status' },
                 { data: 'created_at', name: 'created_at', title: 'Date Time In' },
                 // { data: 'time_in', name: 'time_in', title: 'Time in' },
