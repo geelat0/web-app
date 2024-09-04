@@ -22,7 +22,13 @@
             <div class="col mt-4">
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">Save Permissions</button>
+                    @if(Auth::user()->role->name === 'IT')
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#basicModal">
+                        Add Permissions
+                      </button>
+                      @endif
                 </div>
+                
             </div>
         </div>
 
@@ -49,6 +55,33 @@
             </table>
         </div>
     </form>
+
+
+    {{-- MODAL FOR ADDING PERMISSIONS --}}
+    <div class="modal fade" id="basicModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+        <form id="SavePermissionForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel1">Create New Permission</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="row">
+                    <div class="col mb-6">
+                      <label for="name" class="form-label">Permission Name</label>
+                      <input type="text" id="name" name="name" class="form-control" placeholder="Enter Name">
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+              </div>
+        </form>
+        </div>
+      </div>
 </div>
 @endsection
 
@@ -143,6 +176,57 @@
             } else {
                 $('#selectAll').prop('checked', false);
             }
+        });
+
+
+        // Handle Saving Permission form submission
+        $('#SavePermissionForm').off('submit').on('submit', function(e) {
+            e.preventDefault();
+            showLoader();
+            $.ajax({
+                url: '{{ route("roles.permissions.store") }}',
+                method: 'POST',
+                data: {
+                name: $('#name').val(),
+                _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    $('#basicModal').modal('hide');
+                        hideLoader();
+                        window.location.href = '/permissions';
+                    if (response.success) {
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: response.message,
+                            showConfirmButton: true,
+                        });
+                    } else {
+                        var errors = response.errors;
+                        Object.keys(errors).forEach(function(key) {
+                            var inputField = $('#SavePermissionForm [name=' + key + ']');
+                            inputField.addClass('is-invalid');
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: errors[key][0],
+                                showConfirmButton: true,
+                            });
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    $('#basicModal').modal('hide');
+                        hideLoader();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'An error occurred while updating permissions. Please try again.',
+                        showConfirmButton: true,
+                    });
+                }
+            });
         });
     });
 </script>

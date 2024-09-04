@@ -7,6 +7,7 @@ use App\Http\Controllers\IndicatorController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\OutcomeController;
+use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
@@ -21,9 +22,11 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth_check'])->group(function () {
     Route::middleware(['2fa'])->group(function () {
 
-            Route::get('/permissions', [RoleController::class, 'editPermissions'])->name('roles.permissions.edit')->middleware('permission:manage_permissions');
-            Route::post('/permissions/update', [RoleController::class, 'updatePermissions'])->name('roles.permissions.update')->middleware('permission:manage_permissions');
-            Route::get('roles/permissions/fetch', [RoleController::class, 'fetchPermissions'])->name('roles.permissions.fetch')->middleware('permission:manage_permissions');
+            Route::get('/permissions', [PermissionController::class, 'editPermissions'])->name('roles.permissions.edit')->middleware('permission:manage_permissions');
+            Route::post('/permissions/update', [PermissionController::class, 'updatePermissions'])->name('roles.permissions.update')->middleware('permission:manage_permissions');
+            Route::get('roles/permissions/fetch', [PermissionController::class, 'fetchPermissions'])->name('roles.permissions.fetch')->middleware('permission:manage_permissions');
+            Route::post('/permissions/store', [PermissionController::class, 'store'])->name('roles.permissions.store')->middleware('permission:manage_permissions');
+
 
             Route::get('/login_in', [LogController::class, 'login_in'])->middleware('permission:manage_history');
             Route::get('/list', [LogController::class, 'list'])->name('list')->middleware('permission:manage_history');

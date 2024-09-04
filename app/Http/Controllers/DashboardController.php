@@ -58,9 +58,15 @@ class DashboardController extends Controller
                 return !$completedEntries;
             });
 
-            $loggedInUsersCount = Sessions::whereNotNull('user_id')
-            ->distinct('user_id')
-            ->count('user_id');
+            $activeThreshold = now()->subMinutes(5)->timestamp;
+
+            // Query active sessions
+            $loggedInUsersCount = Sessions::with('user')
+                ->whereNotNull('user_id')
+                ->where('last_activity', '>=', $activeThreshold)  // Only get active sessions
+                ->distinct('user_id')
+                ->count('user_id');
+    
 
 
                 // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
@@ -159,14 +165,20 @@ class DashboardController extends Controller
 
     public function Loginlist(Request $request)
     {
-        $query = Sessions::with('user')->whereNotNull('user_id')
-        ->distinct('user_id');
-    
+        // Define the threshold for active sessions (e.g., 15 minutes)
+        $activeThreshold = now()->subMinutes(5)->timestamp;
+
+        // Query active sessions
+        $query = Sessions::with('user')
+            ->whereNotNull('user_id')
+            ->where('last_activity', '>=', $activeThreshold)  // Only get active sessions
+            ->distinct('user_id');
+
         $login_in = $query->get();
+
         return DataTables::of($login_in)
             ->addColumn('id', function($data) {
                 return $data->id;
-                
             })
             ->addColumn('user', function($data) {
                 return ucfirst($data->user->first_name). ' ' . ucfirst(substr($data->user->middle_name, 0, 1)).'.'.' ' . ucfirst($data->user->last_name);
@@ -177,16 +189,14 @@ class DashboardController extends Controller
             ->addColumn('position', function($data) {
                 return ucfirst($data->user->position);
             })
-
             ->addColumn('role', function($data) {
                 $role = Role::where('id',  $data->user->role_id)->first();
                 return $role->name;
-               ;
             })
-            // ->editColumn('created_at', function($data) {
-            //     return $data->created_at->format('m/d/Y H:i:s');
-            // })
-
+            ->editColumn('last_activity', function($data) {
+                // $role = Role::where('id',  $data->user->role_id)->first();
+                return Carbon::createFromTimestamp($data->last_activity)->diffForHumans();
+            })
             ->make(true);
     }
     
@@ -220,7 +230,14 @@ class DashboardController extends Controller
         });
 
         $entriesCount = $filteredIndicators->count();
-        $loggedInUsersCount = Sessions::whereNotNull('user_id')->distinct('user_id')->count('user_id');
+        $activeThreshold = now()->subMinutes(5)->timestamp;
+
+        // Query active sessions
+        $loggedInUsersCount = Sessions::with('user')
+            ->whereNotNull('user_id')
+            ->where('last_activity', '>=', $activeThreshold)  // Only get active sessions
+            ->distinct('user_id')
+            ->count('user_id');
 
         return response()->json([
             'userCount' => $userCount,

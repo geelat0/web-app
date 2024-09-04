@@ -42,31 +42,28 @@
     @endcan
 
     @can('access_pending_entries')
-        <div class="row">
-            <div class="col mb-4">
-                <div class="card h-100 shadow-sm">
+        <div class="row mb">
+            <div class="col-md-12">
+                <div class="card" style="width: 100%; margin-bottom: 1rem;">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h3 class="card-title">Pending Entries</h3>
-                                <h1 id="entriesCount" class="{{ $entriesCount == 0 ? 'text-warning' : 'text-danger' }} mt-1">
+                                <h3 id="entriesCount" class="{{ $entriesCount == 0 ? 'text-info' : 'text-danger' }} mt-1">
                                     {{ $entriesCount }}
-                                </h1>
+                                </h3>
                             </div>
                             <div>
-                                <i class="bx bxs-time {{ $entriesCount == 0 ? 'text-warning' : 'text-danger' }} dash-icon"></i>
+                                <i class="bx bxs-bell-ring {{ $entriesCount == 0 ? 'text-info' : 'text-danger' }} dash-icon"></i>
                             </div>
                         </div>
                     </div>
-                    {{-- @if(Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP') --}}
-                    <div class="card-footer d-flex justify-content-between align-items-center">
-                        <a href="/entries" class="{{ $entriesCount == 0 ? 'text-warning' : 'text-danger' }}">View Details</a>
-                        <a href="/entries" class="{{ $entriesCount == 0 ? 'text-warning' : 'text-danger' }}"><i class="fas fa-arrow-circle-right text-primary"></i></a>
-                    </div>
-                    {{-- @endif --}}
+                </div>
             </div>
+           
         </div>
     @endcan
+    
 
     {{-- </div> --}}
     @if(Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP')
@@ -132,9 +129,7 @@
                   </div>
                 </div>
             </div>
-
         </div>
-        
     </div>
     @endif
 </div>
@@ -159,7 +154,7 @@
 
         // Fetch dashboard data on page load
         fetchDashboardData();
-        setInterval(fetchDashboardData, 60000);
+        setInterval(fetchDashboardData, 30000);
 
         $('#filterIcon').click(function() {
             $('#filtersSection').toggleClass('hidden');
@@ -233,6 +228,7 @@
                 { data: 'user_name', name: 'user_name', title: 'User Name' },
                 { data: 'position', name: 'position', title: 'Position' },
                 { data: 'role', name: 'role', title: 'Role' },
+                // { data: 'last_activity', name: 'last_activity', title: 'last_activity' },
                 // { data: 'time_in', name: 'time_in', title: 'Time in' },
             ],
 
@@ -250,7 +246,7 @@
         }
 
         // Reload table every 1 minute (60000 milliseconds)
-        setInterval(reloadTable, 60000);
+        setInterval(reloadTable, 30000);
         console.log('here');
 
     });
