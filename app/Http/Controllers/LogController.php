@@ -19,15 +19,15 @@ class LogController extends Controller
 {
     public function index()
     {
-        
+
         // dd($filteredIndicators->count());
-       
+
 
 
         // $currentYear = Carbon::now()->format('Y');
         // dd($currentYear);
 
-        
+
     // if (!$hasAccess) {
     //     return response()->json([
     //         'success' => false,
@@ -37,23 +37,23 @@ class LogController extends Controller
 
         $indicators = SuccessIndicator::all();
         $matchingUserIds = [];
-        
+
         foreach ($indicators as $indicator) {
             // Decode the division_id from JSON string to an array in the indicator
             $indicatorDivisionIds = json_decode($indicator->division_id, true);
-        
+
             if (is_array($indicatorDivisionIds)) {
                 // Fetch all users
                 $users = User::all();
-        
+
                 foreach ($users as $user) {
                     // Decode the division_id from JSON string to an array in the user
                     $userDivisionIds = json_decode($user->division_id, true);
-        
+
                     if (is_array($userDivisionIds)) {
                         // Check if there is any common division_id between the indicator and the user
                         $commonDivisions = array_intersect($indicatorDivisionIds, $userDivisionIds);
-        
+
                         if (!empty($commonDivisions)) {
                             // If a match is found, add the user id to the array
                             $matchingUserIds[] = $user->id;
@@ -62,12 +62,12 @@ class LogController extends Controller
                 }
             }
         }
-        
+
         // // Remove duplicate user IDs (if any)
         // $matchingUserIds = array_unique($matchingUserIds);
-        
-        
-        
+
+
+
         // $indicator = SuccessIndicator::all();
 
         // dd($matchingUserIds);
@@ -94,14 +94,19 @@ class LogController extends Controller
 
         $currentYear = Carbon::now()->format('Y');
         $currentUser = Auth::user();
-        $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+        $entriesCount = SuccessIndicator::whereNull('deleted_at')
+            ->whereHas('org', function ($query) {
+                $query->where('status', 'Active');
+            })
+            ->with('org')
+            ->whereYear('created_at', $currentYear);
 
         $indicators = $entriesCount->get();
-        
+
         $userDivisionIds = json_decode($currentUser->division_id, true);
         $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
             $indicatorDivisionIds = json_decode($indicator->division_id, true);
-            
+
             return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
         });
 
@@ -126,11 +131,11 @@ class LogController extends Controller
                                         ->exists();
                 return !$completedEntries;
             });
-          
+
             // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
         $entriesCount = $filteredIndicators->count();
-        
-        return view('logs.login_in', compact('user', 'entriesCount')); 
+
+        return view('logs.login_in', compact('user', 'entriesCount'));
     }
 
 
@@ -154,13 +159,13 @@ class LogController extends Controller
             [$startDate, $endDate] = explode(' to ', $request->date_range);
             $startDate = Carbon::createFromFormat('m/d/Y', $startDate)->startOfDay();
             $endDate = Carbon::createFromFormat('m/d/Y', $endDate)->endOfDay();
-    
+
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
         if ($request->has('search') && !empty($request->search)) {
             $searchTerm = $request->search;
-    
+
             if (strpos($searchTerm, ' ') !== false) {
                 [$firstName, $lastName] = explode(' ', $searchTerm, 2);
                 $query->whereHas('user', function($subQuery) use ($firstName, $lastName) {
@@ -170,16 +175,16 @@ class LogController extends Controller
             } else {
                 $query->whereHas('user', function($subQuery) use ($searchTerm) {
                     $subQuery->where('user_name', 'like', "%{$searchTerm}%");
-                            
+
                 });
             }
         }
-    
+
         $login_in = $query->get();
         return DataTables::of($login_in)
             ->addColumn('id', function($data) {
                 return Crypt::encrypt($data->id);
-                
+
             })
             ->addColumn('user', function($data) {
                 return ucfirst($data->user->first_name). ' ' . ucfirst(substr($data->user->middle_name, 0, 1)).'.'.' ' . ucfirst($data->user->last_name);
@@ -202,5 +207,5 @@ class LogController extends Controller
 
             ->make(true);
     }
- 
+
 }

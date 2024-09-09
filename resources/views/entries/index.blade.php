@@ -4,7 +4,7 @@
 
 <div class="row">
     <div class="col">
-        
+
     </div>
 </div>
 
@@ -99,8 +99,8 @@
             onChange: function(selectedDates, dateStr, instance) {
                 // Check if both start and end dates are selected
                 if (selectedDates.length === 2) {
-                    table.ajax.reload(null, false);  
-                    completed_table.ajax.reload(null, false);  
+                    table.ajax.reload(null, false);
+                    completed_table.ajax.reload(null, false);
                 }
             }
         });
@@ -135,12 +135,12 @@
                         var selectedData = dt.row({ selected: true }).data();
 
                         if (selectedData && selectedData.id) {
-                        
+
                             window.location.href = `/entries_create?id=${selectedData.id}`;
                             console.log(selectedData.id);
                         } else {
                             alert('No item selected or invalid ID.');
-                        } 
+                        }
                     }
                 },
                 // {
@@ -153,7 +153,7 @@
                 //         var selectedData = dt.row({ selected: true }).data();
 
                 //         if (selectedData && selectedData.id) {
-                        
+
                 //             window.location.href = `/entries_view?id=${selectedData.id}`;
                 //             console.log(selectedData.id);
                 //         } else {
@@ -161,12 +161,13 @@
                 //         }
                 //     }
                 // },
-              
+
 
             ],
 
             columns: [
                 { data: 'id', name: 'id', title: 'ID', visible: false },
+                { data: 'org_id', name: 'org_id', title: 'Organizational Outcome' },
                 { data: 'indicator_id', name: 'indicator_id', title: 'Indicator'},
                 // { data: 'accomplishment', name: 'accomplishment', title: 'Accomplishment'},
                 { data: 'months', name: 'months', title: 'Month', className: 'wrap-text' },
@@ -180,9 +181,9 @@
                         if (data) {
                             // Assuming 'data' is the Base64 encoded string
                             return `
-                                <a href="#" class="file-preview" 
-                                data-file="${data}" 
-                                data-toggle="modal" 
+                                <a href="#" class="file-preview"
+                                data-file="${data}"
+                                data-toggle="modal"
                                 data-target="#fileModal">
                                     <i class="bx bx-file"></i> Preview
                                 </a>`;
@@ -193,8 +194,8 @@
                     orderable: false,
                     searchable: false
                 },
-                { data: 'responsible_user', name: 'responsible_user', title: 'Responsible User' }, 
-                { data: 'status', name: 'status', title: 'Status' }, 
+                { data: 'responsible_user', name: 'responsible_user', title: 'Responsible User' },
+                { data: 'status', name: 'status', title: 'Status' },
                 { data: 'created_at', name: 'created_at', title: 'Created At' },
                 { data: 'created_by', name: 'created_by', title: 'Created By' },
             ],
@@ -245,7 +246,7 @@
                 //         var selectedData = dt.row({ selected: true }).data();
 
                 //         if (selectedData && selectedData.id) {
-                           
+
                 //             window.location.href = `/entries_edit?id=${selectedData.id}`;
                 //             console.log(selectedData.id);
                 //         } else {
@@ -264,7 +265,7 @@
                         var selectedData = dt.row({ selected: true }).data();
 
                         if (selectedData && selectedData.id) {
-                        
+
                             window.location.href = `/entries_view?id=${selectedData.id}`;
                             console.log(selectedData.id);
                         } else {
@@ -337,6 +338,7 @@
 
             columns: [
                 { data: 'id', name: 'id', title: 'ID', visible: false },
+                { data: 'org_id', name: 'org_id', title: 'Organizational Outcome' },
                 { data: 'indicator_id', name: 'indicator_id', title: 'Indicator'},
                 // { data: 'accomplishment', name: 'accomplishment', title: 'Accomplishment'},
                 { data: 'months', name: 'months', title: 'Month', className: 'wrap-text' },
@@ -348,9 +350,9 @@
                     render: function(data, type, row) {
                         if (data) {
                             return `
-                                <a href="#" class="file-preview" 
-                                data-file="${data}" 
-                                data-toggle="modal" 
+                                <a href="#" class="file-preview"
+                                data-file="${data}"
+                                data-toggle="modal"
                                 data-target="#fileModal">
                                     <i class="bx bx-file"></i> Preview
                                 </a>`;
@@ -361,8 +363,8 @@
                     orderable: false,
                     searchable: false
                 },
-                { data: 'responsible_user', name: 'responsible_user', title: 'Responsible User' }, 
-                { data: 'status', name: 'status', title: 'Status' }, 
+                { data: 'responsible_user', name: 'responsible_user', title: 'Responsible User' },
+                { data: 'status', name: 'status', title: 'Status' },
                 { data: 'created_at', name: 'created_at', title: 'Created At' },
                 { data: 'created_by', name: 'created_by', title: 'Created By' },
             ],
@@ -385,12 +387,12 @@
 
 
         $('.navbar-toggler').on('click', function() {
-       
+
             table.ajax.reload(null, false);
             completed_table.ajax.reload(null, false);
         });
         $('.nav-link').on('click', function() {
-       
+
             table.ajax.reload(null, false);
             completed_table.ajax.reload(null, false);
         });
@@ -428,7 +430,7 @@
 
         // table.buttons().container().appendTo('#table-buttons');
         // completed_table.buttons().container().appendTo('#table-buttons');
-        
+
         table.on('select deselect', function() {
             var selectedRows = table.rows({ selected: true }).count();
             table.buttons(['.btn-success', '.btn-warning', '.btn-info', '.btn-danger']).enable(selectedRows > 0);

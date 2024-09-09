@@ -22,14 +22,19 @@ class EntriesController extends Controller
 
         $currentYear = Carbon::now()->format('Y');
         $currentUser = Auth::user();
-        $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+        $entriesCount = SuccessIndicator::whereNull('deleted_at')
+        ->whereHas('org', function ($query) {
+            $query->where('status', 'Active');
+        })
+        ->with('org')
+        ->whereYear('created_at', $currentYear);
 
         $indicators = $entriesCount->get();
-        
+
         $userDivisionIds = json_decode($currentUser->division_id, true);
         $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
             $indicatorDivisionIds = json_decode($indicator->division_id, true);
-            
+
             return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
         });
 
@@ -54,10 +59,10 @@ class EntriesController extends Controller
                                     ->exists();
             return !$completedEntries;
         });
-          
+
             // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
         $entriesCount = $filteredIndicators->count();
-       
+
         return view('entries.index', compact('user', 'entriesCount'));
     }
 
@@ -84,11 +89,11 @@ class EntriesController extends Controller
         $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
 
         $indicators = $entriesCount->get();
-        
+
         $userDivisionIds = json_decode($currentUser->division_id, true);
         $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
             $indicatorDivisionIds = json_decode($indicator->division_id, true);
-            
+
             return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
         });
 
@@ -113,10 +118,10 @@ class EntriesController extends Controller
                                     ->exists();
             return !$completedEntries;
         });
-          
+
             // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
         $entriesCount = $filteredIndicators->count();
-        
+
         return view('entries.create', compact('user', 'entries', 'fileUrl', 'entriesCount'));
     }
 
@@ -138,17 +143,17 @@ class EntriesController extends Controller
         }
 
         $user=Auth::user();
-       
+
         $currentYear = Carbon::now()->format('Y');
         $currentUser = Auth::user();
         $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
 
         $indicators = $entriesCount->get();
-        
+
         $userDivisionIds = json_decode($currentUser->division_id, true);
         $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
             $indicatorDivisionIds = json_decode($indicator->division_id, true);
-            
+
             return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
         });
 
@@ -173,7 +178,7 @@ class EntriesController extends Controller
                                         ->exists();
                 return !$completedEntries;
             });
-          
+
             // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
         $entriesCount = $filteredIndicators->count();
         return view('entries.edit', compact('user', 'entries', 'fileUrl', 'entriesCount'));
@@ -197,17 +202,17 @@ class EntriesController extends Controller
         }
 
         $user=Auth::user();
-       
+
         $currentYear = Carbon::now()->format('Y');
         $currentUser = Auth::user();
         $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
 
         $indicators = $entriesCount->get();
-        
+
         $userDivisionIds = json_decode($currentUser->division_id, true);
         $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
             $indicatorDivisionIds = json_decode($indicator->division_id, true);
-            
+
             return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
         });
 
@@ -232,7 +237,7 @@ class EntriesController extends Controller
                                         ->exists();
                 return !$completedEntries;
             });
-          
+
             // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
         $entriesCount = $filteredIndicators->count();
         return view('entries.view', compact('user', 'entries', 'fileUrl', 'entriesCount'));
@@ -252,14 +257,14 @@ class EntriesController extends Controller
 
         }else{
             $searchTerm = $request->input('q');
-    
+
             // Get the current user's division IDs
             $userDivisionIds = User::where('id', Auth::user()->id)
                 ->pluck('division_id')
                 ->first();
             $userDivisionIds = json_decode($userDivisionIds, true);
             $userDivisionIds = array_map('intval', $userDivisionIds);
-        
+
             // Fetch success indicators where the user's division_id exists in the success indicator's division_id field
             $data = SuccessIndicator::where('status', 'Active')
                 ->whereNull('deleted_at')
@@ -271,7 +276,7 @@ class EntriesController extends Controller
                     return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
                 })
                 ->values(); // Re-index the array
-        
+
             return response()->json($data);
         }
     }
@@ -279,10 +284,14 @@ class EntriesController extends Controller
     public function list(Request $request){
         $currentUser = Auth::user();
         $currentYear = Carbon::now()->format('Y');
-    
+
         // Build the initial query for SuccessIndicator
-        $query = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear) ->orderBy('created_at', 'desc');
-    
+        $query = SuccessIndicator::whereNull('deleted_at')
+        ->whereHas('org', function ($query) {
+            $query->where('status', 'Active');
+        })
+        ->with(['division', 'org'])->whereYear('created_at', $currentYear) ->orderBy('created_at', 'desc');
+
         // Filter by date range
         if ($request->has('date_range') && !empty($request->date_range)) {
             [$startDate, $endDate] = explode(' to ', $request->date_range);
@@ -290,7 +299,7 @@ class EntriesController extends Controller
             $endDate = Carbon::createFromFormat('m/d/Y', $endDate)->endOfDay();
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
-    
+
         // Filter by search term
         if ($request->has('search') && !empty($request->search)) {
             $searchTerm = $request->search;
@@ -300,17 +309,17 @@ class EntriesController extends Controller
                          ->orWhere('status', 'like', "%{$searchTerm}%");
             });
         }
-    
+
         // Fetch all indicators
         $indicators = $query->get();
-    
+
         // Filter indicators based on current user's division_id
         $userDivisionIds = json_decode($currentUser->division_id, true);
         $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
             $indicatorDivisionIds = json_decode($indicator->division_id, true);
             return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
         });
-    
+
         // Get the current month
         $currentMonth = Carbon::now()->format('m');
         $current_Year = Carbon::now()->format('Y');
@@ -324,7 +333,7 @@ class EntriesController extends Controller
         } else {
             $targetMonth = $currentDate->subMonth()->month;
         }
-    
+
         // Further filter indicators based on the entries table
         $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
             $completedEntries = Entries::where('indicator_id', $indicator->id)
@@ -335,10 +344,13 @@ class EntriesController extends Controller
                                        ->exists();
             return !$completedEntries;
         });
-            
+
         return DataTables::of($filteredIndicators)
             ->addColumn('id', function($data) {
                 return Crypt::encrypt($data->id);
+            })
+            ->editColumn('org_id', function($data) {
+                return $data->org->organizational_outcome;
             })
             ->editColumn('indicator_id', function($data) {
                 return '(' . $data->target . ')' . '  ' . $data->measures;
@@ -347,10 +359,10 @@ class EntriesController extends Controller
                 return Auth::user()->first_name. ' ' .Auth::user()->last_name;
             })
             ->editColumn('file', function($data) {
-                return ''; 
+                return '';
             })
             ->editColumn('status', function($data) {
-                return 'Pending'; 
+                return 'Pending';
             })
             ->editColumn('created_at', function($data) {
                 return $data->created_at->format('m/d/Y');
@@ -406,6 +418,9 @@ class EntriesController extends Controller
             ->addColumn('id', function($data) {
                 return Crypt::encrypt($data->id);
             })
+            ->editColumn('org_id', function($data) {
+                return $data->indicator->org->organizational_outcome;
+            })
             ->editColumn('indicator_id', function($data) {
                 return '(' .$data->indicator->target .')' . '  '. $data->indicator->measures;
             })
@@ -421,7 +436,7 @@ class EntriesController extends Controller
             ->editColumn('months', function($data) {
                 return $data->months ? date('F', mktime(0, 0, 0, $data->months, 10)): '';
             })
-           
+
             ->make(true);
     }
 
@@ -448,7 +463,7 @@ class EntriesController extends Controller
             if (substr($fileContents, 0, 4) !== '%PDF') {
                 return response()->json(['errors' => ['file' => 'Invalid PDF file']], 422);
             }
-           
+
         }else{
             //fetch the existing file
             $base64File = $entry->file;
@@ -500,11 +515,11 @@ class EntriesController extends Controller
             'accomplishment' => 'required|string',
             'file' => 'required|file|mimes:pdf|max:2048',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-    
+
         // Handle the file
         $file = $request->file('file');
         $fileContents = file_get_contents($file->getRealPath()); // Get the file contents
@@ -525,7 +540,7 @@ class EntriesController extends Controller
         }
 
         $current_Year = Carbon::now()->format('Y');
-       
+
         $entry = Entries::create([
             'indicator_id' => $request->input('indicator_id'),
             'file' => $base64File, // Store the Base64 string directly
@@ -535,7 +550,7 @@ class EntriesController extends Controller
             'user_id' => Auth::user()->id,
             'created_by' => Auth::user()->user_name,
         ]);
-    
+
         return response()->json([
             'success' => true,
             'message' => 'Entry created successfully!',

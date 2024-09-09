@@ -24,14 +24,19 @@ class RoleController extends Controller
 
         $currentYear = Carbon::now()->format('Y');
         $currentUser = Auth::user();
-        $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+        $entriesCount = SuccessIndicator::whereNull('deleted_at')
+            ->whereHas('org', function ($query) {
+                $query->where('status', 'Active');
+            })
+            ->with('org')
+            ->whereYear('created_at', $currentYear);
 
         $indicators = $entriesCount->get();
-        
+
         $userDivisionIds = json_decode($currentUser->division_id, true);
         $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
             $indicatorDivisionIds = json_decode($indicator->division_id, true);
-            
+
             return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
         });
 
@@ -56,7 +61,7 @@ class RoleController extends Controller
                                     ->exists();
             return !$completedEntries;
         });
-          
+
             // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
         $entriesCount = $filteredIndicators->count();
         return view('role_page.roles', compact('user', 'entriesCount'));
@@ -66,7 +71,7 @@ class RoleController extends Controller
 
         $roles = Role::where('status', 'Active')->whereNull('deleted_at')->get(['id', 'name']);
         return response()->json($roles);
-        
+
 
     }
 
@@ -78,32 +83,32 @@ class RoleController extends Controller
             [$startDate, $endDate] = explode(' to ', $request->date_range);
             $startDate = Carbon::createFromFormat('m/d/Y', $startDate)->startOfDay();
             $endDate = Carbon::createFromFormat('m/d/Y', $endDate)->endOfDay();
-    
+
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
         if ($request->has('search') && !empty($request->search)) {
             $searchTerm = $request->search;
-            
+
             $query->where(function($subQuery) use ($searchTerm) {
                 $subQuery->where('name', 'like', "%{$searchTerm}%")
                         //  ->orWhere('created_by', 'like', "%{$searchTerm}%")
                          ->orWhere('status', 'like', "%{$searchTerm}%");
-                        
+
             });
         }
-    
+
         $roles = $query->get();
-       
+
         return DataTables::of($roles)
             ->addColumn('id', function($role) {
                 return Crypt::encrypt($role->id);
-                
+
             })
             ->editColumn('created_at', function($role) {
                 return $role->created_at->format('m/d/Y');
             })
-            
+
             ->make(true);
     }
 
@@ -140,22 +145,22 @@ class RoleController extends Controller
             Rule::unique('role')->ignore($id), // Ensures unique name except for the current role
         ],
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json(['success' => false, 'errors' => $validator->errors()], 200);
         }
-    
+
         $user = Role::findOrFail($id);
-    
+
         $user->name = ucfirst($request->name);
         $user->status = ucfirst($request->status);
         $user->created_by = Auth::user()->user_name;
         $user->save();
-    
+
         return response()->json(['success' => true, 'message' => 'Role updated successfully']);
     }
 
-    
+
 
     public function destroy(Request $request)
     {
@@ -170,7 +175,7 @@ class RoleController extends Controller
         $ifExist = User::whereNull('deleted_at')->where('role_id', Crypt::decrypt($request->id))->exists();
 
         if($ifExist){
-            
+
             return response()->json(['success' => false, 'errors' => 'The role is being use in by users, Cannot be deleted']);
         }
 

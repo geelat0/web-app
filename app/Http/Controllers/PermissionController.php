@@ -37,14 +37,19 @@ class PermissionController extends Controller
 
         $currentYear = Carbon::now()->format('Y');
         $currentUser = Auth::user();
-        $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+        $entriesCount = SuccessIndicator::whereNull('deleted_at')
+            ->whereHas('org', function ($query) {
+                $query->where('status', 'Active');
+            })
+            ->with('org')
+            ->whereYear('created_at', $currentYear);
 
         $indicators = $entriesCount->get();
-        
+
         $userDivisionIds = json_decode($currentUser->division_id, true);
         $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
             $indicatorDivisionIds = json_decode($indicator->division_id, true);
-            
+
             return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
         });
 
@@ -69,7 +74,7 @@ class PermissionController extends Controller
                                     ->exists();
             return !$completedEntries;
         });
-          
+
             // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
         $entriesCount = $filteredIndicators->count();
         $permissions = Permission::all();
@@ -87,7 +92,7 @@ class PermissionController extends Controller
             // 'permissions.required' => 'Please select atleast one permission.'
         ]
         );
-    
+
         if ($validator->fails()) {
             return response()->json(['success' => false, 'errors' => $validator->errors()], 200);
         }
@@ -101,7 +106,7 @@ class PermissionController extends Controller
         // Redirect back with a success message
         return response()->json(['success' => true, 'message' => 'Permissions updated successfully']);
     }
-    
+
     public function fetchPermissions(Request $request)
     {
         $roleId = $request->input('role_id');

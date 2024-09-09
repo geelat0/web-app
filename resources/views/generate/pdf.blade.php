@@ -77,7 +77,7 @@
     <div class="header">
         <div class="header_page">
             Republic of the Philippines
-        </div> 
+        </div>
         <div class="subheader">
             Department of Labor and Employment
         </div>
@@ -95,7 +95,7 @@
                     <th rowspan="2">Division/Individuals Accountable</th>
                     <th rowspan="2">Actual Accomplishment</th>
                     <th colspan="4">Rating</th>
-                    <th rowspan="2">Remarks</th>
+                    <th rowspan="2" style="width: 15%;">Remarks</th>
                 </tr>
                 <tr class="rating-header">
                     <th>Q1</th>
@@ -126,6 +126,7 @@
                                 @php
                                     $division_ids = json_decode($indicator->division_id);
                                     $filteredDivisionIds = $divisionIds ?? []; // The filtered division IDs from the request
+                                    $groupedEntries = collect($entries[$indicator->id] ?? [])->groupBy('months'); // Grouping accomplishments by month
                                 @endphp
                                 @if($index > 0)
                                     <tr>
@@ -145,22 +146,22 @@
                                             @if($showDivision && $division)
                                                 @if($division->division_name === 'Albay PO')
                                                 {{ '(' .($indicator->Albay_target  == 0 ? 'Actual' : $indicator->Albay_target ) . ')' . ' ' . $indicator->measures }}
-                                               
+
                                                 @elseif($division->division_name === 'Camarines Norte PO')
                                                 {{ '(' . ($indicator->Camarines_Norte_target == 0 ? 'Actual' : $indicator->Camarines_Norte_target)  . ')' . ' ' . $indicator->measures }}
 
                                                 @elseif($division->division_name === 'Camarines Sur PO')
                                                 {{ '(' . ($indicator->Camarines_Sur_target == 0 ? 'Actual' :  $indicator->Camarines_Sur_target) . ')' . ' ' . $indicator->measures }}
-                                                
+
                                                 @elseif($division->division_name === 'Catanduanes PO')
                                                 {{ '(' . ($indicator->Catanduanes_target == 0 ? 'Actual' : $indicator->Catanduanes_target)   . ')' . ' ' . $indicator->measures }}
-                                                
+
                                                 @elseif($division->division_name === 'Masbate PO')
                                                 {{ '(' . ($indicator->Masbate_target  == 0 ? 'Actual' : $indicator->Masbate_target ) . ')' . ' ' . $indicator->measures }}
-                                                
+
                                                 @elseif($division->division_name === 'Sorsogon PO')
                                                 {{ '(' . ($indicator->Sorsogon_target== 0 ? 'Actual' : $indicator->Sorsogon_target)   . ')' . ' ' . $indicator->measures }}
-                                                
+
                                                 @else
                                                 {{ '(' . ($indicator->target == 0 ? 'Actual' : $indicator->target) . ')' . ' ' . $indicator->measures }}
                                                 @endif
@@ -183,22 +184,22 @@
                                             @if($showDivision && $division)
                                                 @if($division->division_name === 'Albay PO')
                                                 {{ number_format($indicator->Albay_budget, 2) }}
-                                               
+
                                                 @elseif($division->division_name === 'Camarines Norte PO')
                                                 {{ number_format($indicator->Camarines_Norte_budget, 2) }}
 
                                                 @elseif($division->division_name === 'Camarines Sur PO')
                                                 {{ number_format($indicator->Camarines_Sur_budget, 2) }}
-                                                
+
                                                 @elseif($division->division_name === 'Catanduanes PO')
                                                 {{ number_format($indicator->Catanduanes_budget, 2) }}
-                                                
+
                                                 @elseif($division->division_name === 'Masbate PO')
                                                 {{ number_format($indicator->Masbate_budget, 2) }}
-                                                
+
                                                 @elseif($division->division_name === 'Sorsogon PO')
                                                 {{ number_format($indicator->Sorsogon_budget, 2) }}
-                                                
+
                                                 @else
                                                 {{ number_format($indicator->alloted_budget, 2) }}
                                                 @endif
@@ -214,16 +215,17 @@
                                         @endphp
 
                                         @if($showDivision && $division)
-                                            {{ $division->division_name }}<br>
+                                            {{ $division->division_name }},<br>
                                         @endif
                                     @endforeach
                                 </td>
                                 <td>
-                                    @if(isset($entries[$indicator->id]))
-                                        @foreach($entries[$indicator->id] as $entry)
-                                            {{ $entry->accomplishment }}<br>
-                                        @endforeach
-                                    @endif
+                                    @foreach($groupedEntries as $month => $monthlyEntries)
+                                    <strong>{{ \Carbon\Carbon::create()->month($month)->format('F') }}:</strong><br>
+                                    @foreach($monthlyEntries as $entry)
+                                        {{ $entry->accomplishment }}<br><br>
+                                    @endforeach
+                                @endforeach
                                 </td>
                                 <td></td>
                                 <td></td>
@@ -240,5 +242,6 @@
     <div class="footer">
         <span class="page-number"></span>
     </div>
+
 </body>
 </html>

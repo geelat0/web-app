@@ -22,17 +22,22 @@ class DashboardController extends Controller
             $userCount = User::count();
             $roleCount = Role::count();
             $user = Auth::user();
-            
+
             $currentYear = Carbon::now()->format('Y');
             $currentUser = Auth::user();
-            $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+            $entriesCount = SuccessIndicator::whereNull('deleted_at')
+            ->whereHas('org', function ($query) {
+                $query->where('status', 'Active');
+            })
+            ->with('org')
+            ->whereYear('created_at', $currentYear);
 
             $indicators = $entriesCount->get();
-            
+
             $userDivisionIds = json_decode($currentUser->division_id, true);
             $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
                 $indicatorDivisionIds = json_decode($indicator->division_id, true);
-                
+
                 return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
             });
 
@@ -58,6 +63,7 @@ class DashboardController extends Controller
                 return !$completedEntries;
             });
 
+
             $activeThreshold = now()->subMinutes(5)->timestamp;
 
             // Query active sessions
@@ -66,12 +72,15 @@ class DashboardController extends Controller
                 ->where('last_activity', '>=', $activeThreshold)  // Only get active sessions
                 ->distinct('user_id')
                 ->count('user_id');
-    
 
+            $CompleteEntriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('months', $targetMonth)
+            ->whereYear('created_at', $current_Year)
+            ->where('status', 'Completed')
+            ->where('user_id',  Auth::user()->id)
+            ->count();
 
-                // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
             $entriesCount = $filteredIndicators->count();
-            return view('dashboard', compact('user', 'userCount', 'roleCount', 'entriesCount', 'loggedInUsersCount'));
+            return view('dashboard', compact('user', 'userCount', 'roleCount', 'entriesCount', 'loggedInUsersCount', 'targetMonth', 'CompleteEntriesCount'));
     }
 
     public function filter(Request $request)
@@ -199,7 +208,7 @@ class DashboardController extends Controller
             })
             ->make(true);
     }
-    
+
     public function fetchDashboardData(Request $request)
     {
         // You can use the same logic you have in the index method

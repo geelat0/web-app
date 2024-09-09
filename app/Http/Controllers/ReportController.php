@@ -7,6 +7,7 @@ use App\Models\Entries;
 use App\Models\Organizational;
 use App\Models\Report;
 use App\Models\SuccessIndicator;
+use App\Models\User;
 use PDF;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -17,19 +18,24 @@ use Illuminate\Support\Facades\DB;
 class ReportController extends Controller
 {
     public function index(){
-       
+
         $user=Auth::user();
 
         $currentYear = Carbon::now()->format('Y');
         $currentUser = Auth::user();
-        $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+        $entriesCount = SuccessIndicator::whereNull('deleted_at')
+            ->whereHas('org', function ($query) {
+                $query->where('status', 'Active');
+            })
+            ->with('org')
+            ->whereYear('created_at', $currentYear);
 
         $indicators = $entriesCount->get();
-        
+
         $userDivisionIds = json_decode($currentUser->division_id, true);
         $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
             $indicatorDivisionIds = json_decode($indicator->division_id, true);
-            
+
             return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
         });
 
@@ -54,7 +60,7 @@ class ReportController extends Controller
                                     ->exists();
             return !$completedEntries;
         });
-          
+
             // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
         $entriesCount = $filteredIndicators->count();
         return view('generate.index', compact('user', 'entriesCount'));
@@ -72,29 +78,45 @@ class ReportController extends Controller
         $semiannual = $request->input('semiannual');
         $divisionIds = $request->input('division_id');
         $province = $request->input('province');
-    
+        $userIdsArray = '';
+
         // Fetch all indicators
         $indicators = SuccessIndicator::all();
-    
+
         // Initialize the collection of indicator IDs
         $indicatorIds = collect();
-    
+
         if (!empty($divisionIds)) {
+
             // Filter indicators based on the divisionIds
             $filteredIndicators = $indicators->filter(function ($indicator) use ($divisionIds) {
                 $indicatorDivisionIds = json_decode($indicator->division_id, true);
                 return !empty(array_intersect($divisionIds, $indicatorDivisionIds));
             });
-    
+
+            $userIds = User::where(function($query) use ($divisionIds) {
+                foreach ($divisionIds as $divisionId) {
+                    $query->orWhereJsonContains('division_id', $divisionId);
+                }
+            })->pluck('id');
+
+            $userIdsArray = $userIds->toArray();
+
             $indicatorIds = $filteredIndicators->pluck('id');
         } else {
             $indicatorIds = $indicators->pluck('id');
         }
-    
+
+        // If no matching indicators, do not show organizational outcomes
+        if ($indicatorIds->isEmpty()) {
+            return PDF::loadView('generate.pdf', compact('orgOutcomes', 'entries', 'divisionIds'))
+            ->setPaper('a4', 'landscape')->stream('OPCR-RO5.pdf');
+        }
+
         // Fetch organizational outcomes with their success indicators based on filters
-        $orgOutcomes = Organizational::with(['successIndicators' => function($query) use ($year, $period, $indicatorIds) {
+        $orgOutcomes = Organizational::with(['successIndicators' => function($query) use ($year, $period, $indicatorIds, $divisionIds) {
             if ($indicatorIds->isNotEmpty()) {
-                $query->whereIn('id', $indicatorIds); 
+                $query->whereIn('id', $indicatorIds);
             }
             if ($year) {
                 $query->whereYear('created_at', $year);
@@ -103,11 +125,12 @@ class ReportController extends Controller
                 $months = $this->getMonthsForPeriod($period);
                 $query->whereIn(DB::raw('MONTH(created_at)'), $months);
             }
+
         }])
-        ->where(function($query) use ($year, $period, $indicatorIds) {
-            $query->whereHas('successIndicators', function($query) use ($year, $period, $indicatorIds) {
+        ->where(function($query) use ($year, $period, $indicatorIds, $divisionIds) {
+            $query->whereHas('successIndicators', function($query) use ($year, $period, $indicatorIds, $divisionIds) {
                 if ($indicatorIds->isNotEmpty()) {
-                    $query->whereIn('id', $indicatorIds); 
+                    $query->whereIn('id', $indicatorIds);
                 }
                 if ($year) {
                     $query->whereYear('created_at', $year);
@@ -116,15 +139,16 @@ class ReportController extends Controller
                     $months = $this->getMonthsForPeriod($period);
                     $query->whereIn(DB::raw('MONTH(created_at)'), $months);
                 }
+
             });
             // ->orWhereDoesntHave('successIndicators');
         })
-        ->orderBy('order','ASC') 
+        ->orderBy('order','ASC')
         ->get();
-    
+
         // Fetch entries based on filters
         if (Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP') {
-            $entries = Entries::whereYear('created_at', $year)
+            $entry = Entries::whereYear('created_at', $year)
                         ->when($period, function($query) use ($period) {
                             $months = $this->getMonthsForPeriod($period);
                             $query->whereIn(DB::raw('MONTH(created_at)'), $months);
@@ -134,8 +158,16 @@ class ReportController extends Controller
                                 $query->where('province', $province);
                             });
                         })
-                        ->get()
-                        ->groupBy('indicator_id');
+                        ->when($userIdsArray, function($query) use ($userIdsArray) {
+                            $query->whereIn('user_id', $userIdsArray);
+                        });
+
+            $entries = $entry->get()
+            ->groupBy(function($entry) {
+                return [$entry->indicator_id, $entry->created_at->format('m')]; // Group by indicator and month
+            });
+            $entryCount = $entry->count();
+
         }else{
             $entries = Entries::whereYear('created_at', $year)
                 ->where('created_by', Auth::user()->user_name)
@@ -152,13 +184,13 @@ class ReportController extends Controller
                 ->groupBy('indicator_id');
 
         }
-                    
-        $pdf = PDF::loadView('generate.pdf', compact('orgOutcomes', 'entries', 'divisionIds'))
+
+        $pdf = PDF::loadView('generate.pdf', compact('orgOutcomes', 'entries', 'divisionIds', 'entryCount'))
                 ->setPaper('a4', 'landscape');
-    
+
         return $pdf->stream('OPCR-RO5.pdf');
     }
-    
+
 
     private function getMonthsForPeriod($period)
     {

@@ -18,17 +18,22 @@ class ProfileController extends Controller
     public function index()
     {
         $user=Auth::user();
-       
+
         $currentYear = Carbon::now()->format('Y');
         $currentUser = Auth::user();
-        $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+        $entriesCount = SuccessIndicator::whereNull('deleted_at')
+        ->whereHas('org', function ($query) {
+            $query->where('status', 'Active');
+        })
+        ->with('org')
+        ->whereYear('created_at', $currentYear);
 
         $indicators = $entriesCount->get();
-        
+
         $userDivisionIds = json_decode($currentUser->division_id, true);
         $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
             $indicatorDivisionIds = json_decode($indicator->division_id, true);
-            
+
             return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
         });
 
@@ -53,7 +58,7 @@ class ProfileController extends Controller
                                         ->exists();
                 return !$completedEntries;
             });
-          
+
             // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
         $entriesCount = $filteredIndicators->count();
         return view('profile.profile', compact('user', 'entriesCount'));
@@ -171,7 +176,7 @@ class ProfileController extends Controller
             $user->save();
 
             return response()->json(['success' => true, 'message' => 'Two Factor Authentication Disabled Successfully.']);
-       
+
     }
 }
 

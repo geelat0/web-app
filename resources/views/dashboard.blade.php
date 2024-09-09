@@ -42,13 +42,13 @@
     @endcan
 
     @can('access_pending_entries')
-        <div class="row mb">
-            <div class="col-md-12">
+        <div class="row mb-3">
+            <div class="col-md-6">
                 <div class="card" style="width: 100%; margin-bottom: 1rem;">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h3 class="card-title">Pending Entries</h3>
+                                <h4 class="card-title">Pending Entries For {{\Carbon\Carbon::create()->month($targetMonth)->format('F')}}</h4>
                                 <h3 id="entriesCount" class="{{ $entriesCount == 0 ? 'text-info' : 'text-danger' }} mt-1">
                                     {{ $entriesCount }}
                                 </h3>
@@ -60,10 +60,25 @@
                     </div>
                 </div>
             </div>
-           
+            <div class="col-md-6">
+                <div class="card" style="width: 100%; margin-bottom: 1rem;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4 class="card-title">Completed Entries For {{\Carbon\Carbon::create()->month($targetMonth)->format('F')}}</h4>
+                                <h3 id="CompleteEntriesCount" class="text-primary mt-1">
+                                    {{ $CompleteEntriesCount }}
+                                </h3>
+                            </div>
+                            <div>
+                                <i class="bx bx-task text-primary dash-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     @endcan
-    
 
     {{-- </div> --}}
     @if(Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP')
@@ -114,6 +129,10 @@
             </div>
         </div>
     </div>
+
+
+    @endif
+    
     <div class="row">
         <div class="col">
             <div class="card">
@@ -131,7 +150,8 @@
             </div>
         </div>
     </div>
-    @endif
+
+
 </div>
 @endsection
 
@@ -148,6 +168,7 @@
                     $('#roleCount').text(data.roleCount);
                     $('#entriesCount').text(data.entriesCount);
                     $('#loggedInUsersCount').text(data.loggedInUsersCount);
+                    $('#CompleteEntriesCount').text(data.CompleteEntriesCount);
                 }
             });
         }

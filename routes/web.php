@@ -41,7 +41,7 @@ Route::middleware(['auth_check'])->group(function () {
             Route::post('temp-password', [UserController::class, 'temp_password'])->name('users.temp-password')->middleware('permission:manage_users');
             Route::post('proxy', [UserController::class, 'proxy'])->name('users.gen-proxy')->middleware('permission:manage_users');
             Route::post('users/change-status', [UserController::class, 'changeStatus'])->name('users.change-status')->middleware('permission:manage_users');
-            Route::get('getDivision', [UserController::class, 'getDivision'])->name('getDivision')->middleware('permission:manage_users');
+            Route::get('getDivision', [UserController::class, 'getDivision'])->name('getDivision');
 
             Route::get('roles', [RoleController::class, 'roles'])->middleware('permission:manage_roles');
             Route::get('role/list', [RoleController::class, 'list'])->name('role.list')->middleware('permission:manage_roles');
@@ -83,7 +83,7 @@ Route::middleware(['auth_check'])->group(function () {
         Route::get('indicator/list', [IndicatorController::class, 'list'])->name('indicator.list')->middleware('permission:manage_indicator');
         Route::get('indicator_create', [IndicatorController::class, 'create'])->name('indicator.create')->middleware('permission:manage_indicator');
         Route::get('indicator_edit', [IndicatorController::class, 'edit'])->name('indicator.edit')->middleware('permission:manage_indicator');
-        Route::get('indicator/getDivision', [IndicatorController::class, 'getDivision'])->name('indicator.getDivision')->middleware('permission:manage_indicator');
+        Route::get('indicator/getDivision', [IndicatorController::class, 'getDivision'])->name('indicator.getDivision');
         Route::post('indicator/store', [IndicatorController::class, 'store'])->name('indicator.store')->middleware('permission:manage_indicator');
         Route::match(['post', 'put'], 'indicator/update', [IndicatorController::class, 'update'])->name('indicator.update')->middleware('permission:manage_indicator');
         Route::match(['post', 'put'], 'indicator/update_2', [IndicatorController::class, 'update_nonSuperAdmin'])->name('indicator.update_nonSuperAdmin')->middleware('permission:manage_indicator');
