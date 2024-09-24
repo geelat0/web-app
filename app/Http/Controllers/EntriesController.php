@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Division;
 use App\Models\Entries;
 use App\Models\Role;
 use App\Models\SuccessIndicator;
@@ -121,8 +122,64 @@ class EntriesController extends Controller
 
             // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
         $entriesCount = $filteredIndicators->count();
+        // $entries_id = $entries->id;
+        // dd($entries_id);
 
         return view('entries.create', compact('user', 'entries', 'fileUrl', 'entriesCount'));
+    }
+
+    public function getMeasureDetails(Request $request)
+    {
+        $id = $request->input('id');
+
+        $user = User::find(Auth::id());
+        $userDivisionIds = json_decode($user->division_id, true); // Get the user's division IDs
+        $measure = SuccessIndicator::findOrFail($id);
+
+        $measureDivisionIds = json_decode($measure->division_id, true); // Get the measure's division IDs
+
+        // Filter measureDivisionIds to only include those in userDivisionIds
+        $filteredDivisionIds = array_intersect($measureDivisionIds, $userDivisionIds);
+
+        $filteredDivisionIds = array_values($filteredDivisionIds);
+
+        $division_targets = [];
+        $division_budget = [];
+
+        foreach ($filteredDivisionIds as $division_id) {
+            $division = Division::find($division_id);
+            $cleanedDivisionName = preg_replace('/\s*PO$/', '', $division->division_name);
+
+            $column_name = "{$cleanedDivisionName}_target";
+            $division_targets[$division_id] = $measure->$column_name ?? '';
+
+            $column_name_budget = "{$cleanedDivisionName}_budget";
+            $division_budget[$division_id] = $measure->$column_name_budget ?? '';
+            $division_name[$division_id] = $division->division_name;
+        }
+
+        $divisions = [];
+        if (is_array($userDivisionIds)) {
+            $divisions = Division::whereIn('id', $filteredDivisionIds)->get(['id', 'division_name']);
+
+            $divisionData = $divisions->map(function ($division) {
+                return [
+                    'id' => $division->id,
+                    'division_name' => $division->division_name
+                ];
+            });
+        }
+
+        $data = [
+            'measure' => $measure,
+            'division_ids' => $filteredDivisionIds, // Return the filtered division IDs
+            'division_targets' => $division_targets,
+            'division_budget' => $division_budget,
+            'divisions' => $divisionData ?? [],
+            'division_name' => $division_name,
+        ];
+
+        return response()->json($data);
     }
 
     public function edit(Request $request){
@@ -189,6 +246,7 @@ class EntriesController extends Controller
         $id = $request->query('id');
 
         $entries = Entries::find(Crypt::decrypt($id));
+        $indicator = SuccessIndicator::find($entries->indicator_id);
 
         if ($entries && $entries->file) {
             // Decode the Base64 file to get the original contents
@@ -240,7 +298,27 @@ class EntriesController extends Controller
 
             // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
         $entriesCount = $filteredIndicators->count();
-        return view('entries.view', compact('user', 'entries', 'fileUrl', 'entriesCount'));
+
+        $indicatorDivisionIds = json_decode($indicator->division_id, true);
+        $indicatorDivisionIds = array_map('intval', $indicatorDivisionIds);
+
+        // Keep only the divisions that match the user's divisions
+        $filteredDivisionIds = array_intersect($userDivisionIds, $indicatorDivisionIds);
+
+        foreach ($filteredDivisionIds as $division_id) {
+            $division = Division::find($division_id);
+            $cleanedDivisionName = preg_replace('/\s*PO$/', '', $division->division_name);
+            $column_name = "{$cleanedDivisionName}_target";
+            $division_targets[$division_id] = $entries->$column_name ?? '';
+
+            $column_name_accomplishment = "{$cleanedDivisionName}_accomplishment";
+            $division_accomplishment[$division_id] = $entries->$column_name_accomplishment ?? '';
+        }
+
+        $division_ids = $filteredDivisionIds;
+
+
+        return view('entries.view', compact('user', 'entries', 'fileUrl', 'entriesCount', 'indicator', 'division_ids', 'division_targets', 'division_accomplishment', 'entriesCount'));
     }
 
 
@@ -512,7 +590,8 @@ class EntriesController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'indicator_id' => 'required|exists:success_indc,id',
-            'accomplishment' => 'required|string',
+            'total_accomplishment' => 'required',
+            'accomplishment_text' => 'required',
             'file' => 'required|file|mimes:pdf|max:2048',
         ]);
 
@@ -545,8 +624,15 @@ class EntriesController extends Controller
             'indicator_id' => $request->input('indicator_id'),
             'file' => $base64File, // Store the Base64 string directly
             'months' => $targetMonth,
+            'Albay_accomplishment' => str_replace(['[', ']', '"'], '', json_encode($request->input('Albay_accomplishment') ?? 0)),
+            'Camarines_Sur_accomplishment' => str_replace(['[', ']', '"'], '', json_encode($request->input('Camarines_Sur_accomplishment') ?? 0)),
+            'Camarines_Norte_accomplishment' => str_replace(['[', ']', '"'], '', json_encode($request->input('Camarines_Norte_accomplishment') ?? 0)),
+            'Catanduanes_accomplishment' => str_replace(['[', ']', '"'], '', json_encode($request->input('Catanduanes_accomplishment') ?? 0)),
+            'Masbate_accomplishment' => str_replace(['[', ']', '"'], '', json_encode($request->input('Masbate_accomplishment') ?? 0)),
+            'Sorsogon_accomplishment' => str_replace(['[', ']', '"'], '', json_encode($request->input('Sorsogon_accomplishment') ?? 0)),
             'year' => $current_Year,
-            'accomplishment' => trim($request->input('accomplishment')),
+            'total_accomplishment' => $request->total_accomplishment,
+            'accomplishment_text' => trim($request->accomplishment_text) ,
             'user_id' => Auth::user()->id,
             'created_by' => Auth::user()->user_name,
         ]);

@@ -6,7 +6,7 @@
     <div class="d-flex justify-content-start mb-4">
         <i class='bx bxs-filter-alt text-primary' id="filterIcon" style="cursor: pointer; font-size: 30px;"></i>
     </div>
-    
+
     <!-- Filters Section (Hidden by Default) -->
     <div id="filtersSection" class="hidden">
         <div class="row mb-3 justify-content-center">
@@ -38,7 +38,7 @@
             </div>
         </div>
     </div>
-    
+
     @endcan
 
     @can('access_pending_entries')
@@ -132,7 +132,7 @@
 
 
     @endif
-    
+
     <div class="row">
         <div class="col">
             <div class="card">
@@ -175,7 +175,7 @@
 
         // Fetch dashboard data on page load
         fetchDashboardData();
-        setInterval(fetchDashboardData, 30000);
+        setInterval(fetchDashboardData, 7500);
 
         $('#filterIcon').click(function() {
             $('#filtersSection').toggleClass('hidden');
@@ -267,7 +267,7 @@
         }
 
         // Reload table every 1 minute (60000 milliseconds)
-        setInterval(reloadTable, 30000);
+        setInterval(reloadTable, 7500);
         console.log('here');
 
     });

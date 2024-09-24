@@ -56,7 +56,7 @@
             <span class="badge {{ $entriesCount == 0 ? 'bg-info' : 'bg-danger'}}  badge-notifications p-1 fs-8">{{$entriesCount}}</span>
             @endcan
           </a>
-        </li> 
+        </li>
         @endcan
 
         @can('generate-reports')
@@ -65,7 +65,7 @@
             <i class='menu-icon tf-icons bx bxs-file-export'></i>
             <div class="text-truncate" data-i18n="Page 2">Generate Report</div>
           </a>
-        </li> 
+        </li>
         @endcan
 
         @if(auth()->user()->can('manage-user-management') || auth()->user()->can('manage-roles') || auth()->user()->can('view-history') || auth()->user()->can('view-permissions'))
@@ -93,8 +93,8 @@
           </a>
         </li>
         @endcan
-       
-        @can('manage-user-management') 
+
+        @can('manage-user-management')
         <li class="menu-item {{ request()->is('user') ? 'active' : '' }}">
           <a href="/user" class="menu-link">
             <i class='menu-icon tf-icons bx bx-group'></i>
@@ -102,6 +102,7 @@
           </a>
         </li>
         @endcan
+        
         @can('view-history')
         <li class="menu-item" {{ request()->is('login_in') ? 'active' : '' }}>
           <a href="/login_in" class="menu-link">
@@ -110,6 +111,6 @@
           </a>
         </li>
         @endcan
-          
+
       </ul>
   </aside>

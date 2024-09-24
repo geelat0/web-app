@@ -791,7 +791,7 @@ class IndicatorController extends Controller
         $data = SuccessIndicator::where('status', 'Active')
             ->whereNull('deleted_at')
             ->where('measures', 'like', "%{$searchTerm}%")
-            ->get(['id', 'measures', 'division_id'])
+            ->get(['id', 'measures', 'division_id', 'target'])
             ->filter(function($indicator) use ($userDivisionIds) {
                 $indicatorDivisionIds = json_decode($indicator->division_id, true);
                 $indicatorDivisionIds = array_map('intval', $indicatorDivisionIds);
@@ -800,6 +800,20 @@ class IndicatorController extends Controller
             ->values(); // Re-index the array
 
         return response()->json($data);
+    }
+
+    public function getIndicatorById($id)
+    {
+        $indicator = SuccessIndicator::find($id);
+
+        if ($indicator) {
+            return response()->json([
+                'id' => $indicator->id,
+                'text' => '(' . $indicator->target . ') ' . $indicator->measures
+            ]);
+        } else {
+            return response()->json([], 404);
+        }
     }
 
 }

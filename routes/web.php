@@ -91,6 +91,7 @@ Route::middleware(['auth_check'])->group(function () {
         Route::get('indicator_view', [IndicatorController::class, 'view'])->name('indicator.view')->middleware('permission:manage_indicator');
         Route::post('indicator/destroy', [IndicatorController::class, 'destroy'])->name('indicator.destroy')->middleware('permission:manage_indicator');
         Route::get('getIndicator', [IndicatorController::class, 'getIndicator'])->name('getIndicator')->middleware('permission:manage_indicator');
+        Route::get('/getIndicatorById/{id}', [IndicatorController::class, 'getIndicatorById'])->name('indicator.getById');
 
         Route::get('getMeasureDetails', [IndicatorController::class, 'getMeasureDetails'])->name('indicator.getMeasureDetails')->middleware('permission:manage_indicator');
 
@@ -106,10 +107,14 @@ Route::middleware(['auth_check'])->group(function () {
         Route::get('entries/completed_list', [EntriesController::class, 'completed_list'])->name('entries.completed_list')->middleware('permission:access_entries');
         Route::get('entries/getIndicator', [EntriesController::class, 'getIndicator'])->name('entries.getIndicator')->middleware('permission:access_entries');
 
+        Route::get('getMeasureDetails', [EntriesController::class, 'getMeasureDetails'])->name('entries.getMeasureDetails')->middleware('permission:access_entries');
+
+
 
         Route::get('generate', [ReportController::class, 'index'])->name('generate')->middleware('permission:access_report_generation');
         Route::post('/generate-pdf', [ReportController::class, 'generatePDF'])->name('generate.pdf')->middleware('permission:access_report_generation');
         Route::get('pdf', [ReportController::class, 'pdf'])->name('show.pdf')->middleware('permission:access_report_generation');
+        Route::get('/export-csv', [ReportController::class, 'export']);
 
 
     });

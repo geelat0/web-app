@@ -75,7 +75,7 @@
                                         {{-- <input type="text" class="form-control capitalize target-input d-none" name="target[]" id="targetDivision_0" aria-describedby="" disabled> --}}
                                         <div class="invalid-feedback" id="targetError_0"></div>
                                     </div>
-                                    
+
                                 </div>
                                 <div class="col">
                                     <div class="form-group" class="required">
@@ -175,9 +175,9 @@ $(document).ready(function() {
                                 </div>
                             </div>
                         </div>
-                        
+
                             <button type="button" class="btn btn-danger btn-sm mt-2 removeOutcomeBtn" data-index="${outcomeIndex}">Remove</button>
-                        
+
                     </div>
                 </div>
             </div>
@@ -317,6 +317,8 @@ $(document).ready(function() {
             .val('Actual');
             $(`#target_${index}`).val('Actual');
         }
+
+
     });
 
     //---------------------------------------------------END JS FOR TARGET TYPE---------------------------------------------------//
@@ -326,8 +328,8 @@ $(document).ready(function() {
 
     function updateTargetFields(index, selectedDivisions) {
         const targetContainer = $(`#targetFields_${index}`);
-        targetContainer.empty(); 
-        
+        targetContainer.empty();
+
         if (selectedDivisions.length > 0) {
             selectedDivisions.forEach((divisionId) => {
                 const divisionName = $(`#division_id_${index} option[value="${divisionId}"]`).text();
@@ -354,7 +356,7 @@ $(document).ready(function() {
 
                     // Enable the target input and attach the input event to calculate total
                     const targetInput = $(`#target_${divisionId}_${index}`);
-                    
+
                     targetInput.on('input', function() {
                         let total = 0;
                         let selectedType = $(`input[name="targetType_${index}"]:checked`).val();
