@@ -126,7 +126,7 @@
                                 @php
                                     $division_ids = json_decode($indicator->division_id);
                                     $filteredDivisionIds = $divisionIds ?? []; // The filtered division IDs from the request
-                                    $groupedEntries = collect($entries[$indicator->id] ?? [])->groupBy('months'); // Grouping accomplishments by month
+                                    $entriesForIndicator = $entries[$indicator->id] ?? collect();
                                 @endphp
                                 @if($index > 0)
                                     <tr>
@@ -179,6 +179,7 @@
                                             @php
                                                 $division = \App\Models\Division::find($divisionId);
                                                 $showDivision = in_array($divisionId, $filteredDivisionIds);
+
                                             @endphp
 
                                             @if($showDivision && $division)
@@ -223,7 +224,7 @@
 
                                     @if(empty($filteredDivisionIds))
                                         <!-- If no division is filtered, show the target and measures -->
-                                        {{ '(' .($entry->sum('total_accomplishment')) . ')' . ' ' . $indicator->measures }}
+                                        {{ '(' .($entriesForIndicator->sum('total_accomplishment')) . ')' . ' ' . $indicator->measures }}
                                     @else
                                         <!-- If division is filtered, show the specific budget based on division -->
                                         @foreach($division_ids as $divisionId)
@@ -234,25 +235,25 @@
 
                                             @if($showDivision && $division)
                                                 @if($division->division_name === 'Albay PO')
-                                                {{ '(' .($entry->sum('Albay_accomplishment')) . ')' . ' ' . $indicator->measures }}
+                                                {{ '(' .($entriesForIndicator->sum('Albay_accomplishment')) . ')' . ' ' . $indicator->measures }}
 
                                                 @elseif($division->division_name === 'Camarines Norte PO')
-                                                {{ '(' . ($entry->sum('Camarines_Norte_accomplishment'))  . ')' . ' ' . $indicator->measures }}
+                                                {{ '(' . ($entriesForIndicator->sum('Camarines_Norte_accomplishment'))  . ')' . ' ' . $indicator->measures }}
 
                                                 @elseif($division->division_name === 'Camarines Sur PO')
-                                                {{ '(' . ($entry->sum('Camarines_Sur_accomplishment')) . ')' . ' ' . $indicator->measures }}
+                                                {{ '(' . ($entriesForIndicator->sum('Camarines_Sur_accomplishment')) . ')' . ' ' . $indicator->measures }}
 
                                                 @elseif($division->division_name === 'Catanduanes PO')
-                                                {{ '(' . ($entry->sum('Catanduanes_accomplishment'))   . ')' . ' ' . $indicator->measures }}
+                                                {{ '(' . ($entriesForIndicator->sum('Catanduanes_accomplishment'))   . ')' . ' ' . $indicator->measures }}
 
                                                 @elseif($division->division_name === 'Masbate PO')
-                                                {{ '(' . ($entry->sum('Masbate_accomplishment') ) . ')' . ' ' . $indicator->measures }}
+                                                {{ '(' . ($entriesForIndicator->sum('Masbate_accomplishment') ) . ')' . ' ' . $indicator->measures }}
 
                                                 @elseif($division->division_name === 'Sorsogon PO')
-                                                {{ '(' . ($entry->sum('Sorsogon_accomplishment'))   . ')' . ' ' . $indicator->measures }}
+                                                {{ '(' . ($entriesForIndicator->sum('Sorsogon_accomplishment'))   . ')' . ' ' . $indicator->measures }}
 
                                                 @else
-                                                {{ number_format($entry->sum('total_accomplishment')) }}
+                                                {{ number_format($entriesForIndicator->sum('total_accomplishment')) }}
                                                 @endif
                                             @endif
                                         @endforeach

@@ -10,6 +10,8 @@
         "barryvdh/laravel-dompdf": "^3.0",
         "laravel/framework": "^11.9",
         "laravel/tinker": "^2.9",
+        "maatwebsite/excel": "^1.1",
+        "phpoffice/phpspreadsheet": "^2.2",
         "pragmarx/google2fa-qrcode": "^3.0",
         "yajra/laravel-datatables-oracle": "^11.1"
     },

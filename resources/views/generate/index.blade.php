@@ -5,7 +5,7 @@
 
 <div class="row">
     <div class="col">
-        
+
     </div>
 </div>
 
@@ -19,6 +19,18 @@
                 <div class="row">
                     <div class="col">
                         <form id="GenerateForm">
+                            <div class="form-group mb-3">
+                                <label for="">File Type:</label>
+                                <div class="form-check form-check-inline excel">
+                                    <input class="form-check-input" type="radio" name="fileType" id="excel" value="excel">
+                                    <label class="form-check-label" for="excel">excel</label>
+                                  </div>
+                                  <div class="form-check form-check-inline pdf">
+                                    <input class="form-check-input" type="radio" name="fileType" id="pdf" value="pdf">
+                                    <label class="form-check-label" for="pdf">pdf</label>
+                                  </div>
+                            </div>
+
                             @csrf
                             {{-- <div class="form-group mb-4">
                                 <label for="flatpickr-date" class="form-label">Select a date range</label>
@@ -45,14 +57,14 @@
                                         <option value="Q3">Q3 (Jul-Sep)</option>
                                         <option value="Q4">Q4 (Oct-Dec)</option>
                                     </optgroup>
-                                    <optgroup label="Semestral">
+                                    <optgroup label="Semestral" id="semestral-optgroup">
                                         <option value="H1">S1 (Jan-Jun)</option>
                                         <option value="H2">S2 (Jul-Dec)</option>
                                     </optgroup>
                                 </select>
                             </div>
 
-                            <div class="form-group mb-3 me-3">
+                            <div class="form-group mb-3 me-3 d-none" id= "division">
                                 <label for="division_id">Division</label>
                                 <select id="division_id" class="division-select form-select" name="division_id[]">
                                 </select>
@@ -60,7 +72,8 @@
                             </div>
 
                             <div class="d-flex justify-content-end">
-                                <button type="submit" class="btn btn-primary">Generate Report</button>
+                                <button type="submit" class="btn btn-primary pdf-button" style="display: none;">Generate PDF</button>
+                                <button type="submit" class="btn btn-primary excel-button" style="display: none;">Generate Excel</button>
                             </div>
                         </form>
                     </div>
@@ -81,11 +94,11 @@
             onChange: function(selectedDates, dateStr, instance) {
                 // Check if both start and end dates are selected
                 if (selectedDates.length === 2) {
-                      
+
                 }
             }
         });
-        
+
         $('#GenerateForm').on('submit', function(e) {
             e.preventDefault();
             showLoader();
@@ -135,6 +148,60 @@
                 }
             });
         });
+
+        $('.excel-button').on('click', function(e) {
+            e.preventDefault();
+            showLoader();
+
+            var year = $('#year').val();
+            var divisions = $('#division_id').val();
+
+            if (year === "") {
+                hideLoader();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Year Required',
+                    text: 'Please select a year before generating the report.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            var formData = $('#GenerateForm').serialize();
+
+            $.ajax({
+                url: '{{ route('export') }}',
+                type: 'GET',
+                data: formData,
+                xhrFields: {
+                    _token: '{{ csrf_token() }}',
+                    responseType: 'blob'
+                },
+                success: function(blob) {
+                    hideLoader();
+
+                    var filename =year +'-Physical Accomplishment.xlsx';
+                    var link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = filename;
+                    link.click();
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'The report has been generated and downloaded.',
+                        showConfirmButton: true,
+                        confirmButtonText: 'OK'
+                    });
+                },
+                error: function(xhr) {
+                    hideLoader();
+                    console.log(xhr);
+                }
+            });
+        });
+
 </script>
 
 
@@ -168,5 +235,37 @@
     }
     initializeDivisionSelect();
 
+</script>
+
+
+<script>
+    $(document).ready(function() {
+        var semestralOptgroup = $('#semestral-optgroup').detach();
+        $('#division').removeClass('d-none');
+
+        // On radio button change event
+        $('input[name="fileType"]').on('change', function() {
+            var selectedType = $('input[name="fileType"]:checked').val();
+
+            // Show corresponding button based on the selected radio button
+            if (selectedType === 'excel') {
+                $('.excel-button').show();
+                $('.pdf-button').hide();
+                $('#semestral-optgroup').remove();
+
+                $('#division').addClass('d-none');
+
+            } else if (selectedType === 'pdf') {
+                $('.pdf-button').show();
+                $('.excel-button').hide();
+
+                if (!$('#semestral-optgroup').length) {
+                    $('#period').append(semestralOptgroup);
+                }
+                $('#division').removeClass('d-none');
+
+            }
+        });
+    });
 </script>
 @endsection

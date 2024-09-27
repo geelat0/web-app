@@ -52,5 +52,10 @@ class SuccessIndicator extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function entries()
+    {
+        return $this->belongsTo(Entries::class);
+    }
+
 
 }
