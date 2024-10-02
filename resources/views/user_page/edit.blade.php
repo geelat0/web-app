@@ -43,13 +43,13 @@
                         <div class="col-md-6">
                             <div class="form-group mb-3">
                                 <label for="edit_email" class="required">Email</label>
-                                <input type="email" class="form-control" id="edit_email" name="email">
+                                <input type="email" class="form-control" id="edit_email" name="email" placeholder="@gmail.com">
                                 <div class="invalid-feedback" id="emailError"></div>
                             </div>
         
                             <div class="form-group mb-3">
                                 <label for="edit_contactNumber" class="required">Mobile Number</label>
-                                <input type="text" class="form-control" id="edit_contactNumber" name="mobile_number">
+                                <input type="text" class="form-control" id="edit_contactNumber" name="mobile_number" placeholder="09+">
                                 <div class="invalid-feedback" id="mobile_numberError"></div>
                             </div>
         

@@ -77,7 +77,7 @@
     <div class="header">
         <div class="header_page">
             Republic of the Philippines
-        </div> 
+        </div>
         <div class="subheader">
             Department of Labor and Employment
         </div>
@@ -95,7 +95,7 @@
                     <th rowspan="2">Division/Individuals Accountable</th>
                     <th rowspan="2">Actual Accomplishment</th>
                     <th colspan="4">Rating</th>
-                    <th rowspan="2">Remarks</th>
+                    <th rowspan="2" style="width: 15%;">Remarks</th>
                 </tr>
                 <tr class="rating-header">
                     <th>Q1</th>
@@ -126,6 +126,7 @@
                                 @php
                                     $division_ids = json_decode($indicator->division_id);
                                     $filteredDivisionIds = $divisionIds ?? []; // The filtered division IDs from the request
+                                    $entriesForIndicator = $entries[$indicator->id] ?? collect();
                                 @endphp
                                 @if($index > 0)
                                     <tr>
@@ -145,22 +146,22 @@
                                             @if($showDivision && $division)
                                                 @if($division->division_name === 'Albay PO')
                                                 {{ '(' .($indicator->Albay_target  == 0 ? 'Actual' : $indicator->Albay_target ) . ')' . ' ' . $indicator->measures }}
-                                               
+
                                                 @elseif($division->division_name === 'Camarines Norte PO')
                                                 {{ '(' . ($indicator->Camarines_Norte_target == 0 ? 'Actual' : $indicator->Camarines_Norte_target)  . ')' . ' ' . $indicator->measures }}
 
                                                 @elseif($division->division_name === 'Camarines Sur PO')
                                                 {{ '(' . ($indicator->Camarines_Sur_target == 0 ? 'Actual' :  $indicator->Camarines_Sur_target) . ')' . ' ' . $indicator->measures }}
-                                                
+
                                                 @elseif($division->division_name === 'Catanduanes PO')
                                                 {{ '(' . ($indicator->Catanduanes_target == 0 ? 'Actual' : $indicator->Catanduanes_target)   . ')' . ' ' . $indicator->measures }}
-                                                
+
                                                 @elseif($division->division_name === 'Masbate PO')
                                                 {{ '(' . ($indicator->Masbate_target  == 0 ? 'Actual' : $indicator->Masbate_target ) . ')' . ' ' . $indicator->measures }}
-                                                
+
                                                 @elseif($division->division_name === 'Sorsogon PO')
                                                 {{ '(' . ($indicator->Sorsogon_target== 0 ? 'Actual' : $indicator->Sorsogon_target)   . ')' . ' ' . $indicator->measures }}
-                                                
+
                                                 @else
                                                 {{ '(' . ($indicator->target == 0 ? 'Actual' : $indicator->target) . ')' . ' ' . $indicator->measures }}
                                                 @endif
@@ -178,27 +179,28 @@
                                             @php
                                                 $division = \App\Models\Division::find($divisionId);
                                                 $showDivision = in_array($divisionId, $filteredDivisionIds);
+
                                             @endphp
 
                                             @if($showDivision && $division)
                                                 @if($division->division_name === 'Albay PO')
                                                 {{ number_format($indicator->Albay_budget, 2) }}
-                                               
+
                                                 @elseif($division->division_name === 'Camarines Norte PO')
                                                 {{ number_format($indicator->Camarines_Norte_budget, 2) }}
 
                                                 @elseif($division->division_name === 'Camarines Sur PO')
                                                 {{ number_format($indicator->Camarines_Sur_budget, 2) }}
-                                                
+
                                                 @elseif($division->division_name === 'Catanduanes PO')
                                                 {{ number_format($indicator->Catanduanes_budget, 2) }}
-                                                
+
                                                 @elseif($division->division_name === 'Masbate PO')
                                                 {{ number_format($indicator->Masbate_budget, 2) }}
-                                                
+
                                                 @elseif($division->division_name === 'Sorsogon PO')
                                                 {{ number_format($indicator->Sorsogon_budget, 2) }}
-                                                
+
                                                 @else
                                                 {{ number_format($indicator->alloted_budget, 2) }}
                                                 @endif
@@ -214,16 +216,54 @@
                                         @endphp
 
                                         @if($showDivision && $division)
-                                            {{ $division->division_name }}<br>
+                                            {{ $division->division_name }},<br>
                                         @endif
                                     @endforeach
                                 </td>
                                 <td>
-                                    @if(isset($entries[$indicator->id]))
-                                        @foreach($entries[$indicator->id] as $entry)
-                                            {{ $entry->accomplishment }}<br>
+
+                                    @if(empty($filteredDivisionIds))
+                                        <!-- If no division is filtered, show the target and measures -->
+                                        {{ '(' .($entriesForIndicator->sum('total_accomplishment')) . ')' . ' ' . $indicator->measures }}
+                                    @else
+                                        <!-- If division is filtered, show the specific budget based on division -->
+                                        @foreach($division_ids as $divisionId)
+                                            @php
+                                                $division = \App\Models\Division::find($divisionId);
+                                                $showDivision = in_array($divisionId, $filteredDivisionIds);
+                                            @endphp
+
+                                            @if($showDivision && $division)
+                                                @if($division->division_name === 'Albay PO')
+                                                {{ '(' .($entriesForIndicator->sum('Albay_accomplishment')) . ')' . ' ' . $indicator->measures }}
+
+                                                @elseif($division->division_name === 'Camarines Norte PO')
+                                                {{ '(' . ($entriesForIndicator->sum('Camarines_Norte_accomplishment'))  . ')' . ' ' . $indicator->measures }}
+
+                                                @elseif($division->division_name === 'Camarines Sur PO')
+                                                {{ '(' . ($entriesForIndicator->sum('Camarines_Sur_accomplishment')) . ')' . ' ' . $indicator->measures }}
+
+                                                @elseif($division->division_name === 'Catanduanes PO')
+                                                {{ '(' . ($entriesForIndicator->sum('Catanduanes_accomplishment'))   . ')' . ' ' . $indicator->measures }}
+
+                                                @elseif($division->division_name === 'Masbate PO')
+                                                {{ '(' . ($entriesForIndicator->sum('Masbate_accomplishment') ) . ')' . ' ' . $indicator->measures }}
+
+                                                @elseif($division->division_name === 'Sorsogon PO')
+                                                {{ '(' . ($entriesForIndicator->sum('Sorsogon_accomplishment'))   . ')' . ' ' . $indicator->measures }}
+
+                                                @else
+                                                {{ number_format($entriesForIndicator->sum('total_accomplishment')) }}
+                                                @endif
+                                            @endif
                                         @endforeach
                                     @endif
+                                    {{-- @foreach($groupedEntries as $month => $monthlyEntries)
+                                        <strong>{{ \Carbon\Carbon::create()->month($month)->format('F') }}:</strong><br>
+                                        @foreach($monthlyEntries as $entry)
+                                            {{ $entry->accomplishment }}<br><br>
+                                        @endforeach
+                                    @endforeach --}}
                                 </td>
                                 <td></td>
                                 <td></td>
@@ -240,5 +280,6 @@
     <div class="footer">
         <span class="page-number"></span>
     </div>
+
 </body>
 </html>

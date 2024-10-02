@@ -19,17 +19,22 @@ class OutcomeController extends Controller
     public function index(){
 
         $user=Auth::user();
-        
+
         $currentYear = Carbon::now()->format('Y');
         $currentUser = Auth::user();
-        $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+        $entriesCount = SuccessIndicator::whereNull('deleted_at')
+            ->whereHas('org', function ($query) {
+                $query->where('status', 'Active');
+            })
+            ->with('org')
+            ->whereYear('created_at', $currentYear);
 
         $indicators = $entriesCount->get();
-        
+
         $userDivisionIds = json_decode($currentUser->division_id, true);
         $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
             $indicatorDivisionIds = json_decode($indicator->division_id, true);
-            
+
             return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
         });
 
@@ -54,7 +59,7 @@ class OutcomeController extends Controller
                                     ->exists();
             return !$completedEntries;
         });
-          
+
             // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
         $entriesCount = $filteredIndicators->count();
         return view('outcome.index', compact('user', 'entriesCount'));
@@ -109,11 +114,11 @@ class OutcomeController extends Controller
         }, 'The :input has already been taken.');
 
         $validator = Validator::make($request->all(), [
-           
+
             'organizational_outcome.*' => 'required|string|max:255|unique_with_soft_delete:org_otc,organizational_outcome',
             'order.*' => 'required',
             'status' => 'required|string',
-           
+
         ]);
 
         if ($validator->fails()) {
@@ -174,7 +179,7 @@ class OutcomeController extends Controller
         $ifExist = SuccessIndicator::whereNull('deleted_at')->where('org_id', Crypt::decrypt($request->id))->exists();
 
         if($ifExist){
-            
+
             return response()->json(['success' => false, 'errors' => 'The Organizational Outcome is being used on Indicator table']);
         }
 

@@ -125,7 +125,7 @@
                     action: function (e, dt, node, config) {
                         $('#createRoleModal').modal('show');
 
-                        $('#createRoleForm').on('submit', function(e) {
+                        $('#createRoleForm').off('submit').on('submit', function(e) {
                             e.preventDefault();
                             showLoader();
                             // Handle form submission, e.g., via AJAX
@@ -145,6 +145,8 @@
                                                 showConfirmButton: true,
                                             })
                                             table.ajax.reload();
+                                            table.buttons('.user_btn').disable(); // Disable all user buttons
+                                            table.buttons('.btn-success').enable(); // Enable only the "Add" button
                                         }
                                         else{
 
@@ -155,12 +157,16 @@
                                                 $('#createRoleForm #' + key + 'Error').text(errors[key][0]);
                                             });
                                             hideLoader();
+                                            table.buttons('.user_btn').disable(); // Disable all user buttons
+                                            table.buttons('.btn-success').enable(); // Enable only the "Add" button
                                         }
                                 },
                                 error: function(xhr) {
                                     hideLoader();
                                     // Handle error
                                     console.log(xhr.responseText);
+                                    table.buttons('.user_btn').disable(); // Disable all user buttons
+                                    table.buttons('.btn-success').enable(); // Enable only the "Add" button
                                 }
                             });
                         });
@@ -198,6 +204,8 @@
                                             })
 
                                             table.ajax.reload();
+                                            table.buttons('.user_btn').disable(); // Disable all user buttons
+                                            table.buttons('.btn-success').enable(); // Enable only the "Add" button
 
                                         } else {
                                             var errors = response.errors;
@@ -207,11 +215,15 @@
                                                 $('#editRoleForm #' + key + 'Error').text(errors[key][0]);
                                             });
                                             hideLoader();
+                                            table.buttons('.user_btn').disable(); // Disable all user buttons
+                                            table.buttons('.btn-success').enable(); // Enable only the "Add" button
                                         }
                                     },
                                     error: function(xhr) {
                                         hideLoader();
                                         console.log(xhr.responseText);
+                                        table.buttons('.user_btn').disable(); // Disable all user buttons
+                                        table.buttons('.btn-success').enable(); // Enable only the "Add" button
                                     }
                             });
                         });
@@ -268,6 +280,8 @@
                                                 'success'
                                             );
                                             table.ajax.reload();
+                                            table.buttons('.user_btn').disable(); // Disable all user buttons
+                                            table.buttons('.btn-success').enable(); // Enable only the "Add" button
                                         } else {
                                             var errorMessage = '';
                                             Object.keys(response.errors).forEach(function(key) {
@@ -279,11 +293,15 @@
                                                 title: 'Deletion Failed',
                                                 html: response.errors
                                             });
+                                            table.buttons('.user_btn').disable(); // Disable all user buttons
+                                            table.buttons('.btn-success').enable(); // Enable only the "Add" button
                                         }
                                     },
                                     error: function(xhr) {
                                         hideLoader();
                                         console.log(xhr.responseText);
+                                        table.buttons('.user_btn').disable(); // Disable all user buttons
+                                        table.buttons('.btn-success').enable(); // Enable only the "Add" button
                                     }
                                 });
                             }

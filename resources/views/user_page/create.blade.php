@@ -44,12 +44,12 @@
                         <div class="col-md-6">
                             <div class="form-group mb-3">
                                 <label for="email" class="required">Email</label>
-                                <input type="text" class="form-control" id="email" aria-describedby="" name="email">
+                                <input type="text" class="form-control" id="email" aria-describedby="" name="email" placeholder="@gmail.com">
                                 <div class="invalid-feedback" id="emailError"></div>
                             </div>
                             <div class="form-group mb-3">
                                 <label for="contactNumber" class="required">Mobile Number</label>
-                                <input type="text" class="form-control" id="contactNumber" name="mobile_number">
+                                <input type="text" class="form-control" id="contactNumber" name="mobile_number" placeholder="09+">
                                 <div class="invalid-feedback" id="mobile_numberError"></div>
                             </div>
                             <div class="form-group mb-3" style="">

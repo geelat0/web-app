@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class SuccessIndicator extends Model
 {
     use HasFactory, SoftDeletes;
-    
+
     protected $table = 'success_indc';
 
     protected $fillable = [
@@ -52,5 +52,10 @@ class SuccessIndicator extends Model
         return $this->belongsTo(User::class);
     }
 
-    
+    public function entries()
+    {
+        return $this->belongsTo(Entries::class);
+    }
+
+
 }

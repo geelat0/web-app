@@ -25,7 +25,7 @@ class UserController extends Controller
 {
 
     protected $redirectTo = '/dash-home';
-    
+
     // public function create()
     // {
     //     return view('auth.register');
@@ -34,17 +34,22 @@ class UserController extends Controller
     public function user_create()
     {
         $user=Auth::user();
-       
+
         $currentYear = Carbon::now()->format('Y');
         $currentUser = Auth::user();
-        $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+        $entriesCount = SuccessIndicator::whereNull('deleted_at')
+            ->whereHas('org', function ($query) {
+                $query->where('status', 'Active');
+            })
+            ->with('org')
+            ->whereYear('created_at', $currentYear);
 
         $indicators = $entriesCount->get();
-        
+
         $userDivisionIds = json_decode($currentUser->division_id, true);
         $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
             $indicatorDivisionIds = json_decode($indicator->division_id, true);
-            
+
             return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
         });
 
@@ -69,7 +74,7 @@ class UserController extends Controller
                                     ->exists();
             return !$completedEntries;
         });
-          
+
             // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
         $entriesCount = $filteredIndicators->count();
 
@@ -79,18 +84,18 @@ class UserController extends Controller
     public function list(Request $request)
     {
         $query = User::with(['role', 'division'])->whereNull('deleted_at')->orderBy('created_at', 'desc');
-    
+
         if ($request->has('date_range') && !empty($request->date_range)) {
             [$startDate, $endDate] = explode(' to ', $request->date_range);
             $startDate = Carbon::createFromFormat('m/d/Y', $startDate)->startOfDay();
             $endDate = Carbon::createFromFormat('m/d/Y', $endDate)->endOfDay();
-    
+
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
         if ($request->has('search') && !empty($request->search)) {
             $searchTerm = $request->search;
-    
+
             if (strpos($searchTerm, ' ') !== false) {
                 [$firstName, $lastName] = explode(' ', $searchTerm, 2);
                 $query->whereHas('role', function($subQuery) use ($firstName, $lastName) {
@@ -109,9 +114,9 @@ class UserController extends Controller
                 });
             }
         }
-    
+
         $users = $query->get();
-    
+
         return DataTables::of($users)
             ->addColumn('id', function($user) {
                 return Crypt::encrypt($user->id);
@@ -190,8 +195,9 @@ class UserController extends Controller
             'mobile_number' => [
                             'required',
                             'string',
-                            
+
                             'max:255',
+                            'regex:/^09\d{9}$/', // Ensures the number starts with 09 and is followed by 9 digits
                             Rule::unique('users')->whereNull('deleted_at'),
                         ],
             'email' => [
@@ -249,7 +255,7 @@ class UserController extends Controller
             'mobile_number' => [
                             'required',
                             'string',
-                            
+                            'regex:/^09\d{9}$/',
                             'max:255',
                             Rule::unique('users')->whereNull('deleted_at')->ignore($id),
                         ],
@@ -269,13 +275,13 @@ class UserController extends Controller
             'division_id.required' => 'The division field is required',
             'division_id.*.exists' => 'The selected division is invalid',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json(['success' => false, 'errors' => $validator->errors()], 200);
         }
-    
+
         $user = User::findOrFail($id);
-        
+
         $user->first_name = ucfirst($request->first_name);
         $user->last_name = ucfirst($request->last_name);
         $user->middle_name = ucfirst($request->middle_name);
@@ -290,10 +296,10 @@ class UserController extends Controller
         $user->status = 'Active';
         $user->created_by = Auth::user()->user_name;
         $user->save();
-    
+
         return response()->json(['success' => true, 'message' => 'User updated successfully']);
     }
-    
+
     public function destroy(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -307,7 +313,7 @@ class UserController extends Controller
         $ifExist = Entries::whereNull('deleted_at')->where('user_id', Crypt::decrypt($request->id))->exists();
 
         if($ifExist){
-            
+
             return response()->json(['success' => false, 'errors' => 'The user has existing entries, Cannot be deleted']);
         }
 
@@ -341,7 +347,7 @@ class UserController extends Controller
         $randomString = Str::random(10);
 
         $user->proxy_password = Hash::make($randomString);
-        
+
         $loginS = new LoginModel();
         $loginS->status = 'Proxy Logged In';
         $loginS->user_id =$user->id;
@@ -401,7 +407,7 @@ class UserController extends Controller
             $divisionIds = json_decode($user->division_id, true);
             if (is_array($divisionIds)) {
                 $divisions = Division::whereIn('id', $divisionIds)->get(['id', 'division_name']);
-                
+
                 $divisionData = $divisions->map(function ($division) {
                     return [
                         'id' => $division->id,
