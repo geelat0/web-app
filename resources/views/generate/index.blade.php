@@ -47,7 +47,7 @@
                                 </select>
                             </div>
 
-                            <div class="form-group mb-3 me-3">
+                            <div class="form-group mb-3 me-3 d-none" id="period">
                                 <label for="period">Period</label>
                                 <select id="period" class="form-select" name="period">
                                     <option value="">Select Period</option>
@@ -240,8 +240,9 @@
 
 <script>
     $(document).ready(function() {
-        var semestralOptgroup = $('#semestral-optgroup').detach();
+        // var semestralOptgroup = $('#semestral-optgroup').detach();
         $('#division').removeClass('d-none');
+        $('#period').removeClass('d-none');
 
         // On radio button change event
         $('input[name="fileType"]').on('change', function() {
@@ -254,15 +255,17 @@
                 $('#semestral-optgroup').remove();
 
                 $('#division').addClass('d-none');
+                $('#period').addClass('d-none');
 
             } else if (selectedType === 'pdf') {
                 $('.pdf-button').show();
                 $('.excel-button').hide();
 
-                if (!$('#semestral-optgroup').length) {
-                    $('#period').append(semestralOptgroup);
-                }
+                // if (!$('#semestral-optgroup').length) {
+                //     $('#period').append(semestralOptgroup);
+                // }
                 $('#division').removeClass('d-none');
+                $('#period').removeClass('d-none');
 
             }
         });
