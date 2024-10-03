@@ -160,8 +160,8 @@
             var id = e.params.data.id;
             const user_id = @json(Auth::user()->id);
             const selectedDivisions = $(this).val();
-            
-            @if(!in_array(Auth::user()->role->name, ['IT', 'SAP']))
+
+            @if(!in_array(Auth::user()->role->name, ['IT', 'Admin']))
             $.ajax({
                 url: '{{ route('indicator.getMeasureDetails') }}',
                 method: 'GET',
@@ -172,11 +172,11 @@
 
                     // const divisionIds = Object.keys(response.division_targets);
                     $('#division_id_0').val(divisionIds).trigger('change');
-                
+
                     $('#target').val(response.measure.target);
                     $('#alloted_budget').val(response.measure.alloted_budget)
-                    $('#months_0').val(response.measure.months); 
-                    $('#measure_id').val(response.measure.id); 
+                    $('#months_0').val(response.measure.months);
+                    $('#measure_id').val(response.measure.id);
                     $('#division_id_0').val(null).change();
 
 
@@ -237,7 +237,7 @@
 
             const divisionNames = new Set();
             const initialBudget = parseFloat($(`#alloted_budget`).val()) || 0;
-            
+
             if (selectedDivisions.length > 0) {
                 selectedDivisions.forEach((divisionId) => {
                     const divisionName = $(`#division_id_${index} option[value="${divisionId}"]`).text();
@@ -266,7 +266,7 @@
                                 </div>
                             `;
                             targetContainer.append(targetHtml);
-                        
+
                             const targetInput = $(`#target_${divisionId}_${index}`);
                             targetInput.on('input', function() {
                                 let total = 0;
@@ -306,7 +306,7 @@
                 });
             }
         }
-        
+
 
         $('#NewIndicatorForm').on('submit', function(e) {
             e.preventDefault();

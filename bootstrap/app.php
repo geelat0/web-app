@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\CheckPermission;
+use App\Http\Middleware\Handle419Error;
 use App\Http\Middleware\NotAuthenticated;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\SuperAdminMiddleware;
@@ -18,18 +19,22 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
 
         $middleware->appendToGroup('guest', [
-            RedirectIfAuthenticated::class,        
+            RedirectIfAuthenticated::class,
         ]);
 
         $middleware->appendToGroup('auth_check', [
-            NotAuthenticated::class,        
+            NotAuthenticated::class,
         ]);
         $middleware->appendToGroup('2fa', [
-            Verify2FA::class,        
+            Verify2FA::class,
         ]);
 
         $middleware->appendToGroup('superadmin', [
-            SuperAdminMiddleware::class        
+            SuperAdminMiddleware::class
+        ]);
+
+        $middleware->appendToGroup('419', [
+            Handle419Error::class
         ]);
 
         $middleware->alias([
@@ -37,7 +42,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
 
-        
+
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

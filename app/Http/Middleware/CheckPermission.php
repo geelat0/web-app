@@ -17,10 +17,10 @@ class CheckPermission
     public function handle(Request $request, Closure $next, string $permissions): Response
     {
 
-        if (Auth::check() && Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP') {
+        if (Auth::check() && Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'Admin') {
             return $next($request);
         }
-        
+
         if (!Auth::user()->role->hasPermission($permissions)) {
             // If not, return a 403 Forbidden response
             abort(403, 'Unauthorized action.');

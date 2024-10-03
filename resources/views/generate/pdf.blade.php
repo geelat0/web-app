@@ -253,7 +253,7 @@
                                                 {{ '(' . ($entriesForIndicator->sum('Sorsogon_accomplishment'))   . ')' . ' ' . $indicator->measures }}
 
                                                 @else
-                                                {{ number_format($entriesForIndicator->sum('total_accomplishment')) }}
+                                                {{ number_format($entriesForIndicator->sum('total_accomplishment')) . ' ' . $indicator->measures }}
                                                 @endif
                                             @endif
                                         @endforeach

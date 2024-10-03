@@ -16,7 +16,7 @@ class SuperAdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP') {
+        if (Auth::check() && Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'Admin') {
             return $next($request);
         }
 

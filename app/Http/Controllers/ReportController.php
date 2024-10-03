@@ -156,7 +156,7 @@ class ReportController extends Controller
         ->get();
 
         // Fetch entries based on filters
-        if (Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP') {
+        if (Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'Admin') {
             $entry = Entries::whereYear('created_at', $year)
                         ->when($period, function($query) use ($period) {
                             $months = $this->getMonthsForPeriod($period);
@@ -1418,9 +1418,17 @@ class ReportController extends Controller
                         $sheet1->setCellValue('G' . $row, '=SUM(D' . $row . ':F' . $row . ')');  //QTR.TOTAL
                         $sheet1->setCellValue('H' . $row, '=SUM(D' . $row . ':F' . $row . ')'); //ACCOMPLISHMENT: ANNUAL TOTAL
                         $sheet1->setCellValue('I' . $row, '=(G' . $row . '/C' . $row . ')'); // percenatge QTR
-                        $sheet1->setCellValue('J' . $row, '=(G' . $row . '/B' . $row . ')'); //Percenatge Annual
+
+                        if(is_numeric($indicator->target) ){
+                            $sheet1->setCellValue('J' . $row, '=(G' . $row . '/B' . $row . ')'); //Percenatge Annual
+                            $sheet1->setCellValue('L' . $row, '=(B' . $row . '-H' . $row . ')'); //  Annual BALANCE
+                        }else{
+                            // $sheet1->setCellValue('I' . $row, '#Div/0!'); // percenatge QTR
+                            // $sheet1->setCellValue('J' . $row, '#Div/0!'); //Percenatge Annual
+
+                        }
                         $sheet1->setCellValue('K' . $row, '=(C' . $row . '-G' . $row . ')'); //  QTR BALANCE
-                        $sheet1->setCellValue('L' . $row, '=(B' . $row . '-H' . $row . ')'); //  Annual BALANCE
+
                         $sheet1->getStyle('I' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
                         $sheet1->getStyle('J' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
 
@@ -1464,7 +1472,7 @@ class ReportController extends Controller
 
                             $entries = Entries::where('indicator_id', $indicator->id)
                             ->whereYear('created_at', $year)
-                            ->whereIn(DB::raw('MONTH(created_at)'), $this->getMonthsForPeriod($quarterOne))
+                            ->whereIn('months', $this->getMonthsForPeriod($quarterOne))
                             ->get();
 
                             // Initialize month accomplishments for the current division
@@ -1489,12 +1497,22 @@ class ReportController extends Controller
                                 $sheet1->setCellValue($columnLetter . $row, $accomplishmentsByMonth[$month]); // Set accomplishment in the correct column
                             }
 
+                            $sheet1->setCellValue('C' . $row, '=SUM(D' . $row . ':F' . $row . ')'); //1st QUARTER
+
                             $sheet1->setCellValue('G' . $row, '=SUM(D' . $row . ':F' . $row . ')'); //QTR.TOTAL
                             $sheet1->setCellValue('H' . $row, '=SUM(D' . $row . ':F' . $row . ')'); // //ACCOMPLISHMENT: ANNUAL TOTAL
                             $sheet1->setCellValue('I' . $row, '=(G' . $row . '/C' . $row . ')'); // percenatge QTR
-                            $sheet1->setCellValue('J' . $row, '=(G' . $row . '/B' . $row . ')'); //Percenatge Annual
+                            if(is_numeric($indicator->target) ){
+                                $sheet1->setCellValue('J' . $row, '=(G' . $row . '/B' . $row . ')'); //Percenatge Annual
+                                $sheet1->setCellValue('L' . $row, '=(B' . $row . '-H' . $row . ')'); //  Annual BALANCE
+
+                            }else{
+
+                                // $sheet1->setCellValue('I' . $row, '#Div/0!'); // percenatge QTR
+                                // $sheet1->setCellValue('J' . $row, '#Div/0!'); //Percenatge Annual
+
+                            }
                             $sheet1->setCellValue('K' . $row, '=(C' . $row . '-G' . $row . ')'); //  QTR BALANCE
-                            $sheet1->setCellValue('L' . $row, '=(B' . $row . '-H' . $row . ')'); //  Annual BALANCE
                             $sheet1->getStyle('I' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
                             $sheet1->getStyle('J' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
 
@@ -1695,7 +1713,7 @@ class ReportController extends Controller
 
                         $entries = Entries::where('indicator_id', $indicator->id)
                         ->whereYear('created_at', $year)
-                        ->whereIn(DB::raw('MONTH(created_at)'), $this->getMonthsForPeriod($QuarterTwo))
+                        ->whereIn('months', $this->getMonthsForPeriod($QuarterTwo))
                         ->get();
 
 
@@ -1925,7 +1943,7 @@ class ReportController extends Controller
 
                         $entries = Entries::where('indicator_id', $indicator->id)
                         ->whereYear('created_at', $year)
-                        ->whereIn(DB::raw('MONTH(created_at)'), $this->getMonthsForPeriod($QuarterThree))
+                        ->whereIn('months', $this->getMonthsForPeriod($QuarterThree))
                         ->get();
 
 
@@ -2149,7 +2167,7 @@ class ReportController extends Controller
 
                         $entries = Entries::where('indicator_id', $indicator->id)
                         ->whereYear('created_at', $year)
-                        ->whereIn(DB::raw('MONTH(created_at)'), $this->getMonthsForPeriod($QuarterFour))
+                        ->whereIn('months', $this->getMonthsForPeriod($QuarterFour))
                         ->get();
 
 

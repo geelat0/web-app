@@ -19,7 +19,7 @@
                         </p>
                     </div>
                     <div class="col d-flex justify-content-end mb-3" >
-    
+
                         <div id="table-buttons" class="d-flex">
                             <!-- Buttons will be appended here -->
                         </div>
@@ -70,7 +70,7 @@
             onChange: function(selectedDates, dateStr, instance) {
                 // Check if both start and end dates are selected
                 if (selectedDates.length === 2) {
-                    table.ajax.reload(null, false);  
+                    table.ajax.reload(null, false);
                 }
             }
         });
@@ -115,7 +115,7 @@
                         var selectedData = dt.row({ selected: true }).data();
 
                         if (selectedData && selectedData.id) {
-                           
+
                             window.location.href = `/indicator_edit?id=${selectedData.id}`;
                             console.log(selectedData.id);
                         } else {
@@ -134,7 +134,7 @@
                         var selectedData = dt.row({ selected: true }).data();
 
                         if (selectedData && selectedData.id) {
-                        
+
                             window.location.href = `/indicator_view?id=${selectedData.id}`;
                             console.log(selectedData.id);
                         } else {
@@ -142,7 +142,7 @@
                         }
                     }
                 },
-                @if(in_array(Auth::user()->role->name, ['IT', 'SAP']))
+                @if(in_array(Auth::user()->role->name, ['IT', 'Admin']))
                 {
                     text: 'Delete',
                     className: 'btn btn-danger user_btn',
@@ -208,7 +208,7 @@
 
             columns: [
                 { data: 'id', name: 'id', title: 'ID', visible: false },
-                
+
                 { data: 'org_id', name: 'org_id', title: 'Organizational Outcome'},
                 { data: 'measures', name: 'measures', title: 'Measure', className: 'wrap-text' },
                 { data: 'target', name: 'target', title: 'Target' },

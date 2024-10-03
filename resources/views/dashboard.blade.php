@@ -2,44 +2,44 @@
 
 @section('content')
 <div class="container">
-    @can('filter_dashboard')
-    <div class="d-flex justify-content-start mb-4">
-        <i class='bx bxs-filter-alt text-primary' id="filterIcon" style="cursor: pointer; font-size: 30px;"></i>
-    </div>
+    {{-- @can('filter_dashboard')
+        <div class="d-flex justify-content-start mb-4">
+            <i class='bx bxs-filter-alt text-primary' id="filterIcon" style="cursor: pointer; font-size: 30px;"></i>
+        </div>
 
-    <!-- Filters Section (Hidden by Default) -->
-    <div id="filtersSection" class="hidden">
-        <div class="row mb-3 justify-content-center">
-            <div class="col">
-                <div class="input-group">
-                    <input type="text" class="form-control" placeholder="YYYY-MM-DD to YYYY-MM-DD" id="flatpickr-range" />
+        <!-- Filters Section (Hidden by Default) -->
+        <div id="filtersSection" class="hidden">
+            <div class="row mb-3 justify-content-center">
+                <div class="col">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="YYYY-MM-DD to YYYY-MM-DD" id="flatpickr-range" />
+                    </div>
                 </div>
-            </div>
-            <div class="col">
-                <div class="input-group">
-                    <select id="month" class="form-select">
-                        <option value="">Select Month</option>
-                        @for ($i = 1; $i <= 12; $i++)
-                            <option value="{{ $i }}">{{ date('F', mktime(0, 0, 0, $i, 10)) }}</option>
-                        @endfor
-                    </select>
+                <div class="col">
+                    <div class="input-group">
+                        <select id="month" class="form-select">
+                            <option value="">Select Month</option>
+                            @for ($i = 1; $i <= 12; $i++)
+                                <option value="{{ $i }}">{{ date('F', mktime(0, 0, 0, $i, 10)) }}</option>
+                            @endfor
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <div class="col">
-                <div class="input-group">
-                    <select id="year" class="form-select">
-                        <option value="">Select Year</option>
-                        @for ($i = date('Y'); $i >= 2020; $i--)
-                            <option value="{{ $i }}">{{ $i }}</option>
-                        @endfor
-                    </select>
-                    <button class="btn btn-primary" id="filterBtn"> <i class="mdi mdi-filter-outline"></i> Filter</button>
+                <div class="col">
+                    <div class="input-group">
+                        <select id="year" class="form-select">
+                            <option value="">Select Year</option>
+                            @for ($i = date('Y'); $i >= 2020; $i--)
+                                <option value="{{ $i }}">{{ $i }}</option>
+                            @endfor
+                        </select>
+                        <button class="btn btn-primary" id="filterBtn"> <i class="mdi mdi-filter-outline"></i> Filter</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    @endcan
+    @endcan --}}
 
     @can('access_pending_entries')
         <div class="row mb-3">
@@ -78,78 +78,100 @@
                 </div>
             </div>
         </div>
+
+
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        {{-- <h3 class="card-title">Pending Entries</h3> --}}
+
+                    {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
+                    </p>
+                    <div class="table-responsive pt-3">
+                        <table id="pending-table"  class="table table-striped" style="width: 100%">
+                        <tbody>
+                        </tbody>
+                        </table>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
     @endcan
 
     {{-- </div> --}}
-    @if(Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'SAP')
-    <div class="row mb-3">
-        <div class="col-md-4">
-            <div class="card" style="width: 100%; margin-bottom: 1rem;">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h3 class="card-title">Roles</h3>
-                            <h3 id="roleCount">{{ $roleCount }}</h3>
+    @if(Auth::user()->role->name === 'IT')
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <div class="card" style="width: 100%; margin-bottom: 1rem;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="card-title">Roles</h3>
+                                <h3 id="roleCount">{{ $roleCount }}</h3>
+                            </div>
+                            <div>
+                                <i class="bx bxs-purchase-tag text-success dash-icon"></i>
+                            </div>
                         </div>
-                        <div>
-                            <i class="bx bxs-purchase-tag text-success dash-icon"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card" style="width: 100%; margin-bottom: 1rem;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="card-title">Users</h3>
+                                <h3 id="userCount">{{ $userCount }}</h3>
+                            </div>
+                            <div>
+                                <i class="bx bxs-user text-primary dash-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card" style="width: 100%; margin-bottom: 1rem;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="card-title">Login</h3>
+                                <h3 id="loggedInUsersCount">{{ $loggedInUsersCount ?  $loggedInUsersCount : 0}}</h3>
+                            </div>
+                            <div>
+                                <i class='bx bx-history text-warning dash-icon'></i>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card" style="width: 100%; margin-bottom: 1rem;">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h3 class="card-title">Users</h3>
-                            <h3 id="userCount">{{ $userCount }}</h3>
-                        </div>
-                        <div>
-                            <i class="bx bxs-user text-primary dash-icon"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card" style="width: 100%; margin-bottom: 1rem;">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h3 class="card-title">Login</h3>
-                            <h3 id="loggedInUsersCount">{{ $loggedInUsersCount ?  $loggedInUsersCount : 0}}</h3>
-                        </div>
-                        <div>
-                            <i class='bx bx-history text-warning dash-icon'></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title">Who's login now?</h3>
+                    {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
+                    </p>
+                    <div class="table-responsive pt-3">
+                        <table id="login-table"  class="table table-striped" style="width: 100%">
+                        <tbody>
+                        </tbody>
+                        </table>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     @endif
 
-    <div class="row">
-        <div class="col">
-            <div class="card">
-                <div class="card-body">
-                    <h3 class="card-title">Who's login now?</h3>
-                  {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
-                  </p>
-                  <div class="table-responsive pt-3">
-                    <table id="login-table"  class="table table-striped" style="width: 100%">
-                      <tbody>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-            </div>
-        </div>
-    </div>
+
 
 
 </div>
@@ -221,36 +243,63 @@
         });
 
         var table;
-
-        table = $('#login-table').DataTable({
+        table = $('#pending-table').DataTable({
             responsive: true,
             processing: false,
             serverSide: true,
             pageLength: 30,
-            lengthChange: true,
+            lengthChange: false,
             paging: false,
             ordering: false,
             scrollY: 400,
             // select: {
-            //     style: 'single',
+            //     style: 'single'
             // },
-            ajax: {
-                url: '{{ route('Loginlist') }}',
+             ajax: {
+                url: '{{ route('entries.list') }}',
                 data: function(d) {
                     // Include the date range in the AJAX request
-                    d.date_range = $('#flatpickr-range').val();
+                    d.date_range = $('#date-range-picker').val();
                     d.search = $('#search-input').val();
                 },
             },
+            buttons: [
+
+            ],
 
             columns: [
-                // { data: 'id', name: 'id', title: 'ID', visible: false },
-                { data: 'user', name: 'user', title: 'Name' },
-                { data: 'user_name', name: 'user_name', title: 'User Name' },
-                { data: 'position', name: 'position', title: 'Position' },
-                { data: 'role', name: 'role', title: 'Role' },
-                // { data: 'last_activity', name: 'last_activity', title: 'last_activity' },
-                // { data: 'time_in', name: 'time_in', title: 'Time in' },
+                { data: 'id', name: 'id', title: 'ID', visible: false },
+                { data: 'org_id', name: 'org_id', title: 'Organizational Outcome' },
+                { data: 'indicator_id', name: 'indicator_id', title: 'Indicator'},
+                // { data: 'accomplishment', name: 'accomplishment', title: 'Accomplishment'},
+                { data: 'months', name: 'months', title: 'Month', className: 'wrap-text' },
+                { data: 'year', name: 'year', title: 'Year', className: 'wrap-text' },
+
+                {
+                    data: 'file',
+                    name: 'file',
+                    title: 'File',
+                    render: function(data, type, row) {
+                        if (data) {
+                            // Assuming 'data' is the Base64 encoded string
+                            return `
+                                <a href="#" class="file-preview"
+                                data-file="${data}"
+                                data-toggle="modal"
+                                data-target="#fileModal">
+                                    <i class="bx bx-file"></i> Preview
+                                </a>`;
+                        } else {
+                            return 'No File';
+                        }
+                    },
+                    orderable: false,
+                    searchable: false
+                },
+                { data: 'responsible_user', name: 'responsible_user', title: 'Responsible User' },
+                { data: 'status', name: 'status', title: 'Status' },
+                { data: 'created_at', name: 'created_at', title: 'Created At' },
+                { data: 'created_by', name: 'created_by', title: 'Created By' },
             ],
 
             language: {
@@ -259,17 +308,67 @@
                 searchPlaceholder: "Search..." // Set placeholder text
             },
 
-            dom: '<"d-flex justify-content-between flex-wrap">rtip',  // Adjust DOM layout
+            dom: '<"d-flex justify-content-between flex-wrap"B>rtip',
+            createdRow: function(row, data, dataIndex) {
+                $(row).find('td:eq(1)').addClass('wrap-text');
+            }
         });
 
-        function reloadTable() {
-            table.ajax.reload(null, false); // Reloads the table data without resetting pagination
-        }
-
-        // Reload table every 1 minute (60000 milliseconds)
-        setInterval(reloadTable, 7500);
-        console.log('here');
-
     });
+</script>
+
+<script>
+
+</script>
+
+<script>
+    var table;
+    table = $('#login-table').DataTable({
+        responsive: true,
+        processing: false,
+        serverSide: true,
+        pageLength: 30,
+        lengthChange: true,
+        paging: false,
+        ordering: false,
+        scrollY: 400,
+        // select: {
+        //     style: 'single',
+        // },
+        ajax: {
+            url: '{{ route('Loginlist') }}',
+            data: function(d) {
+                // Include the date range in the AJAX request
+                d.date_range = $('#flatpickr-range').val();
+                d.search = $('#search-input').val();
+            },
+        },
+
+        columns: [
+            // { data: 'id', name: 'id', title: 'ID', visible: false },
+            { data: 'user', name: 'user', title: 'Name' },
+            { data: 'user_name', name: 'user_name', title: 'User Name' },
+            { data: 'position', name: 'position', title: 'Position' },
+            { data: 'role', name: 'role', title: 'Role' },
+            // { data: 'last_activity', name: 'last_activity', title: 'last_activity' },
+            // { data: 'time_in', name: 'time_in', title: 'Time in' },
+        ],
+
+        language: {
+            emptyTable: "No data found",
+            search: "", // Remove "Search:" label
+            searchPlaceholder: "Search..." // Set placeholder text
+        },
+
+        dom: '<"d-flex justify-content-between flex-wrap">rtip',  // Adjust DOM layout
+    });
+
+    function reloadTable() {
+        table.ajax.reload(null, false); // Reloads the table data without resetting pagination
+    }
+
+    // Reload table every 1 minute (60000 milliseconds)
+    setInterval(reloadTable, 7500);
+    console.log('here');
 </script>
 @endsection

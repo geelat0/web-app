@@ -17,28 +17,28 @@ class RoleSeeder extends Seeder
             [
                 'name'=> 'IT',
                 'created_by'=> 'IT',
-                
+
             ]
           );
         Role::create(
             [
-                'name'=> 'SAP',
+                'name'=> 'Admin',
                 'created_by'=> 'IT',
-                
+
             ]
           );
         Role::create(
             [
                 'name'=> 'Budget Office',
                 'created_by'=> 'IT',
-                
+
             ]
           );
         Role::create(
             [
                 'name'=> 'Planning',
                 'created_by'=> 'IT',
-                
+
             ]
           );
     }

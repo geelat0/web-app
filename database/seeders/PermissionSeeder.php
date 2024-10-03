@@ -14,14 +14,14 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         $permissions = [
-            'filter_dashboard',
+            // 'filter_dashboard',
             'manage_users',
             'manage_roles',
             'manage_permissions',
             'manage_organizational_outcome',
             'manage_indicator',
             'manage_history',
-            'access_entries',
+            'manage_entries',
             'access_pending_entries',
             'access_report_generation',
 

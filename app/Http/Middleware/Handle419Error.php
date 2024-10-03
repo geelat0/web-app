@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class Verify2FA
+class Handle419Error
 {
     /**
      * Handle an incoming request.
@@ -16,16 +16,14 @@ class Verify2FA
      */
     public function handle(Request $request, Closure $next): Response
     {
+        $response = $next($request);
 
-        $user = Auth::user();
-
-        if ($user->is_two_factor_enabled === 1 && $user->is_two_factor_verified === 1) {
-            return redirect('/auth/otp');
+        if ($response->status() === 419) {
+            // Logout the user if the 419 error occurs
+            Auth::logout();
+            return redirect('/login')->withErrors('Session expired. Please log in again.');
         }
 
-        return $next($request);
-
-
+        return $response;
     }
 }
-

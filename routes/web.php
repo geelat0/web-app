@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 // Route::get('/', function () {
 //     return view('welcome');
 // });
-Route::middleware(['auth_check'])->group(function () {
+Route::middleware(['auth_check', '419'])->group(function () {
     Route::middleware(['2fa'])->group(function () {
 
             Route::get('/permissions', [PermissionController::class, 'editPermissions'])->name('roles.permissions.edit')->middleware('permission:manage_permissions');
@@ -96,18 +96,18 @@ Route::middleware(['auth_check'])->group(function () {
         Route::get('getMeasureDetails', [IndicatorController::class, 'getMeasureDetails'])->name('indicator.getMeasureDetails')->middleware('permission:manage_indicator');
 
 
-        Route::get('entries', [EntriesController::class, 'index'])->name('entries')->middleware('permission:access_entries');
-        Route::get('entries_create', [EntriesController::class, 'create'])->name('create')->middleware('permission:access_entries');
-        Route::get('entries_view', [EntriesController::class, 'view'])->name('view')->middleware('permission:access_entries');
-        Route::get('entries_edit', [EntriesController::class, 'edit'])->name('edit')->middleware('permission:access_entries');
-        Route::post('entries/store', [EntriesController::class, 'store'])->name('entries.store')->middleware('permission:access_entries');
-        Route::post('entries/update', [EntriesController::class, 'update'])->name('entries.update')->middleware('permission:access_entries');
-        Route::post('entries/destroy', [EntriesController::class, 'destroy'])->name('entries.destroy')->middleware('permission:access_entries');
-        Route::get('entries/list', [EntriesController::class, 'list'])->name('entries.list')->middleware('permission:access_entries');
-        Route::get('entries/completed_list', [EntriesController::class, 'completed_list'])->name('entries.completed_list')->middleware('permission:access_entries');
-        Route::get('entries/getIndicator', [EntriesController::class, 'getIndicator'])->name('entries.getIndicator')->middleware('permission:access_entries');
+        Route::get('entries', [EntriesController::class, 'index'])->name('entries')->middleware('permission:manage_entries');
+        Route::get('entries_create', [EntriesController::class, 'create'])->name('create')->middleware('permission:manage_entries');
+        Route::get('entries_view', [EntriesController::class, 'view'])->name('view')->middleware('permission:manage_entries');
+        Route::get('entries_edit', [EntriesController::class, 'edit'])->name('edit')->middleware('permission:manage_entries');
+        Route::post('entries/store', [EntriesController::class, 'store'])->name('entries.store')->middleware('permission:manage_entries');
+        Route::post('entries/update', [EntriesController::class, 'update'])->name('entries.update')->middleware('permission:manage_entries');
+        Route::post('entries/destroy', [EntriesController::class, 'destroy'])->name('entries.destroy')->middleware('permission:manage_entries');
+        Route::get('entries/list', [EntriesController::class, 'list'])->name('entries.list')->middleware('permission:manage_entries');
+        Route::get('entries/completed_list', [EntriesController::class, 'completed_list'])->name('entries.completed_list')->middleware('permission:manage_entries');
+        Route::get('entries/getIndicator', [EntriesController::class, 'getIndicator'])->name('entries.getIndicator')->middleware('permission:manage_entries');
 
-        Route::get('getMeasureDetails', [EntriesController::class, 'getMeasureDetails'])->name('entries.getMeasureDetails')->middleware('permission:access_entries');
+        Route::get('getMeasureDetails', [EntriesController::class, 'getMeasureDetails'])->name('entries.getMeasureDetails')->middleware('permission:manage_entries');
 
 
 
@@ -117,12 +117,11 @@ Route::middleware(['auth_check'])->group(function () {
         Route::get('/export', [ReportController::class, 'exportMultipleSheets'])->name('export');
 
 
-    });
+});
 
-    Route::get('auth/otp', [AuthController::class, 'OTP'])->name('auth.otp');
-    Route::post('auth/otp/check', [AuthController::class, 'check'])->name('auth.otp.check');
 
-Route::middleware(['guest'])->group(function () {
+
+Route::middleware(['guest', '419'])->group(function () {
 
     Route::get('/', [AuthController::class, 'index']);
     Route::post('login', [AuthController::class, 'login'])->name('login');
@@ -135,7 +134,8 @@ Route::middleware(['guest'])->group(function () {
 
 });
 
-
+Route::get('auth/otp', [AuthController::class, 'OTP'])->name('auth.otp');
+Route::post('auth/otp/check', [AuthController::class, 'check'])->name('auth.otp.check');
 Route::get('/test', [TestController::class, 'index'])->name('test');
 Route::get('/test_outcome', [TestController::class, 'test_outcome'])->name('test_outcome');
 

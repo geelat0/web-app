@@ -252,7 +252,7 @@
             if (selectedType === 'excel') {
                 $('.excel-button').show();
                 $('.pdf-button').hide();
-                $('#semestral-optgroup').remove();
+                // $('#semestral-optgroup').remove();
 
                 $('#division').addClass('d-none');
                 $('#period').addClass('d-none');

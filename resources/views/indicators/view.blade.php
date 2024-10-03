@@ -13,7 +13,7 @@
                             View</h4>
                         <div class="row">
                             <input type="hidden" name="id" value="{{ $indicator->id }}">
-                            @if(in_array(Auth::user()->role->name, ['IT', 'SAP']))
+                            @if(in_array(Auth::user()->role->name, ['IT', 'Admin']))
                             <div class="form-group">
                                 <label for="org_id" class="required">Organizational Outcome</label>
                                 <select id="org_id" class="form-select capitalize" name="org_id" disabled>
@@ -225,7 +225,7 @@ $(document).ready(function() {
                     const budgetValue = @json($division_budget)[divisionId];
 
                     const displayValue = targetValue == 0 ? 'Actual' : targetValue;
-                  
+
 
                     const targetHtml = `
                         <div class= "col mb-3">
@@ -248,7 +248,7 @@ $(document).ready(function() {
                     // Enable the target input and attach the input event to calculate total
                     const targetInput = $(`#target_${divisionId}_${index}`);
                     if (!isInitialLoad) {
-                        
+
                     } else {
                         const targetValue = $(`#target_${index}`).val();
                         targetInput.val(targetValue).removeAttr('disabled');
@@ -378,7 +378,7 @@ $(document).ready(function() {
     //---------------------------------------------------END JS FOR DIVISION'S INPUTS---------------------------------------------------//
 
     // Form submission
-    @if(in_array(Auth::user()->role->name, ['IT', 'SAP']))
+    @if(in_array(Auth::user()->role->name, ['IT', 'Admin']))
     $('#NewIndicatorForm').on('submit', function(e) {
         e.preventDefault();
         showLoader();
@@ -433,7 +433,7 @@ $(document).ready(function() {
     });
     @endif
 
-    @if(!in_array(Auth::user()->role->name, ['IT', 'SAP']))
+    @if(!in_array(Auth::user()->role->name, ['IT', 'Admin']))
     $('#NewIndicatorForm').on('submit', function(e) {
             e.preventDefault();
             showLoader();

@@ -31,32 +31,32 @@ class GenerateMonthlyEntries extends Command
     {
         $indicators = SuccessIndicator::all();
         $matchingUserIds = [];
-        
+
         // Get all success indicator IDs
         foreach ($indicators as $indicator) {
             $indicatorDivisionIds = json_decode($indicator->division_id, true);
-        
+
             if (is_array($indicatorDivisionIds)) {
 
-                $excludedRoles = Role::whereIn('name', ['IT', 'SAP'])
+                $excludedRoles = Role::whereIn('name', ['IT', 'Admin'])
                 ->pluck('id');
                 // Fetch all users
                 $users = User::whereNotIn('role_id', $excludedRoles)->get();
-        
+
                 foreach ($users as $user) {
                     $userDivisionIds = json_decode($user->division_id, true);
-        
+
                     if (is_array($userDivisionIds)) {
                         $commonDivisions = array_intersect($indicatorDivisionIds, $userDivisionIds);
-        
+
                         if (!empty($commonDivisions)) {
-                            $matchingUserIds[$user->id] = $user->id; 
+                            $matchingUserIds[$user->id] = $user->id;
                         }
                     }
                 }
             }
         }
-        
+
         // Insert into entries table
         foreach ($matchingUserIds as $userId) {
             foreach ($indicators as $indicator) {
