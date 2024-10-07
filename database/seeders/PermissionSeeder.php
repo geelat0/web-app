@@ -22,8 +22,8 @@ class PermissionSeeder extends Seeder
             'manage_indicator',
             'manage_history',
             'manage_entries',
-            'access_pending_entries',
-            'access_report_generation',
+            'manage_pending_entries',
+            'generate_report',
 
             // Add all other necessary permissions
         ];

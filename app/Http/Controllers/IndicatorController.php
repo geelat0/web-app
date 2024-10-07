@@ -435,15 +435,15 @@ class IndicatorController extends Controller
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
-        if ($request->has('search') && !empty($request->search)) {
-            $searchTerm = $request->search;
+        // if ($request->has('search') && !empty($request->search)) {
+        //     $searchTerm = $request->search;
 
-            $query->whereHas('org',function($subQuery) use ($searchTerm) {
-                $subQuery->where('measures', 'like', "%{$searchTerm}%")
-                         ->orWhere('organizational_outcome', 'like', "%{$searchTerm}%")
-                         ->orWhere('target', 'like', "%{$searchTerm}%");
-            });
-        }
+        //     $query->whereHas('org',function($subQuery) use ($searchTerm) {
+        //         $subQuery->where('measures', 'like', "%{$searchTerm}%")
+        //                  ->orWhere('organizational_outcome', 'like', "%{$searchTerm}%")
+        //                  ->orWhere('target', 'like', "%{$searchTerm}%");
+        //     });
+        // }
 
         $indicator = $query->get();
 

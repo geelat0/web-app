@@ -41,7 +41,7 @@
 
     @endcan --}}
 
-    @can('access_pending_entries')
+    @can('manage_pending_entries')
         <div class="row mb-3">
             <div class="col-md-6">
                 <div class="card" style="width: 100%; margin-bottom: 1rem;">

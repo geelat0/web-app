@@ -13,18 +13,16 @@ class TempPasswordMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $password;
-    public $email;
+    public $emailData;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($password, $email)
+    public function __construct($emailData)
     {
-        $this->password = $password;
-        $this->email = $email;
+        $this->emailData = $emailData;
     }
 
     /**
@@ -44,6 +42,9 @@ class TempPasswordMail extends Mailable
     {
         return new Content(
             view: 'emails.temp_password',
+            with: [
+                'emailData' => $this->emailData,
+            ],
         );
     }
 

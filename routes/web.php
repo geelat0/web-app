@@ -111,10 +111,10 @@ Route::middleware(['auth_check', '419'])->group(function () {
 
 
 
-        Route::get('generate', [ReportController::class, 'index'])->name('generate')->middleware('permission:access_report_generation');
-        Route::post('/generate-pdf', [ReportController::class, 'generatePDF'])->name('generate.pdf')->middleware('permission:access_report_generation');
-        Route::get('pdf', [ReportController::class, 'pdf'])->name('show.pdf')->middleware('permission:access_report_generation');
-        Route::get('/export', [ReportController::class, 'exportMultipleSheets'])->name('export');
+        Route::get('generate', [ReportController::class, 'index'])->name('generate')->middleware('permission:generate_report');
+        Route::post('/generate-pdf', [ReportController::class, 'generatePDF'])->name('generate.pdf')->middleware('permission:generate_report');
+        Route::get('pdf', [ReportController::class, 'pdf'])->name('show.pdf')->middleware('permission:generate_report');
+        Route::get('/export', [ReportController::class, 'exportMultipleSheets'])->name('export')->middleware('permission:generate_report');
 
 
 });

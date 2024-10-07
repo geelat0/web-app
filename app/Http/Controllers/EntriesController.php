@@ -379,14 +379,14 @@ class EntriesController extends Controller
         }
 
         // Filter by search term
-        if ($request->has('search') && !empty($request->search)) {
-            $searchTerm = $request->search;
-            $query->where( function($subQuery) use ($searchTerm) {
-                $subQuery->where('target', 'like', "%{$searchTerm}%")
-                         ->orWhere('measures', 'like', "%{$searchTerm}%")
-                         ->orWhere('status', 'like', "%{$searchTerm}%");
-            });
-        }
+        // if ($request->has('search') && !empty($request->search)) {
+        //     $searchTerm = $request->search;
+        //     $query->where( function($subQuery) use ($searchTerm) {
+        //         $subQuery->where('target', 'like', "%{$searchTerm}%")
+        //                  ->orWhere('measures', 'like', "%{$searchTerm}%")
+        //                  ->orWhere('status', 'like', "%{$searchTerm}%");
+        //     });
+        // }
 
         // Fetch all indicators
         $indicators = $query->get();
@@ -479,16 +479,16 @@ class EntriesController extends Controller
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
-        if ($request->has('search') && !empty($request->search)) {
-            $searchTerm = $request->search;
+        // if ($request->has('search') && !empty($request->search)) {
+        //     $searchTerm = $request->search;
 
-            $query->whereHas('indicator',function($subQuery) use ($searchTerm) {
-                $subQuery->where('target', 'like', "%{$searchTerm}%")
-                         ->orWhere('measures', 'like', "%{$searchTerm}%")
-                         ->orWhere('status', 'like', "%{$searchTerm}%");
+        //     $query->whereHas('indicator',function($subQuery) use ($searchTerm) {
+        //         $subQuery->where('target', 'like', "%{$searchTerm}%")
+        //                  ->orWhere('measures', 'like', "%{$searchTerm}%")
+        //                  ->orWhere('status', 'like', "%{$searchTerm}%");
 
-            });
-        }
+        //     });
+        // }
 
         $indicator = $query->get();
 

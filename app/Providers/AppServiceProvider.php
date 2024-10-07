@@ -36,7 +36,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::define('generate-reports', function () {
-            return Auth::user()->role->hasPermission('access_report_generation') || Auth::user()->role->name === 'IT' ||  Auth::user()->role->name === 'Admin';
+            return Auth::user()->role->hasPermission('generate_report') || Auth::user()->role->name === 'IT' ||  Auth::user()->role->name === 'Admin';
         });
 
         Gate::define('manage-user-management', function () {
@@ -58,8 +58,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('view-permissions', function () {
             return Auth::user()->role->hasPermission('manage_permissions') || Auth::user()->role->name === 'IT' ||  Auth::user()->role->name === 'Admin';
         });
-        Gate::define('access_pending_entries', function () {
-            return Auth::user()->role->hasPermission('access_pending_entries') ||  Auth::user()->role->name === 'Admin';
+        Gate::define('manage_pending_entries', function () {
+            return Auth::user()->role->hasPermission('manage_pending_entries') ||  Auth::user()->role->name === 'Admin';
         });
         Gate::define('filter_dashboard', function () {
             return Auth::user()->role->hasPermission('filter_dashboard') || Auth::user()->role->name === 'IT'  ||  Auth::user()->role->name === 'Admin';

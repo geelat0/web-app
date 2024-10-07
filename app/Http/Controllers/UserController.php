@@ -93,27 +93,27 @@ class UserController extends Controller
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
-        if ($request->has('search') && !empty($request->search)) {
-            $searchTerm = $request->search;
+        // if ($request->has('search') && !empty($request->search)) {
+        //     $searchTerm = $request->search;
 
-            if (strpos($searchTerm, ' ') !== false) {
-                [$firstName, $lastName] = explode(' ', $searchTerm, 2);
-                $query->whereHas('role', function($subQuery) use ($firstName, $lastName) {
-                    $subQuery->where('first_name', 'like', "%{$firstName}%")
-                            ->where('last_name', 'like', "%{$lastName}%");
-                });
-            } else {
-                $query->whereHas('role',function($subQuery) use ($searchTerm) {
-                    $subQuery->where('first_name', 'like', "%{$searchTerm}%")
-                            ->orWhere('last_name', 'like', "%{$searchTerm}%")
-                            ->orWhere('user_name', 'like', "%{$searchTerm}%")
-                            ->orWhere('email', 'like', "%{$searchTerm}%")
-                            ->orWhere('position', 'like', "%{$searchTerm}%")
-                            ->orWhere('name', 'like', "%{$searchTerm}%")
-                            ->orWhere('province', 'like', "%{$searchTerm}%");
-                });
-            }
-        }
+        //     if (strpos($searchTerm, ' ') !== false) {
+        //         [$firstName, $lastName] = explode(' ', $searchTerm, 2);
+        //         $query->whereHas('role', function($subQuery) use ($firstName, $lastName) {
+        //             $subQuery->where('first_name', 'like', "%{$firstName}%")
+        //                     ->where('last_name', 'like', "%{$lastName}%");
+        //         });
+        //     } else {
+        //         $query->whereHas('role',function($subQuery) use ($searchTerm) {
+        //             $subQuery->where('first_name', 'like', "%{$searchTerm}%")
+        //                     ->orWhere('last_name', 'like', "%{$searchTerm}%")
+        //                     ->orWhere('user_name', 'like', "%{$searchTerm}%")
+        //                     ->orWhere('email', 'like', "%{$searchTerm}%")
+        //                     ->orWhere('position', 'like', "%{$searchTerm}%")
+        //                     ->orWhere('name', 'like', "%{$searchTerm}%")
+        //                     ->orWhere('province', 'like', "%{$searchTerm}%");
+        //         });
+        //     }
+        // }
 
         $users = $query->get();
 
@@ -324,20 +324,42 @@ class UserController extends Controller
         return response()->json(['success' => true, 'message' => 'User deleted successfully']);
     }
 
-    public function temp_password(Request $request){
+    public function temp_password(Request $request)
+    {
+        try {
+            // Decrypt the ID and find the user
+            $user = User::findOrFail(Crypt::decrypt($request->id));
 
-        $user = User::findOrFail(Crypt::decrypt($request->id));
+            // Generate a random password
+            $randomString = Str::random(10);
 
-        $randomString = Str::random(10);
+            // Update user password
+            $user->is_change_password = 1;
+            $user->password = Hash::make($randomString);
+            $user->save();
 
-        $user->is_change_password = 1;
-        $user->password = Hash::make($randomString);
-        $user->save();
+            // Check if the email is not null and valid
+            if (!empty($user->email)) {
+                $emailData = [
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'created_at' => now()->format('F j, Y'),
+                    'password' => $randomString,
+                    'email' => $user->email,
+                ];
 
-        // Send the temporary password to the user's email
-        Mail::to($user->email)->send(new TempPasswordMail($randomString, $user->email));
+                // Send the email
+                Mail::to($user->email)->send(new TempPasswordMail($emailData));
+            } else {
+                // Handle the case where email is null
+                return response()->json(['success' => false, 'message' => 'Email address is not provided.']);
+            }
 
-        return response()->json(['data' => $randomString, 'success' => true, 'message' => 'Successfully created a temporary password.']);
+            return response()->json(['data' => $randomString, 'success' => true, 'message' => 'Successfully created a temporary password.']);
+        } catch (\Exception $e) {
+            // Catch any exception and return an error message
+            return response()->json(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
+        }
     }
 
     public function proxy(Request $request){

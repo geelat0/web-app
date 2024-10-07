@@ -163,22 +163,22 @@ class LogController extends Controller
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
-        if ($request->has('search') && !empty($request->search)) {
-            $searchTerm = $request->search;
+        // if ($request->has('search') && !empty($request->search)) {
+        //     $searchTerm = $request->search;
 
-            if (strpos($searchTerm, ' ') !== false) {
-                [$firstName, $lastName] = explode(' ', $searchTerm, 2);
-                $query->whereHas('user', function($subQuery) use ($firstName, $lastName) {
-                    $subQuery->where('first_name', 'like', "%{$firstName}%")
-                            ->where('last_name', 'like', "%{$lastName}%");
-                });
-            } else {
-                $query->whereHas('user', function($subQuery) use ($searchTerm) {
-                    $subQuery->where('user_name', 'like', "%{$searchTerm}%");
+        //     if (strpos($searchTerm, ' ') !== false) {
+        //         [$firstName, $lastName] = explode(' ', $searchTerm, 2);
+        //         $query->whereHas('user', function($subQuery) use ($firstName, $lastName) {
+        //             $subQuery->where('first_name', 'like', "%{$firstName}%")
+        //                     ->where('last_name', 'like', "%{$lastName}%");
+        //         });
+        //     } else {
+        //         $query->whereHas('user', function($subQuery) use ($searchTerm) {
+        //             $subQuery->where('user_name', 'like', "%{$searchTerm}%");
 
-                });
-            }
-        }
+        //         });
+        //     }
+        // }
 
         $login_in = $query->get();
         return DataTables::of($login_in)

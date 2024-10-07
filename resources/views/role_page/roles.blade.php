@@ -17,7 +17,7 @@
                       </p>
                   </div>
                   <div class="col d-flex justify-content-end mb-3" >
-      
+
                       <div id="table-buttons" class="d-flex">
                           <!-- Buttons will be appended here -->
                       </div>
@@ -33,7 +33,7 @@
                     </div>
                 </div>
               </div>
-      
+
             </div>
           </div>
 
@@ -45,10 +45,10 @@
     <div class="col">
         <div class="card">
             <div class="card-body">
-      
+
               {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
               </p>
-      
+
               <div class="table-responsive pt-3">
                 <table id="roles-table"  class="table table-striped" style="width: 100%">
                   <tbody>
@@ -70,7 +70,7 @@
 
 <script>
     $(document).ready(function() {
-        
+
 
         var table;
 
@@ -80,8 +80,36 @@
             onChange: function(selectedDates, dateStr, instance) {
                 // Check if both start and end dates are selected
                 if (selectedDates.length === 2) {
-                    table.ajax.reload(null, false);  
+                    // Check if the end date is earlier than or equal to the start date
+                    if (selectedDates[1] <= selectedDates[0]) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Warning!',
+                            text: 'Please select a valid date range.',
+                        });
+                    } else {
+                        // Reload the tables if a valid range is selected
+                        table.ajax.reload(null, false);
+                        completed_table.ajax.reload(null, false);
+                    }
                 }
+            },
+            // Add clear button
+            onReady: function(selectedDates, dateStr, instance) {
+                // Create a "Clear" button
+                const clearButton = document.createElement("button");
+                clearButton.innerHTML = "Clear";
+                clearButton.classList.add("clear-btn");
+
+                // Append the button to the flatpickr calendar
+                instance.calendarContainer.appendChild(clearButton);
+
+                // Add event listener to clear the date and reload the tables
+                clearButton.addEventListener("click", function() {
+                    instance.clear(); // Clear the date range
+                    table.ajax.reload(null, false); // Reload the tables
+                    completed_table.ajax.reload(null, false);
+                });
             }
         });
 
@@ -93,6 +121,7 @@
             lengthChange: false,
             paging: false,
             ordering: false,
+            search: true,
             scrollY: 400,
             select: {
                 style: 'single'
@@ -102,7 +131,7 @@
                 data: function(d) {
                     // Include the date range in the AJAX request
                     d.date_range = $('#date-range-picker').val();
-                    d.search = $('#search-input').val();
+                    // d.search = $('#search-input').val();
                 },
                 // beforeSend: function() {
                 //     showLoader(); // Show loader before starting the AJAX request
@@ -334,8 +363,12 @@
             table.ajax.reload(null, false); // false to keep the current paging
         });
 
-        $('#search-input').on('keyup', function() {
-            table.ajax.reload();  // Reload the table when the search input changes
+        // $('#search-input').on('keyup', function() {
+        //     table.ajax.reload();  // Reload the table when the search input changes
+        // });
+
+        $('#search-input').on('keyup change', function() {
+            table.search(this.value).draw(); // Reload the table when the search input changes
         });
 
         // table.buttons().container().appendTo('#roles-table_wrapper .col-md-6:eq(0)');

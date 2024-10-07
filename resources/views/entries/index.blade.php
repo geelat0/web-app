@@ -33,9 +33,14 @@
                 </div>
                 <div class="collapse" id="collapseExample">
                         <div class="d-flex justify-content-center mb-3">
-                            <div class="input-group me-3">
-                                <input type="text" id="search-input" class="form-control" placeholder="Search...">
+                            <div class="input-group me-3 pending-search">
+                                <input type="text" id="search-input-pending" class="form-control" placeholder="Search...">
                             </div>
+
+                            <div class="input-group me-3 completed-search" >
+                                <input type="text" id="search-input-completed" class="form-control" placeholder="Search Completed...">
+                            </div>
+
                             <div class="input-group">
                                 <input type="text" id="date-range-picker" class="form-control" placeholder="Select date range">
                             </div>
@@ -99,11 +104,39 @@
             onChange: function(selectedDates, dateStr, instance) {
                 // Check if both start and end dates are selected
                 if (selectedDates.length === 2) {
-                    table.ajax.reload(null, false);
-                    completed_table.ajax.reload(null, false);
+                    // Check if the end date is earlier than or equal to the start date
+                    if (selectedDates[1] <= selectedDates[0]) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Warning!',
+                            text: 'Please select a valid date range.',
+                        });
+                    } else {
+                        // Reload the tables if a valid range is selected
+                        table.ajax.reload(null, false);
+                        completed_table.ajax.reload(null, false);
+                    }
                 }
+            },
+            // Add clear button
+            onReady: function(selectedDates, dateStr, instance) {
+                // Create a "Clear" button
+                const clearButton = document.createElement("button");
+                clearButton.innerHTML = "Clear";
+                clearButton.classList.add("clear-btn");
+
+                // Append the button to the flatpickr calendar
+                instance.calendarContainer.appendChild(clearButton);
+
+                // Add event listener to clear the date and reload the tables
+                clearButton.addEventListener("click", function() {
+                    instance.clear(); // Clear the date range
+                    table.ajax.reload(null, false); // Reload the tables
+                    completed_table.ajax.reload(null, false);
+                });
             }
         });
+
 
         table = $('#pending-table').DataTable({
             responsive: true,
@@ -113,6 +146,7 @@
             lengthChange: false,
             paging: false,
             ordering: false,
+            searching: true,
             scrollY: 400,
             select: {
                 style: 'single'
@@ -122,7 +156,7 @@
                 data: function(d) {
                     // Include the date range in the AJAX request
                     d.date_range = $('#date-range-picker').val();
-                    d.search = $('#search-input').val();
+                    // d.search = $('#search-input').val();
                 },
             },
             buttons: [
@@ -143,25 +177,6 @@
                         }
                     }
                 },
-                // {
-                //     text: 'View',
-                //     className: 'btn btn-warning user_btn',
-                //     enabled: false,
-                //     action: function (e, dt, node, config) {
-                //         //alert('View Activated!');
-
-                //         var selectedData = dt.row({ selected: true }).data();
-
-                //         if (selectedData && selectedData.id) {
-
-                //             window.location.href = `/entries_view?id=${selectedData.id}`;
-                //             console.log(selectedData.id);
-                //         } else {
-                //             alert('No item selected or invalid ID.');
-                //         }
-                //     }
-                // },
-
 
             ],
 
@@ -213,7 +228,12 @@
             dom: '<"d-flex justify-content-between flex-wrap"B>rtip',
             createdRow: function(row, data, dataIndex) {
                 $(row).find('td:eq(1)').addClass('wrap-text');
-            }
+            },
+        });
+
+        $('#search-input-pending').on('keyup change', function() {
+            table.search(this.value).draw(); // Use this value to search the pending table
+            completed_table.search(this.value).draw();
         });
 
         completed_table = $('#completed-table').DataTable({
@@ -223,6 +243,7 @@
             pageLength: 30,
             lengthChange: false,
             paging: false,
+            searching: true,
             ordering: false,
             scrollY: 400,
             select: {
@@ -233,7 +254,7 @@
                 data: function(d) {
                     // Include the date range in the AJAX request
                     d.date_range = $('#date-range-picker').val();
-                    d.search = $('#search-input').val();
+                    // d.search = $('#search-input').val();
                 },
             },
             buttons: [
@@ -273,66 +294,68 @@
                         }
                     }
                 },
-                // @if(in_array(Auth::user()->role->name, ['IT', 'Admin']))
-                // {
-                //     text: 'Delete',
-                //     className: 'btn btn-danger user_btn',
-                //     enabled: false,
-                //     action: function (e, dt, node, config) {
-                //         //alert('Delete Activated!');
 
-                //         var selectedUserId = table.row({ selected: true }).data().id;
+                @if(in_array(Auth::user()->role->name, ['IT']))
+                {
+                    text: 'Delete',
+                    className: 'btn btn-danger user_btn',
+                    enabled: false,
+                    action: function (e, dt, node, config) {
+                        //alert('Delete Activated!');
 
-                //         Swal.fire({
-                //             title: 'Are you sure?',
-                //             text: "You won't be able to revert this!",
-                //             icon: 'warning',
-                //             showCancelButton: true,
-                //             confirmButtonColor: '#3085d6',
-                //             cancelButtonColor: '#d33',
-                //             confirmButtonText: 'Yes, delete it!'
-                //         }).then((result) => {
-                //             if (result.isConfirmed) {
-                //                 showLoader();
-                //                 $.ajax({
-                //                     url: '{{ route('entries.destroy') }}',
-                //                     method: 'POST',
-                //                     data: {
-                //                         _token: '{{ csrf_token() }}',
-                //                         id: selectedUserId
-                //                     },
-                //                     success: function(response) {
-                //                         hideLoader();
-                //                         if (response.success) {
-                //                             Swal.fire(
-                //                                 'Deleted!',
-                //                                 'Entry has been deleted.',
-                //                                 'success'
-                //                             );
-                //                             table.ajax.reload();
-                //                         } else {
-                //                             var errorMessage = '';
-                //                             Object.keys(response.errors).forEach(function(key) {
-                //                                 errorMessage += response.errors[key][0] + '<br>';
-                //                             });
-                //                             hideLoader();
-                //                             Swal.fire({
-                //                                 icon: 'error',
-                //                                 title: 'Deletion Failed',
-                //                                 html: errorMessage
-                //                             });
-                //                         }
-                //                     },
-                //                     error: function(xhr) {
-                //                         hideLoader();
-                //                         console.log(xhr.responseText);
-                //                     }
-                //                 });
-                //             }
-                //         });
-                //     }
-                // },
-                // @endif
+                        var selectedUserId = completed_table.row({ selected: true }).data().id;
+                        console.log(selectedUserId);
+
+                        Swal.fire({
+                            title: 'Are you sure?',
+                            text: "You won't be able to revert this!",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Yes, delete it!'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                showLoader();
+                                $.ajax({
+                                    url: '{{ route('entries.destroy') }}',
+                                    method: 'POST',
+                                    data: {
+                                        _token: '{{ csrf_token() }}',
+                                        id: selectedUserId
+                                    },
+                                    success: function(response) {
+                                        hideLoader();
+                                        if (response.success) {
+                                            Swal.fire(
+                                                'Deleted!',
+                                                'Entry has been deleted.',
+                                                'success'
+                                            );
+                                            completed_table.ajax.reload();
+                                        } else {
+                                            var errorMessage = '';
+                                            Object.keys(response.errors).forEach(function(key) {
+                                                errorMessage += response.errors[key][0] + '<br>';
+                                            });
+                                            hideLoader();
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Deletion Failed',
+                                                html: errorMessage
+                                            });
+                                        }
+                                    },
+                                    error: function(xhr) {
+                                        hideLoader();
+                                        console.log(xhr.responseText);
+                                    }
+                                });
+                            }
+                        });
+                    }
+                },
+                @endif
 
             ],
 
@@ -382,7 +405,12 @@
             dom: '<"d-flex justify-content-between flex-wrap"B>rtip',
             createdRow: function(row, data, dataIndex) {
                 $(row).find('td:eq(1)').addClass('wrap-text');
-            }
+            },
+
+        });
+
+        $('#search-input-completed').on('keyup change', function() {
+            completed_table.search(this.value).draw(); // Use this value to search the completed table
         });
 
 
@@ -391,6 +419,7 @@
             table.ajax.reload(null, false);
             completed_table.ajax.reload(null, false);
         });
+
         $('.nav-link').on('click', function() {
 
             table.ajax.reload(null, false);
@@ -426,6 +455,7 @@
 
         // Hide completed buttons by default
         $('#completed-table-buttons').hide();
+        $('#collapseExample .completed-search').hide();
 
 
         // table.buttons().container().appendTo('#table-buttons');

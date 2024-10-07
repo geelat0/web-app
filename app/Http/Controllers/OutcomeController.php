@@ -77,16 +77,16 @@ class OutcomeController extends Controller
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
-        if ($request->has('search') && !empty($request->search)) {
-            $searchTerm = $request->search;
+        // if ($request->has('search') && !empty($request->search)) {
+        //     $searchTerm = $request->search;
 
-            $query->where(function($subQuery) use ($searchTerm) {
-                $subQuery->where('organizational_outcome', 'like', "%{$searchTerm}%")
-                         ->orWhere('created_by', 'like', "%{$searchTerm}%")
-                         ->orWhere('status', 'like', "%{$searchTerm}%");
+        //     $query->where(function($subQuery) use ($searchTerm) {
+        //         $subQuery->where('organizational_outcome', 'like', "%{$searchTerm}%")
+        //                  ->orWhere('created_by', 'like', "%{$searchTerm}%")
+        //                  ->orWhere('status', 'like', "%{$searchTerm}%");
 
-            });
-        }
+        //     });
+        // }
 
         $orgs = $query->get();
 

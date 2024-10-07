@@ -14,7 +14,7 @@
                                 <i class="mdi mdi-filter-outline"></i> Filter
                             </button>
                         </p>
-    
+
                     </div>
                     <div class="col d-flex justify-content-end mb-3" >
                         <div id="table-buttons" class="d-flex">
@@ -64,14 +64,53 @@
         var table;
         // START DATATABLES
 
+        // flatpickr("#date-range-picker", {
+        //     mode: "range",
+        //     dateFormat: "m/d/Y",
+        //     onChange: function(selectedDates, dateStr, instance) {
+        //         // Check if both start and end dates are selected
+        //         if (selectedDates.length === 2) {
+        //             table.ajax.reload(null, false);
+        //         }
+        //     }
+        // });
+
         flatpickr("#date-range-picker", {
             mode: "range",
             dateFormat: "m/d/Y",
             onChange: function(selectedDates, dateStr, instance) {
                 // Check if both start and end dates are selected
                 if (selectedDates.length === 2) {
-                    table.ajax.reload(null, false);  
+                    // Check if the end date is earlier than or equal to the start date
+                    if (selectedDates[1] <= selectedDates[0]) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Warning!',
+                            text: 'Please select a valid date range.',
+                        });
+                    } else {
+                        // Reload the tables if a valid range is selected
+                        table.ajax.reload(null, false);
+                        completed_table.ajax.reload(null, false);
+                    }
                 }
+            },
+            // Add clear button
+            onReady: function(selectedDates, dateStr, instance) {
+                // Create a "Clear" button
+                const clearButton = document.createElement("button");
+                clearButton.innerHTML = "Clear";
+                clearButton.classList.add("clear-btn");
+
+                // Append the button to the flatpickr calendar
+                instance.calendarContainer.appendChild(clearButton);
+
+                // Add event listener to clear the date and reload the tables
+                clearButton.addEventListener("click", function() {
+                    instance.clear(); // Clear the date range
+                    table.ajax.reload(null, false); // Reload the tables
+                    completed_table.ajax.reload(null, false);
+                });
             }
         });
 
@@ -83,6 +122,7 @@
             lengthChange: false,
             paging: false,
             ordering: false,
+            search: true,
             scrollY: 400,
             select: {
                 style: 'single',
@@ -91,7 +131,7 @@
                 url: '{{ route('user.list') }}',
                 data: function(d) {
                     d.date_range = $('#date-range-picker').val();
-                    d.search = $('#search-input').val();
+                    // d.search = $('#search-input').val();
                 },
                 // beforeSend: function() {
                 //     showLoader(); // Show loader before starting the AJAX request
@@ -608,8 +648,12 @@
         // table.buttons().container().appendTo('#users-table_wrapper .col-md-6:eq(0)');
         table.buttons().container().appendTo('#table-buttons');
 
-        $('#search-input').on('keyup', function() {
-            table.ajax.reload();  // Reload the table when the search input changes
+        // $('#search-input').on('keyup', function() {
+        //     table.ajax.reload();  // Reload the table when the search input changes
+        // });
+
+        $('#search-input').on('keyup change', function() {
+            table.search(this.value).draw(); // Reload the table when the search input changes
         });
 
         table.on('select deselect', function() {
@@ -622,12 +666,12 @@
             $(this).find('.is-invalid').removeClass('is-invalid'); // Remove validation error classes
             $(this).find('.invalid-feedback').text(''); // Clear error messages
         });
-        
+
 
         // Handle input and select fields for create and edit user forms
         $('#createUserForm, #editUserForm').find('input, select').on('keyup change', function() {
             $(this).removeClass('is-invalid');
-            
+
             // Remove [] from name attribute for error ID
             var errorId = $(this).attr('name').replace('[]', '') + 'Error';
             $('#' + errorId).text('');
@@ -636,15 +680,15 @@
         // Handle Select2 fields specifically
         $('#createUserForm, #editUserForm').find('select[name="division_id[]"]').on('select2:select', function() {
             $(this).removeClass('is-invalid');
-            
+
             // Remove [] from name attribute for error ID
             var errorId = $(this).attr('name').replace('[]', '') + 'Error';
             $('#' + errorId).text('');
         });
 
 
-        
-        function initializeDivisionSelect() {   
+
+        function initializeDivisionSelect() {
             $('.division-select').select2({
                 placeholder: 'Select an Option',
                 allowClear: true,
