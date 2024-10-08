@@ -295,7 +295,7 @@
                     }
                 },
 
-                @if(in_array(Auth::user()->role->name, ['IT']))
+                @if(in_array(Auth::user()->role->name, ['SuperAdmin']))
                 {
                     text: 'Delete',
                     className: 'btn btn-danger user_btn',

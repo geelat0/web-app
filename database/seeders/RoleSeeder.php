@@ -15,29 +15,29 @@ class RoleSeeder extends Seeder
     {
         Role::create(
             [
-                'name'=> 'IT',
-                'created_by'=> 'IT',
+                'name'=> 'SuperAdmin',
+                'created_by'=> 'SuperAdmin',
 
             ]
           );
         Role::create(
             [
                 'name'=> 'Admin',
-                'created_by'=> 'IT',
+                'created_by'=> 'SuperAdmin',
 
             ]
           );
         Role::create(
             [
                 'name'=> 'Budget Office',
-                'created_by'=> 'IT',
+                'created_by'=> 'SuperAdmin',
 
             ]
           );
         Role::create(
             [
                 'name'=> 'Planning',
-                'created_by'=> 'IT',
+                'created_by'=> 'SuperAdmin',
 
             ]
           );

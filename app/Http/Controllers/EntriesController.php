@@ -324,7 +324,7 @@ class EntriesController extends Controller
 
     public function getIndicator(Request $request){
 
-        if(in_array(Auth::user()->role->name, ['IT', 'Admin'])){
+        if(in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin'])){
             $searchTerm = $request->input('q'); // Capture search term
             $data = SuccessIndicator::where('status', 'Active')
                                   ->whereNull('deleted_at')
@@ -462,7 +462,7 @@ class EntriesController extends Controller
     }
 
     public function completed_list(Request $request){
-        if(in_array(Auth::user()->role->name, ['IT', 'Admin'])){
+        if(in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin'])){
 
             $query = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Completed')->orderBy('created_at', 'desc');
 

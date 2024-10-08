@@ -16,65 +16,65 @@ class DivisionSeeder extends Seeder
         Division::create(
             [
                 'division_name'=> 'IMSD',
-                'created_by'=> 'IT',
-                
+                'created_by'=> 'SuperAdmin',
+
             ]
           );
 
           Division::create(
             [
                 'division_name'=> 'TSSD',
-                'created_by'=> 'IT',
-                
+                'created_by'=> 'SuperAdmin',
+
             ]
           );
           Division::create(
             [
                 'division_name'=> 'Albay PO',
-                'created_by'=> 'IT',
-                
+                'created_by'=> 'SuperAdmin',
+
             ]
           );
           Division::create(
             [
                 'division_name'=> 'Camarines_Sur PO',
-                'created_by'=> 'IT',
-                
+                'created_by'=> 'SuperAdmin',
+
             ]
           );
           Division::create(
             [
                 'division_name'=> 'Camarines_Norte PO',
-                'created_by'=> 'IT',
-                
+                'created_by'=> 'SuperAdmin',
+
             ]
           );
           Division::create(
             [
                 'division_name'=> 'Catanduanes PO',
-                'created_by'=> 'IT',
-                
+                'created_by'=> 'SuperAdmin',
+
             ]
           );
           Division::create(
             [
                 'division_name'=> 'Masbate PO',
-                'created_by'=> 'IT',
-                
+                'created_by'=> 'SuperAdmin',
+
             ]
           );
           Division::create(
             [
                 'division_name'=> 'Sorsogon PO',
-                'created_by'=> 'IT',
-                
+                'created_by'=> 'SuperAdmin',
+
             ]
           );
           Division::create(
             [
                 'division_name'=> 'RTWPB',
-                'created_by'=> 'IT',
-                
+                'created_by'=> 'SuperAdmin',
+
             ]
           );
     }

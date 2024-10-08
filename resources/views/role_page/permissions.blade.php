@@ -9,7 +9,7 @@
                 <div class="form-group">
                     <label for="roleSelect">Select Role</label>
                     <select id="roleSelect" name="role_id" class="form-control">
-                      
+
                         @foreach($roles as $roleItem)
                             <option value="{{$roleItem->id}}"
                                 {{ $role->id == $roleItem->id ? 'selected' : '' }}>
@@ -22,13 +22,13 @@
             <div class="col mt-4">
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">Save Permissions</button>
-                    @if(Auth::user()->role->name === 'IT')
+                    @if(Auth::user()->role->name === 'SuperAdmin')
                     <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#basicModal">
                         Add Permissions
                       </button>
                       @endif
                 </div>
-                
+
             </div>
         </div>
 
@@ -195,7 +195,7 @@
                         hideLoader();
                         window.location.href = '/permissions';
                     if (response.success) {
-                        
+
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',

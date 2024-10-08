@@ -17,7 +17,7 @@ class CheckPermission
     public function handle(Request $request, Closure $next, string $permissions): Response
     {
 
-        if (Auth::check() && Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'Admin') {
+        if (Auth::check() && Auth::user()->role->name === 'SuperAdmin' || Auth::user()->role->name === 'Admin') {
             return $next($request);
         }
 

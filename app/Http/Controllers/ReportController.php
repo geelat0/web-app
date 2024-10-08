@@ -156,7 +156,7 @@ class ReportController extends Controller
         ->get();
 
         // Fetch entries based on filters
-        if (Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'Admin') {
+        if (Auth::user()->role->name === 'SuperAdmin' || Auth::user()->role->name === 'Admin') {
             $entry = Entries::whereYear('created_at', $year)
                         ->when($period, function($query) use ($period) {
                             $months = $this->getMonthsForPeriod($period);

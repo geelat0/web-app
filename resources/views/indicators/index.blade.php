@@ -182,7 +182,7 @@
                         }
                     }
                 },
-                @if(in_array(Auth::user()->role->name, ['IT', 'Admin']))
+                @if(in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin']))
                 {
                     text: 'Delete',
                     className: 'btn btn-danger user_btn',

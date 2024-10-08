@@ -161,7 +161,7 @@
             const user_id = @json(Auth::user()->id);
             const selectedDivisions = $(this).val();
 
-            @if(!in_array(Auth::user()->role->name, ['IT', 'Admin']))
+            @if(!in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin']))
             $.ajax({
                 url: '{{ route('indicator.getMeasureDetails') }}',
                 method: 'GET',

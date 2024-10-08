@@ -70,7 +70,7 @@ class IndicatorController extends Controller
     public function create(){
         $user=Auth::user();
 
-        if(Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'Admin'){
+        if(Auth::user()->role->name === 'SuperAdmin' || Auth::user()->role->name === 'Admin'){
 
             $currentYear = Carbon::now()->format('Y');
             $currentUser = Auth::user();
@@ -267,7 +267,7 @@ class IndicatorController extends Controller
         $entriesCount = $filteredIndicators->count();
 
         // If user is IT or Admin, show all divisions
-        if (Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'Admin') {
+        if (Auth::user()->role->name === 'SuperAdmin' || Auth::user()->role->name === 'Admin') {
 
 
             $division_ids = json_decode($indicator->division_id);
@@ -365,7 +365,7 @@ class IndicatorController extends Controller
         $entriesCount = $filteredIndicators->count();
 
         // If user is IT or Admin, show all divisions
-        if (Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'Admin') {
+        if (Auth::user()->role->name === 'SuperAdmin' || Auth::user()->role->name === 'Admin') {
             $division_ids = json_decode($indicator->division_id);
 
             foreach ($division_ids as $division_id) {
@@ -405,7 +405,7 @@ class IndicatorController extends Controller
     }
 
     public function list(Request $request){
-        if(Auth::user()->role->name === 'IT' || Auth::user()->role->name === 'Admin'){
+        if(Auth::user()->role->name === 'SuperAdmin' || Auth::user()->role->name === 'Admin'){
             $query = SuccessIndicator::whereNull('deleted_at')
             ->whereHas('org', function ($query) {
                 $query->where('status', 'Active');
@@ -557,7 +557,7 @@ class IndicatorController extends Controller
 
         //     if (is_array($indicatorDivisionIds)) {
 
-        //         $excludedRoles = Role::whereIn('name', ['IT', 'Admin'])
+        //         $excludedRoles = Role::whereIn('name', ['SuperAdmin', 'Admin'])
         //         ->pluck('id');
         //         // Fetch all users
         //         $users = User::whereNotIn('role_id', $excludedRoles)->get();

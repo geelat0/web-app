@@ -40,8 +40,7 @@
         </div>
 
     @endcan --}}
-
-    @can('manage_pending_entries')
+    @if(auth()->user()->can('view-entries') && Auth::user()->role->name !== 'SuperAdmin')
         <div class="row mb-3">
             <div class="col-md-6">
                 <div class="card" style="width: 100%; margin-bottom: 1rem;">
@@ -98,12 +97,10 @@
                 </div>
             </div>
         </div>
-
-
-    @endcan
+    @endif
 
     {{-- </div> --}}
-    @if(Auth::user()->role->name === 'IT')
+    @if(Auth::user()->role->name === 'SuperAdmin')
         <div class="row mb-3">
             <div class="col-md-4">
                 <div class="card" style="width: 100%; margin-bottom: 1rem;">
@@ -170,9 +167,6 @@
             </div>
         </div>
     @endif
-
-
-
 
 </div>
 @endsection

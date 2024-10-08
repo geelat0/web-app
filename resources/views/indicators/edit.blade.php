@@ -13,7 +13,7 @@
                             Edit</h4>
                         <div class="row">
                             <input type="hidden" name="id" value="{{ $indicator->id }}">
-                            @if(in_array(Auth::user()->role->name, ['IT', 'Admin']))
+                            @if(in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin']))
                             <div class="form-group">
                                 <label for="org_id" class="required">Organizational Outcome</label>
                                 <select id="org_id" class="form-select capitalize" name="org_id">
@@ -38,12 +38,12 @@
                             <div class="row">
                                 <div class="form-group mb-3">
                                     <label for="measures" class="required">Measure</label>
-                                    <textarea type="text" class="form-control capitalize" name="measures" id="measures" aria-describedby=""  @if(!in_array(Auth::user()->role->name, ['IT', 'Admin'])) disabled @endif>{{ $indicator->measures }}</textarea>
+                                    <textarea type="text" class="form-control capitalize" name="measures" id="measures" aria-describedby=""  @if(!in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin'])) disabled @endif>{{ $indicator->measures }}</textarea>
                                     <div class="invalid-feedback" id="measuresError"></div>
                                 </div>
                                 <div class="form-group mb-3">
                                     <label for="division_id" class="required">Division</label>
-                                    <select id="division_id_0" class="division-select form-select" name="division_id[]" multiple="multiple" @if(!in_array(Auth::user()->role->name, ['IT', 'Admin'])) disabled @endif>
+                                    <select id="division_id_0" class="division-select form-select" name="division_id[]" multiple="multiple" @if(!in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin'])) disabled @endif>
                                         @if($indicator)
                                             @foreach( $division_ids as $division)
                                                 <option value="{{ $division }}" selected>{{ App\Models\Division::find($division)->division_name }}</option>
@@ -52,7 +52,7 @@
                                     </select>
                                     <div class="invalid-feedback" id="division_idError"></div>
                                 </div>
-                                @if(in_array(Auth::user()->role->name, ['IT', 'Admin']))
+                                @if(in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin']))
                                 <div class="form-group mb-3">
                                     <label for="">Target Type:</label>
                                         <div class="form-check form-check-inline percent">
@@ -78,7 +78,7 @@
                                 <div class="col">
                                     <div class="form-group mb-3">
                                         <label for="target" class="required">Target</label>
-                                        <input type="text" class="form-control capitalize" name="target" id="target_0" aria-describedby="" value="{{ $indicator->target }}" {{ $indicator->target == 'Actual' ? 'disabled' : '' }} @if(!in_array(Auth::user()->role->name, ['IT', 'Admin'])) disabled @endif>
+                                        <input type="text" class="form-control capitalize" name="target" id="target_0" aria-describedby="" value="{{ $indicator->target }}" {{ $indicator->target == 'Actual' ? 'disabled' : '' }} @if(!in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin'])) disabled @endif>
                                         <div class="invalid-feedback" id="targetError[]"></div>
                                     </div>
                                 </div>
@@ -275,7 +275,7 @@ $(document).ready(function() {
                     const targetInput = $(`#target_${divisionId}_${index}`);
                     if (!isInitialLoad) {
 
-                    @if(in_array(Auth::user()->role->name, ['IT', 'Admin']))
+                    @if(in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin']))
                         // targetInput.removeAttr('disabled');
                     @endif
 
@@ -419,7 +419,7 @@ $(document).ready(function() {
     //---------------------------------------------------END JS FOR DIVISION'S INPUTS---------------------------------------------------//
 
     // Form submission
-    @if(in_array(Auth::user()->role->name, ['IT', 'Admin']))
+    @if(in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin']))
     $('#NewIndicatorForm').on('submit', function(e) {
         e.preventDefault();
         showLoader();
@@ -499,7 +499,7 @@ $(document).ready(function() {
     });
     @endif
 
-    @if(!in_array(Auth::user()->role->name, ['IT', 'Admin']))
+    @if(!in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin']))
     $('#NewIndicatorForm').on('submit', function(e) {
             e.preventDefault();
             showLoader();

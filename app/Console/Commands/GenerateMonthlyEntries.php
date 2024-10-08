@@ -38,7 +38,7 @@ class GenerateMonthlyEntries extends Command
 
             if (is_array($indicatorDivisionIds)) {
 
-                $excludedRoles = Role::whereIn('name', ['IT', 'Admin'])
+                $excludedRoles = Role::whereIn('name', ['SuperAdmin', 'Admin'])
                 ->pluck('id');
                 // Fetch all users
                 $users = User::whereNotIn('role_id', $excludedRoles)->get();

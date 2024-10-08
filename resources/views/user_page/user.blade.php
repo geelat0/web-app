@@ -570,7 +570,7 @@
 
                             }
                         },
-                        @if(Auth::user()->role->name === 'IT')
+                        @if(Auth::user()->role->name === 'SuperAdmin')
                         {
                             text: 'Proxy Login',
                             action: function (e, dt, node, config) {
