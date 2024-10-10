@@ -157,13 +157,13 @@
         });
 
         $('#measures').on('select2:select', function(e) {
+            e.preventDefault();
             var id = e.params.data.id;
             const user_id = @json(Auth::user()->id);
             const selectedDivisions = $(this).val();
 
-            @if(!in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin']))
             $.ajax({
-                url: '{{ route('indicator.getMeasureDetails') }}',
+                url: '{{ route('entries.getMeasureDetails') }}',
                 method: 'GET',
                 data: {
                     id: id
@@ -199,7 +199,6 @@
                 }
             });
 
-            @endif
         });
 
         function initializeDivisionSelect() {

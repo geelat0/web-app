@@ -257,7 +257,7 @@ $(document).ready(function() {
                         <div class= "col mb-3">
                             <div class="form-group">
                                 <label for="target_${divisionId}_${index}" class="required">${divisionName} Target</label>
-                                <input type="text" class="form-control capitalize target-input" name="${cleanedDivisionName}_target[]" id="target_${divisionId}_${index}" aria-describedby="" value="${displayValue}" ${targetDisabled}>
+                                <input type="text" class="form-control capitalize target-input" name="${cleanedDivisionName}_target[]" id="target_${divisionId}_${index}" aria-describedby="" value="${displayValue}" ${targetDisabled} @if(!in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin'])) disabled @endif>
                                 <div class="invalid-feedback" id="targetError_${divisionId}_${index}"></div>
                             </div>
                         </div>

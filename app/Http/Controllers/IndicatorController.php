@@ -603,12 +603,12 @@ class IndicatorController extends Controller
             return response()->json(['success' => false, 'errors' => $validator->errors()], 200);
         }
 
-        $ifExist = Entries::whereNull('deleted_at')->where('indicator_id', Crypt::decrypt($request->id))->exists();
+        // $ifExist = Entries::whereNull('deleted_at')->where('indicator_id', Crypt::decrypt($request->id))->exists();
 
-        if($ifExist){
+        // if($ifExist){
 
-            return response()->json(['success' => false, 'errors' => 'The Indicator is being used on Entries table']);
-        }
+        //     return response()->json(['success' => false, 'errors' => 'The Indicator is being used on Entries table']);
+        // }
 
         $role = SuccessIndicator::findOrFail(Crypt::decrypt($request->id));
         $role->updated_by = Auth::user()->user_name;

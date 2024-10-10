@@ -328,7 +328,20 @@ $(document).ready(function() {
 
     function updateTargetFields(index, selectedDivisions) {
         const targetContainer = $(`#targetFields_${index}`);
-        targetContainer.empty();
+
+        // Store existing input values
+        let existingValues = {};
+        $(`#targetFields_${index} .target-input`).each(function() {
+            const targetId = $(this).attr('id');
+            existingValues[targetId] = $(this).val(); // Store the current target value
+        });
+
+        $(`#targetFields_${index} .alloted-budget`).each(function() {
+            const budgetId = $(this).attr('id');
+            existingValues[budgetId] = $(this).val(); // Store the current budget value
+        });
+
+        targetContainer.empty(); // Clear the container
 
         if (selectedDivisions.length > 0) {
             selectedDivisions.forEach((divisionId) => {
@@ -340,7 +353,7 @@ $(document).ready(function() {
                     <div class= "col mb-3">
                         <div class="form-group">
                             <label for="target_${divisionId}_${index}" class="required">${divisionName} Target</label>
-                            <input type="text" class="form-control capitalize target-input" name="${cleanedDivisionName}_target[]" id="target_${divisionId}_${index}" aria-describedby="" disabled>
+                            <input type="number" class="form-control capitalize target-input" name="${cleanedDivisionName}_target[]" id="target_${divisionId}_${index}" aria-describedby="">
                             <div class="invalid-feedback" id="targetError_${divisionId}_${index}"></div>
                         </div>
                     </div>
@@ -356,11 +369,12 @@ $(document).ready(function() {
 
                     // Enable the target input and attach the input event to calculate total
                     const targetInput = $(`#target_${divisionId}_${index}`);
+                    const selectedType = $(`input[name="targetType_${index}"]:checked`).val(); // Get the selected target type
+                    applyTargetType(targetInput, selectedType); // Apply the existing target type to the new division
 
                     targetInput.on('input', function() {
                         let total = 0;
                         let selectedType = $(`input[name="targetType_${index}"]:checked`).val();
-                        console.log(selectedType);
 
                         $(`#targetFields_${index} .target-input`).each(function() {
                             let value = parseFloat($(this).val());
@@ -387,10 +401,62 @@ $(document).ready(function() {
                         });
                         $(`#alloted_budget_${index}`).val(totalBudget);
                     });
+
+                    // Restore existing values after the new inputs are appended
+                    if (existingValues[`target_${divisionId}_${index}`]) {
+                        targetInput.val(existingValues[`target_${divisionId}_${index}`]);
+                    }
+                    if (existingValues[`budget_${divisionId}_${index}`]) {
+                        budgetInput.val(existingValues[`budget_${divisionId}_${index}`]);
+                    }
                 } else {
                     $(`.percent`).removeClass('d-none');
                 }
             });
+        }
+    }
+
+    // Function to apply the target type to new divisions without clearing the input value
+    function applyTargetType(targetInput, selectedType) {
+        let currentValue = targetInput.val().replace('%', ''); // Remove the '%' symbol if present but keep the value
+
+        if (selectedType === 'percentage') {
+            targetInput
+                .attr('type', 'text')
+                .attr('min', '0')
+                .attr('max', '100')
+                .attr('placeholder', '%')
+                .removeAttr('disabled')
+                .val(`${currentValue}%`) // Add the '%' symbol to the existing value
+                .off('input.percentage')
+                .on('input.percentage', function() {
+                    let value = $(this).val().replace(/[^\d%]/g, '');
+                    if (value.indexOf('%') !== -1) {
+                        value = value.substring(0, value.indexOf('%') + 1); // Keep only one "%"
+                    }
+                    if ($.isNumeric(value) && value >= 0 && value <= 100) {
+                        $(this).val(`${value}%`);
+                    } else {
+                        $(this).val(value);
+                    }
+                });
+
+        } else if (selectedType === 'number') {
+            targetInput
+                .attr('type', 'number')
+                .removeAttr('min')
+                .removeAttr('max')
+                .removeAttr('placeholder')
+                .removeAttr('disabled')
+                .val(currentValue) // Remove the '%' symbol but keep the numerical value
+                .off('input.percentage');
+        } else if (selectedType === 'actual') {
+            targetInput
+                .attr('type', 'text')
+                .attr('disabled', 'disabled')
+                .removeAttr('placeholder')
+                .off('input.percentage')
+                .val('Actual');
         }
     }
 
@@ -403,7 +469,7 @@ $(document).ready(function() {
             return divisionName.includes("PO");
         });
 
-        $(`.percent`).removeClass('d-none')
+        $(`.percent`).removeClass('d-none');
 
         updateTargetFields(index, selectedDivisions);
         if (hasPO) {
@@ -411,67 +477,14 @@ $(document).ready(function() {
         }
     });
 
-
     $(document).on('change', 'input[name^="targetType"]', function() {
         const index = $(this).closest('.card').find('input[name^="targetType"]').attr('id').split('_').pop();
         const selectedType = $(this).val();
 
         $(`#targetFields_${index} .target-input`).each(function() {
             const targetInput = $(this);
-            // const currentValue = targetInput.val().replace('%', ''); // Remove % if present
-            let currentValue = targetInput.val();
-
-            if (selectedType === 'percentage') {
-                targetInput
-                    .attr('type', 'text')
-                    .attr('min', '0')
-                    .attr('max', '100')
-                    .attr('placeholder', '%')
-                    .removeAttr('disabled')
-                    .val(currentValue.includes('Actual') ? '' : `${currentValue.replace('%', '')}%`)
-                    .off('input.percentage')
-                    .on('input.percentage', function() {
-                        let value = $(this).val().replace(/[^\d%]/g, '');
-                        if (value.indexOf('%') !== -1) {
-                            value = value.substring(0, value.indexOf('%') + 1); // Keep only one "%"
-                        }
-                        if ($.isNumeric(value) && value >= 0 && value <= 100) {
-                            $(this).val(`${value}%`);
-                        } else {
-                            $(this).val(value);
-                        }
-                    });
-
-            } else if (selectedType === 'number') {
-                targetInput
-                    .attr('type', 'number')
-                    .removeAttr('min')
-                    .removeAttr('max')
-                    .removeAttr('placeholder')
-                    .removeAttr('disabled')
-                    .val(currentValue.replace('%', '').replace('Actual', ''))
-                    .off('input.percentage');
-
-                let total = 0;
-                $(`#targetFields_${index} .target-input`).each(function() {
-                    const value = parseFloat($(this).val().replace('%', ''));
-                    if (!isNaN(value)) {
-                        total += value;
-                    }
-                });
-
-                $(`#target_${index}`).val(total);
-            } else if (selectedType === 'actual') {
-                targetInput
-                    .attr('type', 'text')
-                    .attr('disabled', 'disabled')
-                    .removeAttr('placeholder')
-                    .off('input.percentage')
-                    .val('Actual');
-                $(`#target_${index}`).val('Actual');
-            }
+            applyTargetType(targetInput, selectedType); // Apply target type to all current fields without clearing values
         });
-
     });
 
 

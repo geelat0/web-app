@@ -93,8 +93,6 @@ Route::middleware(['auth_check', '419'])->group(function () {
         Route::get('getIndicator', [IndicatorController::class, 'getIndicator'])->name('getIndicator')->middleware('permission:manage_indicator');
         Route::get('/getIndicatorById/{id}', [IndicatorController::class, 'getIndicatorById'])->name('indicator.getById');
 
-        Route::get('getMeasureDetails', [IndicatorController::class, 'getMeasureDetails'])->name('indicator.getMeasureDetails')->middleware('permission:manage_indicator');
-
 
         Route::get('entries', [EntriesController::class, 'index'])->name('entries')->middleware('permission:manage_entries');
         Route::get('entries_create', [EntriesController::class, 'create'])->name('create')->middleware('permission:manage_entries');

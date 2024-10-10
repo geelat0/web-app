@@ -176,16 +176,14 @@ class OutcomeController extends Controller
             return response()->json(['success' => false, 'errors' => $validator->errors()], 200);
         }
 
-        $ifExist = SuccessIndicator::whereNull('deleted_at')->where('org_id', Crypt::decrypt($request->id))->exists();
+        // $ifExist = SuccessIndicator::whereNull('deleted_at')->where('org_id', Crypt::decrypt($request->id))->exists();
 
-        if($ifExist){
+        // if($ifExist){
 
-            return response()->json(['success' => false, 'errors' => 'The Organizational Outcome is being used on Indicator table']);
-        }
+        //     return response()->json(['success' => false, 'errors' => 'The Organizational Outcome is being used on Indicator table']);
+        // }
 
         $role = Organizational::findOrFail(Crypt::decrypt($request->id));
-
-
         $role->created_by = Auth::user()->user_name;
         $role->delete();
 

@@ -64,17 +64,6 @@
 
         var table;
 
-        // flatpickr("#date-range-picker", {
-        //     mode: "range",
-        //     dateFormat: "m/d/Y",
-        //     onChange: function(selectedDates, dateStr, instance) {
-        //         // Check if both start and end dates are selected
-        //         if (selectedDates.length === 2) {
-        //             table.ajax.reload(null, false);
-        //         }
-        //     }
-        // });
-
         flatpickr("#date-range-picker", {
             mode: "range",
             dateFormat: "m/d/Y",
@@ -281,9 +270,6 @@
             table.ajax.reload(null, false); // false to keep the current paging
         });
 
-        // $('#search-input').on('keyup', function() {
-        //     table.ajax.reload();  // Reload the table when the search input changes
-        // });
 
         $('#search-input').on('keyup change', function() {
             table.search(this.value).draw(); // Reload the table when the search input changes
@@ -302,7 +288,6 @@
             $(this).find('.is-invalid').removeClass('is-invalid'); // Remove validation error classes
             $(this).find('.invalid-feedback').text(''); // Clear error messages
         });
-
 
     });
 

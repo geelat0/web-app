@@ -45,7 +45,7 @@ class SuccessIndicator extends Model
 
     public function org()
     {
-        return $this->belongsTo(Organizational::class);
+        return $this->belongsTo(Organizational::class)->whereNull('deleted_at');
     }
     public function user()
     {

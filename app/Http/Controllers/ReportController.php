@@ -91,7 +91,7 @@ class ReportController extends Controller
         $userIdsArray = '';
 
         // Fetch all indicators
-        $indicators = SuccessIndicator::all();
+        $indicators = SuccessIndicator::whereNull('deleted_at')->where('status','Active')->get();
 
         // Initialize the collection of indicator IDs
         $indicatorIds = collect();
@@ -136,6 +136,8 @@ class ReportController extends Controller
             // }
 
         }])
+        ->whereNull('deleted_at')
+        ->where('status','Active')
         ->where(function($query) use ($year, $period, $indicatorIds, $divisionIds) {
             $query->whereHas('successIndicators', function($query) use ($year, $period, $indicatorIds, $divisionIds) {
                 if ($indicatorIds->isNotEmpty()) {
@@ -157,7 +159,9 @@ class ReportController extends Controller
 
         // Fetch entries based on filters
         if (Auth::user()->role->name === 'SuperAdmin' || Auth::user()->role->name === 'Admin') {
-            $entry = Entries::whereYear('created_at', $year)
+            $entry = Entries::whereNull('deleted_at')
+                        ->whereYear('created_at', $year)
+                        ->where('status','Active')
                         ->when($period, function($query) use ($period) {
                             $months = $this->getMonthsForPeriod($period);
                             $query->whereIn(DB::raw('MONTH(created_at)'), $months);
@@ -177,7 +181,9 @@ class ReportController extends Controller
             });
 
         }else{
-            $entry = Entries::whereYear('created_at', $year)
+            $entry = Entries::whereNull('deleted_at')
+            ->whereYear('created_at', $year)
+            ->where('status','Active')
             ->where('created_by', Auth::user()->user_name)
             ->when($period, function($query) use ($period) {
                 $months = $this->getMonthsForPeriod($period);
@@ -1373,7 +1379,9 @@ class ReportController extends Controller
             }
 
             //DATA
-            $orgOutcomes = DB::table('org_otc')->where('status', 'Active')
+            $orgOutcomes = DB::table('org_otc')
+            ->whereNull('deleted_at')
+            ->where('status', 'Active')
             ->whereYear('created_at', $year)
             ->orderBy('order','ASC')
             ->get();
@@ -1406,6 +1414,8 @@ class ReportController extends Controller
 
                     // Fetch success indicators related to the current organizational outcome
                     $successIndicators = DB::table('success_indc')
+                        ->whereNull('deleted_at')
+                        ->where('status', 'Active')
                         ->whereYear('created_at', $year)
                         ->where('org_id', $outcome->id)
                         ->get();
@@ -1470,9 +1480,11 @@ class ReportController extends Controller
                             $sheet1->setCellValue('A' . $row, $divisionName . ' NFO'); //Division Name
                             $sheet1->setCellValue('B' . $row, $targetValue); // Corresponding Target
 
-                            $entries = Entries::where('indicator_id', $indicator->id)
+                            $entries = Entries::whereNull('deleted_at')
+                            ->where('status', 'Active')
                             ->whereYear('created_at', $year)
                             ->whereIn('months', $this->getMonthsForPeriod($quarterOne))
+                            ->where('indicator_id', $indicator->id)
                             ->get();
 
                             // Initialize month accomplishments for the current division
@@ -1619,7 +1631,9 @@ class ReportController extends Controller
             }
 
             //DATA
-            $orgOutcomes = DB::table('org_otc')->where('status', 'Active')
+            $orgOutcomes = DB::table('org_otc')
+            ->whereNull('deleted_at')
+            ->where('status', 'Active')
             ->whereYear('created_at', $year)
             ->orderBy('order','ASC')
             ->get();
@@ -1652,9 +1666,11 @@ class ReportController extends Controller
 
                 // Fetch success indicators related to the current organizational outcome
                 $successIndicators = DB::table('success_indc')
-                    ->whereYear('created_at', $year)
-                    ->where('org_id', $outcome->id)
-                    ->get();
+                ->whereNull('deleted_at')
+                ->where('status', 'Active')
+                ->whereYear('created_at', $year)
+                ->where('org_id', $outcome->id)
+                ->get();
 
                 foreach ($successIndicators as $indicator) {
                     // Insert Success Indicators (Pink row)
@@ -1711,10 +1727,12 @@ class ReportController extends Controller
                         $sheet2->setCellValue('A' . $row, $divisionName); // Division Name
                         $sheet2->setCellValue('B' . $row, $targetValue); // Corresponding Target
 
-                        $entries = Entries::where('indicator_id', $indicator->id)
-                        ->whereYear('created_at', $year)
-                        ->whereIn('months', $this->getMonthsForPeriod($QuarterTwo))
-                        ->get();
+                        $entries = Entries::whereNull('deleted_at')
+                            ->where('status', 'Active')
+                            ->whereYear('created_at', $year)
+                            ->whereIn('months', $this->getMonthsForPeriod($quarterOne))
+                            ->where('indicator_id', $indicator->id)
+                            ->get();
 
 
                     // Initialize month accomplishments for the current division
@@ -1856,7 +1874,9 @@ class ReportController extends Controller
             }
 
             //DATA
-            $orgOutcomes = DB::table('org_otc')->where('status', 'Active')
+            $orgOutcomes = DB::table('org_otc')
+            ->whereNull('deleted_at')
+            ->where('status', 'Active')
             ->whereYear('created_at', $year)
             ->orderBy('order','ASC')
             ->get();
@@ -1890,9 +1910,11 @@ class ReportController extends Controller
 
                 // Fetch success indicators related to the current organizational outcome
                 $successIndicators = DB::table('success_indc')
-                    ->whereYear('created_at', $year)
-                    ->where('org_id', $outcome->id)
-                    ->get();
+                ->whereNull('deleted_at')
+                ->where('status', 'Active')
+                ->whereYear('created_at', $year)
+                ->where('org_id', $outcome->id)
+                ->get();
 
                 foreach ($successIndicators as $indicator) {
                     // Insert Success Indicators (Pink row)
@@ -1941,9 +1963,11 @@ class ReportController extends Controller
                         $sheet3->setCellValue('A' . $row, $divisionName); // Division Name
                         $sheet3->setCellValue('B' . $row, $targetValue); // Corresponding Target
 
-                        $entries = Entries::where('indicator_id', $indicator->id)
+                        $entries = Entries::whereNull('deleted_at')
+                        ->where('status', 'Active')
                         ->whereYear('created_at', $year)
-                        ->whereIn('months', $this->getMonthsForPeriod($QuarterThree))
+                        ->whereIn('months', $this->getMonthsForPeriod($quarterOne))
+                        ->where('indicator_id', $indicator->id)
                         ->get();
 
 
@@ -2080,7 +2104,9 @@ class ReportController extends Controller
             }
 
             //DATA
-            $orgOutcomes = DB::table('org_otc')->where('status', 'Active')
+            $orgOutcomes = DB::table('org_otc')
+            ->whereNull('deleted_at')
+            ->where('status', 'Active')
             ->whereYear('created_at', $year)
             ->orderBy('order','ASC')
             ->get();
@@ -2114,9 +2140,11 @@ class ReportController extends Controller
 
                 // Fetch success indicators related to the current organizational outcome
                 $successIndicators = DB::table('success_indc')
-                    ->whereYear('created_at', $year)
-                    ->where('org_id', $outcome->id)
-                    ->get();
+                ->whereNull('deleted_at')
+                ->where('status', 'Active')
+                ->whereYear('created_at', $year)
+                ->where('org_id', $outcome->id)
+                ->get();
 
                 foreach ($successIndicators as $indicator) {
                     // Insert Success Indicators (Pink row)
@@ -2165,10 +2193,12 @@ class ReportController extends Controller
                         $sheet4->setCellValue('A' . $row, $divisionName); // Division Name
                         $sheet4->setCellValue('B' . $row, $targetValue); // Corresponding Target
 
-                        $entries = Entries::where('indicator_id', $indicator->id)
-                        ->whereYear('created_at', $year)
-                        ->whereIn('months', $this->getMonthsForPeriod($QuarterFour))
-                        ->get();
+                        $entries = Entries::whereNull('deleted_at')
+                            ->where('status', 'Active')
+                            ->whereYear('created_at', $year)
+                            ->whereIn('months', $this->getMonthsForPeriod($quarterOne))
+                            ->where('indicator_id', $indicator->id)
+                            ->get();
 
 
                     // Initialize month accomplishments for the current division

@@ -427,9 +427,9 @@ class EntriesController extends Controller
             ->addColumn('id', function($data) {
                 return Crypt::encrypt($data->id);
             })
-            ->editColumn('org_id', function($data) {
-                return $data->org->organizational_outcome;
-            })
+            // ->editColumn('org_id', function($data) {
+            //     return $data->org->organizational_outcome;
+            // })
             ->editColumn('indicator_id', function($data) {
                 return '(' . $data->target . ')' . '  ' . $data->measures;
             })
@@ -496,9 +496,9 @@ class EntriesController extends Controller
             ->addColumn('id', function($data) {
                 return Crypt::encrypt($data->id);
             })
-            ->editColumn('org_id', function($data) {
-                return $data->indicator->org->organizational_outcome;
-            })
+            // ->editColumn('org_id', function($data) {
+            //     return $data->indicator->org->organizational_outcome;
+            // })
             ->editColumn('indicator_id', function($data) {
                 return '(' .$data->indicator->target .')' . '  '. $data->indicator->measures;
             })
