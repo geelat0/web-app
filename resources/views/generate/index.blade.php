@@ -13,7 +13,7 @@
     <div class="col">
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title">Generate OPCR</h4>
+                <h4 class="card-title">Generate Report</h4>
                 {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
                 </p>
                 <div class="row">

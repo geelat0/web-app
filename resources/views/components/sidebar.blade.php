@@ -80,7 +80,7 @@
             {{-- <i class='menu-icon bx bx-purchase-tag-alt'></i> --}}
             <i class='menu-icon bx bx-shield-plus'></i>
             {{-- <i class='menu-icon tf-icons bx bx-group'></i> --}}
-            <div class="text-truncate" data-i18n="Page 2">Role</div>
+            <div class="text-truncate" data-i18n="Page 2">Roles</div>
           </a>
         </li>
         @endcan
@@ -107,7 +107,7 @@
         <li class="menu-item" {{ request()->is('login_in') ? 'active' : '' }}>
           <a href="/login_in" class="menu-link" @if( Auth::user()->role->name === 'SuperAdmin' ||  Auth::user()->role->name === 'Admin') title="Permission: manage_history" data-toggle="tooltip" data-placement="right" @endif>
             <i class='menu-icon tf-icons bx bx-history' ></i>
-            <div class="text-truncate" data-i18n="Page 2">History</div>
+            <div class="text-truncate" data-i18n="Page 2">Login History</div>
           </a>
         </li>
         @endcan

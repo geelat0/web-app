@@ -238,9 +238,12 @@ $(document).ready(function() {
      //---------------------------------------------------START JS FOR DIVISION'S INPUTS---------------------------------------------------//
 
    // Function to update target fields based on selected divisions
-    function updateTargetFields(index, selectedDivisions, isInitialLoad = false) {
+   function updateTargetFields(index, selectedDivisions, isInitialLoad = false) {
         const targetContainer = $(`#targetFields_${index}`);
         targetContainer.empty();
+
+        // Get the selected target type
+        const selectedType = $(`input[name="targetType_${index}"]:checked`).val();
 
         if (selectedDivisions.length > 0) {
             selectedDivisions.forEach((divisionId) => {
@@ -248,11 +251,11 @@ $(document).ready(function() {
                 const cleanedDivisionName = divisionName.replace(/\s*PO$/, '');
 
                 if (divisionName.includes("PO")) {
-                    const targetValue = @json($division_targets)[divisionId] || 0;
-                    const budgetValue = @json($division_budget)[divisionId] || 0;
+                    const targetValue = @json($division_targets)[divisionId] || '';
+                    const budgetValue = @json($division_budget)[divisionId] || '';
 
-                    const displayValue = targetValue == 0 ? 'Actual' : targetValue;
-                    const targetDisabled = targetValue == 0 ? 'disabled' : '';
+                    const displayValue = targetValue === 'Actual' ? 'Actual' : targetValue;
+                    const targetDisabled = targetValue === 'Actual' ? 'disabled' : '';
                     const targetHtml = `
                         <div class= "col mb-3">
                             <div class="form-group">
@@ -271,24 +274,31 @@ $(document).ready(function() {
                     `;
                     targetContainer.append(targetHtml);
 
-                    // Enable the target input and attach the input event to calculate total
                     const targetInput = $(`#target_${divisionId}_${index}`);
-                    if (!isInitialLoad) {
 
-                    @if(in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin']))
-                        // targetInput.removeAttr('disabled');
-                    @endif
-
-
-                    } else {
-                        const targetValue = $(`#target_${index}`).val();
-                        // targetInput.val(targetValue).removeAttr('disabled');
+                    // Apply the selected target type to the new division fields
+                    if (selectedType === 'percentage') {
+                        targetInput
+                            .attr('type', 'text')
+                            .attr('min', '0')
+                            .attr('max', '100')
+                            .attr('placeholder', '%')
+                            .val(`${displayValue}%`);  // Set value as percentage if not 'Actual'
+                    } else if (selectedType === 'number') {
+                        targetInput
+                            .attr('type', 'number')
+                            .val(displayValue);  // Set value as a number
+                    } else if (selectedType === 'actual') {
+                        targetInput
+                            .attr('type', 'text')
+                            .attr('disabled', 'disabled')
+                            .val('Actual');  // Set as 'Actual'
                     }
 
+                    // Enable the target input and attach the input event to calculate total
                     targetInput.on('input', function() {
                         let total = 0;
                         let selectedType = $(`input[name="targetType_${index}"]:checked`).val();
-                        console.log(selectedType);
 
                         $(`#targetFields_${index} .target-input`).each(function() {
                             let value = parseFloat($(this).val());
@@ -296,6 +306,7 @@ $(document).ready(function() {
                                 total += value;
                             }
                         });
+
                         if (selectedType === 'percentage') {
                             $(`#target_${index}`).val(`${total}%`);
                         } else {
@@ -322,6 +333,7 @@ $(document).ready(function() {
                         budgetInput.data('initial-value', newValue);
                         $('#alloted_budget').val(totalBudget);
                     });
+
                     // Store the initial budget value for accurate calculations
                     budgetInput.data('initial-value', budgetValue);
                 } else {
@@ -382,6 +394,10 @@ $(document).ready(function() {
                         }
                     });
 
+                    // Remove any hidden input if present
+                targetInput.siblings('input[type="hidden"]').remove();
+
+
             } else if (selectedType === 'number') {
                 targetInput
                     .attr('type', 'number')
@@ -401,6 +417,8 @@ $(document).ready(function() {
                 });
 
                 $(`#target_${index}`).val(total);
+                // Remove any hidden input if present
+                targetInput.siblings('input[type="hidden"]').remove();
             } else if (selectedType === 'actual') {
                 targetInput
                     .attr('type', 'text')
@@ -408,13 +426,23 @@ $(document).ready(function() {
                     .removeAttr('placeholder')
                     .off('input.percentage')
                     .val('Actual');
-                $(`#target_${index}`).val('Actual');
+                // $(`#target_${index}`).val('Actual');
+
+                 // Check if the hidden input already exists, if not, create it
+                if (targetInput.siblings('input[type="hidden"]').length === 0) {
+                    // Create a hidden input and set its value
+                    const hiddenInput = $('<input>')
+                        .attr('type', 'hidden')
+                        .attr('name', targetInput.attr('name')) // use the same name as the disabled input
+                        .val(`Actual`);
+
+                    // Append the hidden input right after the disabled input
+                    targetInput.after(hiddenInput);
+                }
             }
         });
 
     });
-
-
 
     //---------------------------------------------------END JS FOR DIVISION'S INPUTS---------------------------------------------------//
 

@@ -160,8 +160,8 @@ class ReportController extends Controller
         // Fetch entries based on filters
         if (Auth::user()->role->name === 'SuperAdmin' || Auth::user()->role->name === 'Admin') {
             $entry = Entries::whereNull('deleted_at')
-                        ->whereYear('created_at', $year)
-                        ->where('status','Active')
+                        ->where('year', $year)
+                        ->where('status','Completed')
                         ->when($period, function($query) use ($period) {
                             $months = $this->getMonthsForPeriod($period);
                             $query->whereIn(DB::raw('MONTH(created_at)'), $months);
@@ -177,13 +177,13 @@ class ReportController extends Controller
 
             $entries = $entry->get()
             ->groupBy(function ($entry) {
-                return $entry->indicator_id; // Group by each indicator
+                return $entry->indicator_id;
             });
 
         }else{
             $entry = Entries::whereNull('deleted_at')
-            ->whereYear('created_at', $year)
-            ->where('status','Active')
+            ->where('year', $year)
+            ->where('status','Completed')
             ->where('created_by', Auth::user()->user_name)
             ->when($period, function($query) use ($period) {
                 $months = $this->getMonthsForPeriod($period);
@@ -1481,8 +1481,8 @@ class ReportController extends Controller
                             $sheet1->setCellValue('B' . $row, $targetValue); // Corresponding Target
 
                             $entries = Entries::whereNull('deleted_at')
-                            ->where('status', 'Active')
-                            ->whereYear('created_at', $year)
+                            ->where('status', 'Completed')
+                            ->where('year', $year)
                             ->whereIn('months', $this->getMonthsForPeriod($quarterOne))
                             ->where('indicator_id', $indicator->id)
                             ->get();
@@ -1728,9 +1728,9 @@ class ReportController extends Controller
                         $sheet2->setCellValue('B' . $row, $targetValue); // Corresponding Target
 
                         $entries = Entries::whereNull('deleted_at')
-                            ->where('status', 'Active')
-                            ->whereYear('created_at', $year)
-                            ->whereIn('months', $this->getMonthsForPeriod($quarterOne))
+                            ->where('status', 'Completed')
+                            ->where('year', $year)
+                            ->whereIn('months', $this->getMonthsForPeriod($QuarterTwo))
                             ->where('indicator_id', $indicator->id)
                             ->get();
 
@@ -1964,9 +1964,9 @@ class ReportController extends Controller
                         $sheet3->setCellValue('B' . $row, $targetValue); // Corresponding Target
 
                         $entries = Entries::whereNull('deleted_at')
-                        ->where('status', 'Active')
-                        ->whereYear('created_at', $year)
-                        ->whereIn('months', $this->getMonthsForPeriod($quarterOne))
+                        ->where('status', 'Completed')
+                        ->where('year', $year)
+                        ->whereIn('months', $this->getMonthsForPeriod($QuarterThree))
                         ->where('indicator_id', $indicator->id)
                         ->get();
 
@@ -2194,9 +2194,9 @@ class ReportController extends Controller
                         $sheet4->setCellValue('B' . $row, $targetValue); // Corresponding Target
 
                         $entries = Entries::whereNull('deleted_at')
-                            ->where('status', 'Active')
-                            ->whereYear('created_at', $year)
-                            ->whereIn('months', $this->getMonthsForPeriod($quarterOne))
+                            ->where('status', 'Completed')
+                            ->where('year', $year)
+                            ->whereIn('months', $this->getMonthsForPeriod($QuarterFour))
                             ->where('indicator_id', $indicator->id)
                             ->get();
 
@@ -2236,15 +2236,10 @@ class ReportController extends Controller
                         $columnLetter = chr(71 + $monthIndex);
                         $sheet4->setCellValue($columnLetter . ($row - 7), $totalAccomplishmentsByMonth[$month]);
                     }
-
                 }
             }
 
-
-
         //END 4TH QUARTER
-
-
 
         $spreadsheet->setActiveSheetIndex(0);
         // Set headers for file download
@@ -2259,22 +2254,5 @@ class ReportController extends Controller
 
         // Exit to prevent any additional output
         exit;
-
-
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

@@ -353,7 +353,7 @@ $(document).ready(function() {
                     <div class= "col mb-3">
                         <div class="form-group">
                             <label for="target_${divisionId}_${index}" class="required">${divisionName} Target</label>
-                            <input type="number" class="form-control capitalize target-input" name="${cleanedDivisionName}_target[]" id="target_${divisionId}_${index}" aria-describedby="">
+                            <input type="text" class="form-control capitalize target-input" name="${cleanedDivisionName}_target[]" id="target_${divisionId}_${index}" aria-describedby="">
                             <div class="invalid-feedback" id="targetError_${divisionId}_${index}"></div>
                         </div>
                     </div>
@@ -418,47 +418,66 @@ $(document).ready(function() {
 
     // Function to apply the target type to new divisions without clearing the input value
     function applyTargetType(targetInput, selectedType) {
-        let currentValue = targetInput.val().replace('%', ''); // Remove the '%' symbol if present but keep the value
+    let currentValue = targetInput.val().replace('%', ''); // Remove the '%' symbol if present but keep the value
 
-        if (selectedType === 'percentage') {
-            targetInput
-                .attr('type', 'text')
-                .attr('min', '0')
-                .attr('max', '100')
-                .attr('placeholder', '%')
-                .removeAttr('disabled')
-                .val(`${currentValue}%`) // Add the '%' symbol to the existing value
-                .off('input.percentage')
-                .on('input.percentage', function() {
-                    let value = $(this).val().replace(/[^\d%]/g, '');
-                    if (value.indexOf('%') !== -1) {
-                        value = value.substring(0, value.indexOf('%') + 1); // Keep only one "%"
-                    }
-                    if ($.isNumeric(value) && value >= 0 && value <= 100) {
-                        $(this).val(`${value}%`);
-                    } else {
-                        $(this).val(value);
-                    }
-                });
+    if (selectedType === 'percentage') {
+        targetInput
+            .attr('type', 'text')
+            .attr('min', '0')
+            .attr('max', '100')
+            .attr('placeholder', '%')
+            .removeAttr('disabled')
+            .val(`${currentValue}%`) // Add the '%' symbol to the existing value
+            .off('input.percentage')
+            .on('input.percentage', function() {
+                let value = $(this).val().replace(/[^\d%]/g, '');
+                if (value.indexOf('%') !== -1) {
+                    value = value.substring(0, value.indexOf('%') + 1); // Keep only one "%"
+                }
+                if ($.isNumeric(value) && value >= 0 && value <= 100) {
+                    $(this).val(`${value}%`);
+                } else {
+                    $(this).val(value);
+                }
+            });
 
-        } else if (selectedType === 'number') {
-            targetInput
-                .attr('type', 'number')
-                .removeAttr('min')
-                .removeAttr('max')
-                .removeAttr('placeholder')
-                .removeAttr('disabled')
-                .val(currentValue) // Remove the '%' symbol but keep the numerical value
-                .off('input.percentage');
-        } else if (selectedType === 'actual') {
-            targetInput
-                .attr('type', 'text')
-                .attr('disabled', 'disabled')
-                .removeAttr('placeholder')
-                .off('input.percentage')
-                .val('Actual');
+        // Remove any hidden input if present
+        targetInput.siblings('input[type="hidden"]').remove();
+
+    } else if (selectedType === 'number') {
+        targetInput
+            .attr('type', 'number')
+            .removeAttr('min')
+            .removeAttr('max')
+            .removeAttr('placeholder')
+            .removeAttr('disabled')
+            .val(currentValue) // Remove the '%' symbol but keep the numerical value
+            .off('input.percentage');
+
+        // Remove any hidden input if present
+        targetInput.siblings('input[type="hidden"]').remove();
+
+    } else if (selectedType === 'actual') {
+        targetInput
+            .attr('type', 'text')
+            .attr('disabled', 'disabled')
+            .attr('placeholder', '')
+            .off('input.percentage')
+            .val(`Actual`);
+
+        // Check if the hidden input already exists, if not, create it
+        if (targetInput.siblings('input[type="hidden"]').length === 0) {
+            // Create a hidden input and set its value
+            const hiddenInput = $('<input>')
+                .attr('type', 'hidden')
+                .attr('name', targetInput.attr('name')) // use the same name as the disabled input
+                .val(`Actual`);
+
+            // Append the hidden input right after the disabled input
+            targetInput.after(hiddenInput);
         }
     }
+}
 
     $(document).on('change', '.division-select', function() {
         const index = $(this).attr('id').split('_').pop();

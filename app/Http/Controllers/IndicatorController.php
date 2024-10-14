@@ -527,12 +527,12 @@ class IndicatorController extends Controller
                 'org_id' => $request->org_id,
                 'measures' => $measure,
                 'target' => $request->target[$index] ?? 'Actual',
-                'Albay_target' => $request->Albay_target[$index] ?? 0,
-                'Camarines_Sur_target' =>  $request->Camarines_Sur_target[$index] ?? 0,
-                'Camarines_Norte_target' => $request->Camarines_Norte_target[$index] ?? 0,
-                'Catanduanes_target' =>  $request->Catanduanes_target[$index] ?? 0,
-                'Masbate_target' =>  $request->Masbate_target[$index] ?? 0,
-                'Sorsogon_target' => $request->Sorsogon_target[$index] ?? 0,
+                'Albay_target' => $request->Albay_target[$index] ?? '',
+                'Camarines_Sur_target' =>  $request->Camarines_Sur_target[$index] ?? '',
+                'Camarines_Norte_target' => $request->Camarines_Norte_target[$index] ?? '',
+                'Catanduanes_target' =>  $request->Catanduanes_target[$index] ?? '',
+                'Masbate_target' =>  $request->Masbate_target[$index] ?? '',
+                'Sorsogon_target' => $request->Sorsogon_target[$index] ?? '',
                 'Albay_budget' => $request->Albay_budget[$index] ?? 0,
                 'Camarines_Sur_budget' =>  $request->Camarines_Sur_budget[$index] ?? 0,
                 'Camarines_Norte_budget' => $request->Camarines_Norte_budget[$index] ?? 0,
@@ -639,12 +639,12 @@ class IndicatorController extends Controller
         // Update the record with the new data
         $indicator->org_id = $request->input('org_id');
         $indicator->target = $request->input('target') ?? 'Actual';
-        $indicator->Albay_target = str_replace(['[', ']', '"'], '', json_encode($request->input('Albay_target') ?? 0));
-        $indicator->Camarines_Sur_target = str_replace(['[', ']', '"'], '', json_encode($request->input('Camarines_Sur_target') ?? 0));
-        $indicator->Camarines_Norte_target = str_replace(['[', ']', '"'], '', json_encode($request->input('Camarines_Norte_target') ?? 0));
-        $indicator->Catanduanes_target = str_replace(['[', ']', '"'], '', json_encode($request->input('Catanduanes_target') ?? 0));
-        $indicator->Masbate_target = str_replace(['[', ']', '"'], '', json_encode($request->input('Masbate_target') ?? 0));
-        $indicator->Sorsogon_target = str_replace(['[', ']', '"'], '', json_encode($request->input('Sorsogon_target') ?? 0));
+        $indicator->Albay_target = str_replace(['[', ']', '"'], '', json_encode($request->input('Albay_target') ?? ''));
+        $indicator->Camarines_Sur_target = str_replace(['[', ']', '"'], '', json_encode($request->input('Camarines_Sur_target') ?? ''));
+        $indicator->Camarines_Norte_target = str_replace(['[', ']', '"'], '', json_encode($request->input('Camarines_Norte_target') ?? ''));
+        $indicator->Catanduanes_target = str_replace(['[', ']', '"'], '', json_encode($request->input('Catanduanes_target') ?? ''));
+        $indicator->Masbate_target = str_replace(['[', ']', '"'], '', json_encode($request->input('Masbate_target') ?? ''));
+        $indicator->Sorsogon_target = str_replace(['[', ']', '"'], '', json_encode($request->input('Sorsogon_target') ?? ''));
         $indicator->Albay_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Albay_budget') ?? 0));
         $indicator->Camarines_Sur_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Camarines_Sur_budget') ?? 0));
         $indicator->Camarines_Norte_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Camarines_Norte_budget') ?? 0));
@@ -653,11 +653,10 @@ class IndicatorController extends Controller
         $indicator->Sorsogon_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Sorsogon_budget') ?? 0));
         $indicator->measures = $request->input('measures');
         $indicator->alloted_budget = $request->input('alloted_budget');
-        $indicator->division_id = json_encode($request->input('division_id')); // Save as JSON
-        $indicator->status = $request->input('status', 'Active'); // Default to 'Active' if not provided
-        $indicator->updated_by = Auth::user()->user_name; // Assuming you store the username of the creator
-        $indicator->updated_at =now(); // Assuming you store the username of the creator
-
+        $indicator->division_id = json_encode($request->input('division_id'));
+        $indicator->status = $request->input('status', 'Active');
+        $indicator->updated_by = Auth::user()->user_name;
+        $indicator->updated_at =now();
         // Save the updated indicator
         $indicator->save();
 
