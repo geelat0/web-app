@@ -14,19 +14,28 @@ return new class extends Migration
         Schema::create('success_indc', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('org_id');
+
             $table->string('target')->default('0');
+
+            $table->string('Q1_target')->default('0');
+            $table->string('Q2_target')->default('0');
+            $table->string('Q3_target')->default('0');
+            $table->string('Q4_target')->default('0');
+
             $table->string('Albay_target')->nullable();
             $table->string('Camarines_Sur_target')->nullable();
             $table->string('Camarines_Norte_target')->nullable();
             $table->string('Catanduanes_target')->nullable();
             $table->string('Masbate_target')->nullable();
             $table->string('Sorsogon_target')->nullable();
+
             $table->decimal('Albay_budget', 20, 3)->nullable();
             $table->decimal('Camarines_Sur_budget', 20, 3)->nullable();
             $table->decimal('Camarines_Norte_budget', 20, 3)->nullable();
             $table->decimal('Catanduanes_budget', 20, 3)->nullable();
             $table->decimal('Masbate_budget', 20, 3)->nullable();
             $table->decimal('Sorsogon_budget', 20, 3)->nullable();
+
             $table->string('measures');
             $table->decimal('alloted_budget', 20, 3);
             $table->json('division_id')->nullable();

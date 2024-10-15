@@ -72,6 +72,49 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="row mt-3">
+
+                                <p class="d-inline-flex gap-1">
+                                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample_0" aria-expanded="false" aria-controls="collapseExample">
+                                     Show Quarterly Target
+                                    </button>
+                                  </p>
+                                  <div class="collapse" id="collapseExample_0">
+                                    <div class="card card-body">
+
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="form-group" class="">
+                                                    <label for="Q1_target_">Quarter 1</label>
+                                                    <input type="number" step="any"  class="form-control capitalize" name="Q1_target" id="Q1_target" aria-describedby="" min="0" disabled>
+                                                </div>
+                                            </div>
+
+                                            <div class="col">
+                                                <div class="form-group" class="">
+                                                    <label for="Q2_target">Quarter 2</label>
+                                                    <input type="number" step="any"  class="form-control capitalize" name="Q2_target" id="Q2_target" aria-describedby=""  min="0" disabled>
+                                                </div>
+                                            </div>
+
+                                            <div class="col">
+                                                <div class="form-group" class="">
+                                                    <label for="Q3_target">Quarter 3</label>
+                                                    <input type="number" step="any"  class="form-control capitalize" name="Q3_target" id="Q3_target" aria-describedby="" min="0" disabled>
+                                                </div>
+                                            </div>
+
+                                            <div class="col">
+                                                <div class="form-group" class="">
+                                                    <label for="Q4_target">Quarter 4</label>
+                                                    <input type="number" step="any"  class="form-control capitalize" name="Q4_target" id="Q4_target" aria-describedby="" min="0" disabled>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                  </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -172,8 +215,13 @@
 
                     // const divisionIds = Object.keys(response.division_targets);
                     $('#division_id_0').val(divisionIds).trigger('change');
+                    console.log(response.measure.Q3_target);
 
                     $('#target').val(response.measure.target);
+                    $('#Q1_target').val(response.measure.Q1_target);
+                    $('#Q2_target').val(response.measure.Q2_target);
+                    $('#Q3_target').val(response.measure.Q3_target);
+                    $('#Q4_target').val(response.measure.Q4_target);
                     $('#alloted_budget').val(response.measure.alloted_budget)
                     $('#months_0').val(response.measure.months);
                     $('#measure_id').val(response.measure.id);

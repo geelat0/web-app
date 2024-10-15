@@ -65,7 +65,8 @@
                                 <div class="col">
                                     <div class="mb-3">
                                         <div class="form-group">
-                                            <label for="file" class="required">Upload</label>  <a href="{{ $fileUrl }}" target="_blank">Click here to download current file</a>
+                                            <label for="file" class="required">Upload</label>
+                                            {{-- <a href="{{ $fileUrl }}" target="_blank">Click here to download current file</a> --}}
                                             <input class="form-control" name="file" type="file" id="file" disabled>
                                             <div id="fileError" class="invalid-feedback"></div>
                                         </div>

@@ -71,7 +71,7 @@
                                 <div class="col">
                                     <div class="form-group ">
                                         <label for="target_0" class="required">Target</label>
-                                        <input type="text" class="form-control capitalize target-input" name="target[]" id="target_0" aria-describedby="" disabled>
+                                        <input type="text" class="form-control capitalize target-input" name="target[]" id="target_0" aria-describedby="" readonly>
                                         {{-- <input type="text" class="form-control capitalize target-input d-none" name="target[]" id="targetDivision_0" aria-describedby="" disabled> --}}
                                         <div class="invalid-feedback" id="targetError_0"></div>
                                     </div>
@@ -84,6 +84,61 @@
                                         <div class="invalid-feedback" id="alloted_budgetError_0"></div>
                                     </div>
                                 </div>
+                            </div>
+
+
+
+
+                            <div class="row mt-3">
+
+                                <p class="d-inline-flex gap-1">
+                                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample_0" aria-expanded="false" aria-controls="collapseExample">
+                                      Add Quarterly Target
+                                    </button>
+                                  </p>
+                                  <div class="collapse" id="collapseExample_0">
+                                    <div class="card card-body">
+
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="form-group" class="">
+                                                    <label for="Q1_target_0">Quarter 1</label>
+                                                    <input type="number" step="any"  class="form-control capitalize alloted-budget" name="Q1_target[]" id="Q1_target_0" aria-describedby="" placeholder="0" min="0">
+                                                    <div class="invalid-feedback" id="Q1_targetError_0"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col">
+                                                <div class="form-group" class="">
+                                                    <label for="Q2_target_0">Quarter 2</label>
+                                                    <input type="number" step="any"  class="form-control capitalize alloted-budget" name="Q2_target[]" id="Q2_target_0" aria-describedby="" placeholder="0" min="0">
+                                                </div>
+                                            </div>
+
+                                            <div class="col">
+                                                <div class="form-group" class="">
+                                                    <label for="Q3_target_0">Quarter 3</label>
+                                                    <input type="number" step="any"  class="form-control capitalize alloted-budget" name="Q3_target[]" id="Q3_target_0" aria-describedby="" placeholder="0" min="0">
+                                                </div>
+                                            </div>
+
+                                            <div class="col">
+                                                <div class="form-group" class="">
+                                                    <label for="Q4_target_0">Quarter 4</label>
+                                                    <input type="number" step="any"  class="form-control capitalize alloted-budget" name="Q4_target[]" id="Q4_target_0" aria-describedby="" placeholder="0" min="0">
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                  </div>
+
+
+
+
+
+
                             </div>
                         </div>
                     </div>
@@ -104,6 +159,10 @@
                 </div>
             </div>
         </div>
+
+
+
+
     </form>
 </div>
 
@@ -175,6 +234,51 @@ $(document).ready(function() {
                                 </div>
                             </div>
                         </div>
+
+                         <div class="row mt-3">
+
+                                <p class="d-inline-flex gap-1">
+                                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample_${outcomeIndex}" aria-expanded="false" aria-controls="collapseExample">
+                                      Add Quarterly Target
+                                    </button>
+                                  </p>
+                                  <div class="collapse" id="collapseExample_${outcomeIndex}">
+                                    <div class="card card-body">
+
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="form-group" class="">
+                                                    <label for="Q1_target_${outcomeIndex}">Quarter 1</label>
+                                                    <input type="number" step="any"  class="form-control capitalize alloted-budget" name="Q1_target[]" id="Q1_target_${outcomeIndex}" aria-describedby="" placeholder="0" min="0">
+                                                </div>
+                                            </div>
+
+                                            <div class="col">
+                                                <div class="form-group" class="">
+                                                    <label for="Q2_target_${outcomeIndex}">Quarter 2</label>
+                                                    <input type="number" step="any"  class="form-control capitalize alloted-budget" name="Q2_target[]" id="Q2_target_${outcomeIndex}" aria-describedby="" placeholder="0" min="0">
+                                                </div>
+                                            </div>
+
+                                            <div class="col">
+                                                <div class="form-group" class="">
+                                                    <label for="Q3_target_${outcomeIndex}">Quarter 3</label>
+                                                    <input type="number" step="any"  class="form-control capitalize alloted-budget" name="Q3_target[]" id="Q3_target_${outcomeIndex}" aria-describedby="" placeholder="0" min="0">
+                                                </div>
+                                            </div>
+
+                                            <div class="col">
+                                                <div class="form-group" class="">
+                                                    <label for="Q4_target_${outcomeIndex}">Quarter 4</label>
+                                                    <input type="number" step="any"  class="form-control capitalize alloted-budget" name="Q4_target[]" id="Q4_target_${outcomeIndex}" aria-describedby="" placeholder="0" min="0">
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                  </div>
+                            </div>
 
                             <button type="button" class="btn btn-danger btn-sm mt-2 removeOutcomeBtn" data-index="${outcomeIndex}">Remove</button>
 
@@ -282,7 +386,7 @@ $(document).ready(function() {
             .attr('min', '0')
             .attr('max', '100')
             .attr('placeholder', '%')
-            .removeAttr('disabled')
+            .removeAttr('readonly')
             .val(currentValue.includes('Actual') ? '' : `${currentValue.replace('%', '')}%`)
             .off('input.percentage')
             .on('input.percentage', function() {
@@ -305,13 +409,13 @@ $(document).ready(function() {
             .removeAttr('min')
             .removeAttr('max')
             .removeAttr('placeholder')
-            .removeAttr('disabled')
+            .removeAttr('readonly')
             .val(currentValue.replace('%', '').replace('Actual', ''))
             .off('input.percentage');
         } else if (selectedType == 'actual') {
             targetInput
             .attr('type', 'text')
-            .attr('disabled', 'disabled')
+            .attr('readonly', 'readonly')
             .removeAttr('placeholder')
             .off('input.percentage')
             .val('Actual');
@@ -353,7 +457,7 @@ $(document).ready(function() {
                     <div class= "col mb-3">
                         <div class="form-group">
                             <label for="target_${divisionId}_${index}" class="required">${divisionName} Target</label>
-                            <input type="text" class="form-control capitalize target-input" name="${cleanedDivisionName}_target[]" id="target_${divisionId}_${index}" aria-describedby="">
+                            <input type="text" class="form-control capitalize target-input" name="${cleanedDivisionName}_target[]" id="target_${divisionId}_${index}" aria-describedby="" readonly>
                             <div class="invalid-feedback" id="targetError_${divisionId}_${index}"></div>
                         </div>
                     </div>
@@ -418,66 +522,66 @@ $(document).ready(function() {
 
     // Function to apply the target type to new divisions without clearing the input value
     function applyTargetType(targetInput, selectedType) {
-    let currentValue = targetInput.val().replace('%', ''); // Remove the '%' symbol if present but keep the value
+        let currentValue = targetInput.val().replace('%', ''); // Remove the '%' symbol if present but keep the value
 
-    if (selectedType === 'percentage') {
-        targetInput
-            .attr('type', 'text')
-            .attr('min', '0')
-            .attr('max', '100')
-            .attr('placeholder', '%')
-            .removeAttr('disabled')
-            .val(`${currentValue}%`) // Add the '%' symbol to the existing value
-            .off('input.percentage')
-            .on('input.percentage', function() {
-                let value = $(this).val().replace(/[^\d%]/g, '');
-                if (value.indexOf('%') !== -1) {
-                    value = value.substring(0, value.indexOf('%') + 1); // Keep only one "%"
-                }
-                if ($.isNumeric(value) && value >= 0 && value <= 100) {
-                    $(this).val(`${value}%`);
-                } else {
-                    $(this).val(value);
-                }
-            });
+        if (selectedType === 'percentage') {
+            targetInput
+                .attr('type', 'text')
+                .attr('min', '0')
+                .attr('max', '100')
+                .attr('placeholder', '%')
+                .removeAttr('readonly')
+                .val(`${currentValue}%`) // Add the '%' symbol to the existing value
+                .off('input.percentage')
+                .on('input.percentage', function() {
+                    let value = $(this).val().replace(/[^\d%]/g, '');
+                    if (value.indexOf('%') !== -1) {
+                        value = value.substring(0, value.indexOf('%') + 1); // Keep only one "%"
+                    }
+                    if ($.isNumeric(value) && value >= 0 && value <= 100) {
+                        $(this).val(`${value}%`);
+                    } else {
+                        $(this).val(value);
+                    }
+                });
 
-        // Remove any hidden input if present
-        targetInput.siblings('input[type="hidden"]').remove();
+            // Remove any hidden input if present
+            // targetInput.siblings('input[type="hidden"]').remove();
 
-    } else if (selectedType === 'number') {
-        targetInput
-            .attr('type', 'number')
-            .removeAttr('min')
-            .removeAttr('max')
-            .removeAttr('placeholder')
-            .removeAttr('disabled')
-            .val(currentValue) // Remove the '%' symbol but keep the numerical value
-            .off('input.percentage');
+        } else if (selectedType === 'number') {
+            targetInput
+                .attr('type', 'number')
+                .removeAttr('min')
+                .removeAttr('max')
+                .removeAttr('placeholder')
+                .removeAttr('readonly')
+                .val(currentValue) // Remove the '%' symbol but keep the numerical value
+                .off('input.percentage');
 
-        // Remove any hidden input if present
-        targetInput.siblings('input[type="hidden"]').remove();
+            // Remove any hidden input if present
+            // targetInput.siblings('input[type="hidden"]').remove();
 
-    } else if (selectedType === 'actual') {
-        targetInput
-            .attr('type', 'text')
-            .attr('disabled', 'disabled')
-            .attr('placeholder', '')
-            .off('input.percentage')
-            .val(`Actual`);
-
-        // Check if the hidden input already exists, if not, create it
-        if (targetInput.siblings('input[type="hidden"]').length === 0) {
-            // Create a hidden input and set its value
-            const hiddenInput = $('<input>')
-                .attr('type', 'hidden')
-                .attr('name', targetInput.attr('name')) // use the same name as the disabled input
+        } else if (selectedType === 'actual') {
+            targetInput
+                .attr('type', 'text')
+                .attr('readonly', 'readonly')
+                .attr('placeholder', '')
+                .off('input.percentage')
                 .val(`Actual`);
 
-            // Append the hidden input right after the disabled input
-            targetInput.after(hiddenInput);
+            // Check if the hidden input already exists, if not, create it
+            // if (targetInput.siblings('input[type="hidden"]').length === 0) {
+            //     // Create a hidden input and set its value
+            //     const hiddenInput = $('<input>')
+            //         .attr('type', 'hidden')
+            //         .attr('name', targetInput.attr('name')) // use the same name as the disabled input
+            //         .val(`Actual`);
+
+            //     // Append the hidden input right after the disabled input
+            //     targetInput.after(hiddenInput);
+            // }
         }
     }
-}
 
     $(document).on('change', '.division-select', function() {
         const index = $(this).attr('id').split('_').pop();

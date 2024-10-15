@@ -541,6 +541,10 @@ class IndicatorController extends Controller
                 'Sorsogon_budget' => $request->Sorsogon_budget[$index] ?? 0,
                 'division_id' => json_encode($request->division_id[$index]),
                 'alloted_budget' => $request->alloted_budget[$index] ?? 0,
+                'Q1_target' => $request->Q1_target[$index] ?? 0,
+                'Q2_target' => $request->Q2_target[$index] ?? 0,
+                'Q3_target' => $request->Q3_target[$index] ?? 0,
+                'Q4_target' => $request->Q4_target[$index] ?? 0,
                 'created_by' => Auth::user()->user_name,
             ]);
 
@@ -645,14 +649,18 @@ class IndicatorController extends Controller
         $indicator->Catanduanes_target = str_replace(['[', ']', '"'], '', json_encode($request->input('Catanduanes_target') ?? ''));
         $indicator->Masbate_target = str_replace(['[', ']', '"'], '', json_encode($request->input('Masbate_target') ?? ''));
         $indicator->Sorsogon_target = str_replace(['[', ']', '"'], '', json_encode($request->input('Sorsogon_target') ?? ''));
-        $indicator->Albay_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Albay_budget') ?? 0));
-        $indicator->Camarines_Sur_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Camarines_Sur_budget') ?? 0));
-        $indicator->Camarines_Norte_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Camarines_Norte_budget') ?? 0));
-        $indicator->Catanduanes_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Catanduanes_budget') ?? 0));
-        $indicator->Masbate_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Masbate_budget') ?? 0));
-        $indicator->Sorsogon_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Sorsogon_budget') ?? 0));
+        $indicator->Albay_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Albay_budget') ?? 0.000));
+        $indicator->Camarines_Sur_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Camarines_Sur_budget') ?? 0.000));
+        $indicator->Camarines_Norte_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Camarines_Norte_budget') ?? 0.000));
+        $indicator->Catanduanes_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Catanduanes_budget') ?? 0.000));
+        $indicator->Masbate_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Masbate_budget') ?? 0.000));
+        $indicator->Sorsogon_budget = str_replace(['[', ']', '"'], '', json_encode($request->input('Sorsogon_budget') ?? 0.000));
         $indicator->measures = $request->input('measures');
         $indicator->alloted_budget = $request->input('alloted_budget');
+        $indicator->Q1_target = $request->input('Q1_target');
+        $indicator->Q2_target = $request->input('Q2_target');
+        $indicator->Q3_target = $request->input('Q3_target');
+        $indicator->Q4_target = $request->input('Q4_target');
         $indicator->division_id = json_encode($request->input('division_id'));
         $indicator->status = $request->input('status', 'Active');
         $indicator->updated_by = Auth::user()->user_name;

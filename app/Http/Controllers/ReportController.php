@@ -1424,7 +1424,7 @@ class ReportController extends Controller
                         // Insert Success Indicators (Pink row)
                         $sheet1->setCellValue('A' . $row, $indicator->measures); // Measures under INDICATORS
                         $sheet1->setCellValue('B' . $row, $indicator->target); // Annual Target
-                        $sheet1->setCellValue('C' . $row, '=SUM(D' . $row . ':F' . $row . ')'); //1st QUARTER
+                        $sheet1->setCellValue('C' . $row, $indicator->Q1_target); //1st QUARTER
                         $sheet1->setCellValue('G' . $row, '=SUM(D' . $row . ':F' . $row . ')');  //QTR.TOTAL
                         $sheet1->setCellValue('H' . $row, '=SUM(D' . $row . ':F' . $row . ')'); //ACCOMPLISHMENT: ANNUAL TOTAL
                         $sheet1->setCellValue('I' . $row, '=(G' . $row . '/C' . $row . ')'); // percenatge QTR
@@ -1477,7 +1477,7 @@ class ReportController extends Controller
                             $targetValue = $indicator->$targetField ?? 0; // Get target value, default to 0 if not set
 
                             // Insert division name and target value in respective columns
-                            $sheet1->setCellValue('A' . $row, $divisionName . ' NFO'); //Division Name
+                            $sheet1->setCellValue('A' . $row, $divisionName); //Division Name
                             $sheet1->setCellValue('B' . $row, $targetValue); // Corresponding Target
 
                             $entries = Entries::whereNull('deleted_at')
@@ -1676,6 +1676,8 @@ class ReportController extends Controller
                     // Insert Success Indicators (Pink row)
                     $sheet2->setCellValue('A' . $row, $indicator->measures); // Measures under INDICATORS
                     $sheet2->setCellValue('B' . $row, $indicator->target); // Annual Target
+                    $sheet2->setCellValue('D' . $row, "='Q1'!C" . $row); // 1st Quarter
+                    $sheet2->setCellValue('E' . $row, $indicator->Q2_target); // 2nd Quarter
 
                     // Initialize an array to hold the total accomplishments for each month
                     $totalAccomplishmentsByMonth = [];
@@ -1705,12 +1707,12 @@ class ReportController extends Controller
                     $sheet2->setCellValue('F' . $row, '=(D' . $row . '+E' . $row . ')'); //2ND TOTAL
                     $sheet2->setCellValue('G' . $row, "='Q1'!G" . $row); //ACCOMPLISHMENT: TOTAL ACCOMP
                     $sheet2->setCellValue('L' . $row, '=(G' . $row . '+K' . $row . ')'); //ANNUAL TOTAL
-                    $sheet2->setCellValue('M' . $row, '=(K' . $row . '/G' . $row . ')'); //PERCENTAGE QTR
+                    $sheet2->setCellValue('M' . $row, '=(K' . $row . '/F' . $row . ')'); //PERCENTAGE QTR
                     $sheet2->setCellValue('N' . $row, '=(L' . $row . '/B' . $row . ')'); //PERCENTAGE ANNUAL
                     $sheet2->getStyle('M' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
                     $sheet2->getStyle('N' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
-                    $sheet2->setCellValue('O' . $row, '=(G' . $row . '-K' . $row . ')'); //QUARTER BALANCE
-                    $sheet2->setCellValue('P' . $row, '=(C' . $row . '-L' . $row . ')'); //ANNUAL BALANCE
+                    $sheet2->setCellValue('O' . $row, '=(K' . $row . '-F' . $row . ')'); //QUARTER BALANCE
+                    $sheet2->setCellValue('P' . $row, '=(B' . $row . '-L' . $row . ')'); //ANNUAL BALANCE
 
 
                     $row++;
@@ -1761,12 +1763,12 @@ class ReportController extends Controller
                         $sheet2->setCellValue('F' . $row, '=(D' . $row . '+E' . $row . ')'); //2ND TOTAL
                         $sheet2->setCellValue('G' . $row, "='Q1'!G" . $row); //ACCOMPLISHMENT: TOTAL ACCOMP
                         $sheet2->setCellValue('L' . $row, '=(G' . $row . '+K' . $row . ')'); //ANNUAL TOTAL
-                        $sheet2->setCellValue('M' . $row, '=(K' . $row . '/G' . $row . ')'); //PERCENTAGE QTR
+                        $sheet2->setCellValue('M' . $row, '=(K' . $row . '/F' . $row . ')'); //PERCENTAGE QTR
                         $sheet2->setCellValue('N' . $row, '=(L' . $row . '/B' . $row . ')'); //PERCENTAGE ANNUAL
                         $sheet2->getStyle('M' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
                         $sheet2->getStyle('N' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
-                        $sheet2->setCellValue('O' . $row, '=(G' . $row . '-K' . $row . ')'); //QUARTER BALANCE
-                        $sheet2->setCellValue('P' . $row, '=(C' . $row . '-L' . $row . ')'); //ANNUAL BALANCE
+                        $sheet2->setCellValue('O' . $row, '=(K' . $row . '-F' . $row . ')'); //QUARTER BALANCE
+                        $sheet2->setCellValue('P' . $row, '=(B' . $row . '-L' . $row . ')'); //ANNUAL BALANCE
 
                         $row++;
                     }
@@ -1920,6 +1922,10 @@ class ReportController extends Controller
                     // Insert Success Indicators (Pink row)
                     $sheet3->setCellValue('A' . $row, $indicator->measures); // Measures under INDICATORS
                     $sheet3->setCellValue('B' . $row, $indicator->target); // Annual Target
+                    $sheet3->setCellValue('C' . $row, "='Q2'!E" . $row); // 2nd Quarter
+                    $sheet3->setCellValue('D' . $row, $indicator->Q3_target); // 3rd Quarter
+                    $sheet3->setCellValue('E' . $row, '=(C' . $row . '+D' . $row . ')'); //3RD TOTAL
+
 
                     // Initialize an array to hold the total accomplishments for each month
                     $totalAccomplishmentsByMonth = [];
@@ -1944,10 +1950,13 @@ class ReportController extends Controller
                     ]);
 
 
-                    $sheet3->setCellValue('C' . $row, '=(G' . $row .')'); //2ND QUARTER
                     $sheet3->setCellValue('J' . $row, '=SUM(G' . $row . ':I' . $row . ')'); //QTR.TOTAL
                     $sheet3->setCellValue('F' . $row, "='Q2'!L" . $row); //ACCOMPLISHMENT: TOTAL ACCOMP
                     $sheet3->setCellValue('K' . $row, '=(F' . $row . '+J' . $row . ')'); //ACCOMPLISHMENT: ANNUAL TOTAL
+                    $sheet3->setCellValue('L' . $row, '=(J' . $row . '/E' . $row . ')'); //PERCENTAGE: QTR
+                    $sheet3->setCellValue('M' . $row, '=(K' . $row . '/B' . $row . ')'); //PERCENTAGE: ANNUAL
+                    $sheet3->setCellValue('N' . $row, '=(E' . $row . '-J' . $row . ')'); //QUARTER BALANCE
+                    $sheet3->setCellValue('O' . $row, '=(B' . $row . '-K' . $row . ')'); //ANNUAL BALANCE
 
                     $row++;
 
@@ -1992,12 +2001,14 @@ class ReportController extends Controller
                             $sheet3->setCellValue($columnLetter . $row, $accomplishmentsByMonth[$month]); // Set accomplishment in the correct column
                         }
 
-                        $sheet3->setCellValue('C' . $row, '=(G' . $row .')'); //2ND QUARTER
+                        $sheet3->setCellValue('E' . $row, '=(C' . $row . '+D' . $row . ')'); //3RD TOTAL
                         $sheet3->setCellValue('J' . $row, '=SUM(G' . $row . ':I' . $row . ')'); //QTR.TOTAL
                         $sheet3->setCellValue('F' . $row, "='Q2'!L" . $row); //ACCOMPLISHMENT: TOTAL ACCOMP
                         $sheet3->setCellValue('K' . $row, '=(F' . $row . '+J' . $row . ')'); //ACCOMPLISHMENT: ANNUAL TOTAL
-
-
+                        $sheet3->setCellValue('L' . $row, '=(J' . $row . '/E' . $row . ')'); //PERCENTAGE: QTR
+                        $sheet3->setCellValue('M' . $row, '=(K' . $row . '/B' . $row . ')'); //PERCENTAGE: ANNUAL
+                        $sheet3->setCellValue('N' . $row, '=(E' . $row . '-J' . $row . ')'); //QUARTER BALANCE
+                        $sheet3->setCellValue('O' . $row, '=(B' . $row . '-K' . $row . ')'); //ANNUAL BALANCE
                         $row++;
                     }
 
@@ -2173,11 +2184,16 @@ class ReportController extends Controller
                     ],
                     ]);
 
-
-                    $sheet4->setCellValue('C' . $row, '=(G' . $row .')'); //2ND QUARTER
+                    $sheet4->setCellValue('C' . $row, "='Q3'!D" . $row);//3RD QUARTER
+                    $sheet4->setCellValue('D' . $row, $indicator->Q4_target); // 4TH Quarter
+                    $sheet4->setCellValue('E' . $row, '=(C' . $row . '+D' . $row . ')'); //4TH TOTAL
                     $sheet4->setCellValue('J' . $row, '=SUM(G' . $row . ':I' . $row . ')'); //QTR.TOTAL
                     $sheet4->setCellValue('F' . $row, "='Q2'!L" . $row); //ACCOMPLISHMENT: TOTAL ACCOMP
                     $sheet4->setCellValue('K' . $row, '=(F' . $row . '+J' . $row . ')'); //ACCOMPLISHMENT: ANNUAL TOTAL
+                    $sheet4->setCellValue('L' . $row, '=(J' . $row . '/E' . $row . ')'); //PERCENTAGE: QTR
+                    $sheet4->setCellValue('M' . $row, '=(K' . $row . '/B' . $row . ')'); //PERCENTAGE: ANNUAL
+                    $sheet4->setCellValue('N' . $row, '=(E' . $row . '-J' . $row . ')'); //QUARTER BALANCE
+                    $sheet4->setCellValue('O' . $row, '=(B' . $row . '-K' . $row . ')'); //ANNUAL BALANCE
 
                     $row++;
 
@@ -2222,10 +2238,14 @@ class ReportController extends Controller
                             $sheet4->setCellValue($columnLetter . $row, $accomplishmentsByMonth[$month]); // Set accomplishment in the correct column
                         }
 
-                        $sheet4->setCellValue('C' . $row, '=(G' . $row .')'); //2ND QUARTER
+                        $sheet4->setCellValue('E' . $row, '=(C' . $row . '+D' . $row . ')'); //4TH TOTAL
                         $sheet4->setCellValue('J' . $row, '=SUM(G' . $row . ':I' . $row . ')'); //QTR.TOTAL
-                        // $sheet4->setCellValue('F' . $row, "='Q2'!L" . $row); //ACCOMPLISHMENT: TOTAL ACCOMP
-                        // $sheet4->setCellValue('K' . $row, '=(F' . $row . '+J' . $row . ')'); //ACCOMPLISHMENT: ANNUAL TOTAL
+                        $sheet4->setCellValue('F' . $row, "='Q2'!L" . $row); //ACCOMPLISHMENT: TOTAL ACCOMP
+                        $sheet4->setCellValue('K' . $row, '=(F' . $row . '+J' . $row . ')'); //ACCOMPLISHMENT: ANNUAL TOTAL
+                        $sheet4->setCellValue('L' . $row, '=(J' . $row . '/E' . $row . ')'); //PERCENTAGE: QTR
+                        $sheet4->setCellValue('M' . $row, '=(K' . $row . '/B' . $row . ')'); //PERCENTAGE: ANNUAL
+                        $sheet4->setCellValue('N' . $row, '=(E' . $row . '-J' . $row . ')'); //QUARTER BALANCE
+                        $sheet4->setCellValue('O' . $row, '=(B' . $row . '-K' . $row . ')'); //ANNUAL BALANCE
 
 
                         $row++;
@@ -2240,6 +2260,168 @@ class ReportController extends Controller
             }
 
         //END 4TH QUARTER
+
+
+        //START QUARTERLY
+
+            $sheet5 = $spreadsheet->createSheet();
+            $sheet5->setTitle('QUARTERLY');
+            $QuarterFour = 'Q4';
+
+            // First level headers
+            $headerRowStart = 1;
+            $headerRowEnd = 3;
+
+            // Add the header rows dynamically
+            $sheet5->setCellValue('A' . $headerRowStart, 'INDICATORS');
+            $sheet5->setCellValue('B' . $headerRowStart, 'TARGETS');
+            $sheet5->setCellValue('G' . $headerRowStart, 'ACCOMPLISHMENTS');
+            $sheet5->setCellValue('L' . $headerRowStart, '%');
+            $sheet5->setCellValue('M' . $headerRowStart, 'Annual Balance');
+            $sheet5->setCellValue('N' . $headerRowStart, 'Remark');
+
+            //Second Level
+
+            //TARGET
+            $sheet5->setCellValue('B' . ($headerRowStart + 1), 'Annual');
+            $sheet5->setCellValue('C' . ($headerRowStart + 1), '1ST QUARTER');
+            $sheet5->setCellValue('D' . ($headerRowStart + 1), '2ND QUARTER');
+            $sheet5->setCellValue('E' . ($headerRowStart + 1), '3RD QUARTER');
+            $sheet5->setCellValue('F' . ($headerRowStart + 1), '4TH QUARTER');
+
+            //ACCOMPLISHMEMNT
+            $sheet5->setCellValue('G' . ($headerRowStart + 1), '1ST QUARTER');
+            $sheet5->setCellValue('H' . ($headerRowStart + 1), '2ND QUARTER');
+            $sheet5->setCellValue('I' . ($headerRowStart + 1), '3RD QUARTER');
+            $sheet5->setCellValue('J' . ($headerRowStart + 1), '4TH QUARTER');
+            $sheet5->setCellValue('K' . ($headerRowStart + 1), 'TOTAL');
+
+
+            // Merge cells for 1st level headers
+            $sheet5->mergeCells('A' . $headerRowStart . ':A' . $headerRowStart + 1); // INDICATORS
+            $sheet5->mergeCells('B' . $headerRowStart . ':F' . $headerRowStart); // TARGETS
+            $sheet5->mergeCells('G' . $headerRowStart . ':K' . $headerRowStart); // ACCOMPLISHMENTS
+            $sheet5->mergeCells('L' . $headerRowStart . ':L' . $headerRowStart + 1); // INDICATORS
+            $sheet5->mergeCells('M' . $headerRowStart . ':M' . $headerRowStart + 1); // INDICATORS
+            $sheet5->mergeCells('N' . $headerRowStart . ':N' . $headerRowStart + 1); // INDICATORS
+
+
+            // Apply the header style to the sheet5 (this style is already defined in your code)
+            $sheet5->getStyle('A1:N' . ($headerRowStart + 2))->applyFromArray([
+                'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+                'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '8B0000']],
+                'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'FFFFFF']]],
+            ]);
+
+            // Set column width for better appearance (optional)
+            foreach (range('A', 'N') as $columnID) {
+                $sheet5->getColumnDimension($columnID)->setAutoSize(true);
+            }
+
+            //DATA
+            $orgOutcomes = DB::table('org_otc')
+            ->whereNull('deleted_at')
+            ->where('status', 'Active')
+            ->whereYear('created_at', $year)
+            ->orderBy('order','ASC')
+            ->get();
+
+            $row = $headerRowStart + 2; // Start inserting data below the headers
+
+            foreach ($orgOutcomes as $outcome) {
+                // Insert the Organizational Outcome (Yellow row)
+                $sheet5->setCellValue('A' . $row, $outcome->order . '.' .$outcome->organizational_outcome );
+
+                // Style the Organizational Outcome row
+                $sheet5->getStyle('A' . $row . ':N' . $row)->applyFromArray([
+                    'font' => ['bold' => true, 'size' => 14], // Thicker weight
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => 'fcd654'], // Yellow highlight
+                    ],
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN, // Border style
+                            'color' => ['rgb' => 'FFFFFF'], // White color for the border
+                        ],
+                    ],
+                ]);
+
+                // Set row height for organizational outcome
+                $sheet5->getRowDimension($row)->setRowHeight(30); // Increase height
+
+                $row++;
+
+                // Fetch success indicators related to the current organizational outcome
+                $successIndicators = DB::table('success_indc')
+                ->whereNull('deleted_at')
+                ->where('status', 'Active')
+                ->whereYear('created_at', $year)
+                ->where('org_id', $outcome->id)
+                ->get();
+
+                foreach ($successIndicators as $indicator) {
+                    // Insert Success Indicators (Pink row)
+                    $sheet5->setCellValue('A' . $row, $indicator->measures); // Measures under INDICATORS
+                    $sheet5->setCellValue('B' . $row, $indicator->Q1_target);
+
+                    $sheet5->getStyle('A' . $row . ':N' . $row)->applyFromArray([
+                        'font' => ['bold' => true, 'size' => 12], // Thicker weight
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'startColor' => ['rgb' => 'FFC0CB'], // Pink highlight
+                        ],
+                        'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN, // Border style
+                            'color' => ['rgb' => 'FFFFFF'], // White color for the border
+                        ],
+                    ],
+                    ]);
+
+
+                    $row++;
+
+                    $dvisions = Division::where('division_name', 'like', '%PO%')->get();
+
+                    foreach ($dvisions as $division) {
+                        $divisionName = str_replace(' PO', '', $division->division_name);
+
+                        $targetField = str_replace(' ', '_', $divisionName) . '_target'; // Convert to lowercase with underscores
+                        $targetValue = $indicator->$targetField ?? 0; // Get target value, default to 0 if not set
+
+                        // Insert division name and target value in respective columns
+                        // $sheet5->setCellValue('A' . $row, $divisionName); // Division Name
+                        // $sheet5->setCellValue('B' . $row, $targetValue); // Corresponding Target
+
+                        $entries = Entries::whereNull('deleted_at')
+                            ->where('status', 'Completed')
+                            ->where('year', $year)
+                            ->whereIn('months', $this->getMonthsForPeriod($QuarterFour))
+                            ->where('indicator_id', $indicator->id)
+                            ->get();
+
+
+                        // $sheet5->setCellValue('E' . $row, '=(C' . $row . '+D' . $row . ')'); //4TH TOTAL
+                        // $sheet5->setCellValue('J' . $row, '=SUM(G' . $row . ':I' . $row . ')'); //QTR.TOTAL
+                        // $sheet5->setCellValue('F' . $row, "='Q2'!L" . $row); //ACCOMPLISHMENT: TOTAL ACCOMP
+                        // $sheet5->setCellValue('K' . $row, '=(F' . $row . '+J' . $row . ')'); //ACCOMPLISHMENT: ANNUAL TOTAL
+                        // $sheet5->setCellValue('L' . $row, '=(J' . $row . '/E' . $row . ')'); //PERCENTAGE: QTR
+                        // $sheet5->setCellValue('M' . $row, '=(K' . $row . '/B' . $row . ')'); //PERCENTAGE: ANNUAL
+                        // $sheet5->setCellValue('N' . $row, '=(E' . $row . '-J' . $row . ')'); //QUARTER BALANCE
+                        // $sheet5->setCellValue('O' . $row, '=(B' . $row . '-K' . $row . ')'); //ANNUAL BALANCE
+
+
+                        $row++;
+                    }
+                }
+            }
+
+
+
+
+        //END QUARTERLY
 
         $spreadsheet->setActiveSheetIndex(0);
         // Set headers for file download

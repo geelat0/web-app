@@ -32,6 +32,10 @@ class SuccessIndicator extends Model
         'Catanduanes_budget',
         'Masbate_budget',
         'Sorsogon_budget',
+        'Q1_target',
+        'Q2_target',
+        'Q3_target',
+        'Q4_target',
     ];
 
     protected $casts = [
