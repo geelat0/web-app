@@ -10,8 +10,8 @@
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title"> <a href="/entries" class="text-primary"><i class='bx bx-left-arrow-circle'></i></a>
-                            Add Entries</h4>
+                        <h4 class="card-title"> <a href="/accomplishment" class="text-primary"><i class='bx bx-left-arrow-circle'></i></a>
+                            Add Accomplishment</h4>
                         {{-- <div class="row">
                             <div class="form-group">
                                 <label for="org_id" class="required">Organizational Outcome</label>
@@ -325,7 +325,7 @@
                 processData: false,
                 success: function(response) {
                     hideLoader();
-                    window.location.href = '/entries';
+                    window.location.href = '/accomplishment';
                     if (response.success) {
                         Swal.fire({
                             icon: 'success',

@@ -14,6 +14,7 @@ class SuccessIndicator extends Model
 
     protected $fillable = [
         'org_id',
+        'quarter_logs_id',
         'target',
         'measures',
         'division_id',

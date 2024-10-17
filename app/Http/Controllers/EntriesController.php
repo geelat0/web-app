@@ -564,7 +564,7 @@ class EntriesController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Entry updated successfully!',
+            'message' => 'Accomplishment updated successfully!',
             'entry' => $entry
         ]);
     }
@@ -583,7 +583,7 @@ class EntriesController extends Controller
         $role->updated_by = Auth::user();
         $role->delete();
 
-        return response()->json(['success' => true, 'message' => 'Entry deleted successfully']);
+        return response()->json(['success' => true, 'message' => 'Accomplishment deleted successfully']);
     }
 
     public function store(Request $request)
@@ -639,7 +639,7 @@ class EntriesController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Entry created successfully!',
+            'message' => 'Accomplishment created successfully!',
             'entry' => $entry
         ]);
     }

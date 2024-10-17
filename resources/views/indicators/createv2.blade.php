@@ -77,7 +77,7 @@
 
                                 <p class="d-inline-flex gap-1">
                                     <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample_0" aria-expanded="false" aria-controls="collapseExample">
-                                     Show Quarterly Target
+                                     Quarterly Target
                                     </button>
                                   </p>
                                   <div class="collapse" id="collapseExample_0">
@@ -87,28 +87,28 @@
                                             <div class="col">
                                                 <div class="form-group" class="">
                                                     <label for="Q1_target_">Quarter 1</label>
-                                                    <input type="number" step="any"  class="form-control capitalize" name="Q1_target" id="Q1_target" aria-describedby="" min="0" disabled>
+                                                    <input type="text" step="any"  class="form-control capitalize" name="Q1_target" id="Q1_target" aria-describedby=""disabled>
                                                 </div>
                                             </div>
 
                                             <div class="col">
                                                 <div class="form-group" class="">
                                                     <label for="Q2_target">Quarter 2</label>
-                                                    <input type="number" step="any"  class="form-control capitalize" name="Q2_target" id="Q2_target" aria-describedby=""  min="0" disabled>
+                                                    <input type="text" step="any"  class="form-control capitalize" name="Q2_target" id="Q2_target" aria-describedby="" disabled>
                                                 </div>
                                             </div>
 
                                             <div class="col">
                                                 <div class="form-group" class="">
                                                     <label for="Q3_target">Quarter 3</label>
-                                                    <input type="number" step="any"  class="form-control capitalize" name="Q3_target" id="Q3_target" aria-describedby="" min="0" disabled>
+                                                    <input type="text" step="any"  class="form-control capitalize" name="Q3_target" id="Q3_target" aria-describedby=""disabled>
                                                 </div>
                                             </div>
 
                                             <div class="col">
                                                 <div class="form-group" class="">
                                                     <label for="Q4_target">Quarter 4</label>
-                                                    <input type="number" step="any"  class="form-control capitalize" name="Q4_target" id="Q4_target" aria-describedby="" min="0" disabled>
+                                                    <input type="text" step="any"  class="form-control capitalize" name="Q4_target" id="Q4_target" aria-describedby=""disabled>
                                                 </div>
                                             </div>
                                         </div>

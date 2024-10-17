@@ -17,6 +17,7 @@ return new class extends Migration
 
             $table->string('target')->default('0');
 
+            $table->unsignedBigInteger('quarter_logs_id')->nullable();
             $table->string('Q1_target')->default('0');
             $table->string('Q2_target')->default('0');
             $table->string('Q3_target')->default('0');

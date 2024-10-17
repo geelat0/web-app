@@ -1352,7 +1352,6 @@ class ReportController extends Controller
             $sheet1->mergeCells('I' . ($headerRowStart + 1) . ':I' . $headerRowEnd);
             $sheet1->mergeCells('J' . ($headerRowStart + 1) . ':J' . $headerRowEnd);
 
-
             // // Third level headers
             $months = $this->getMonthsForPeriod($quarterOne);
             $monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -1363,7 +1362,6 @@ class ReportController extends Controller
                     $sheet1->setCellValue(chr(68 + $index) . ($headerRowStart + 2), $monthNames[$month - 1]); // Row 3 is now headerRowStart + 2
                 }
             }
-
 
             // Apply the header style to the sheet (this style is already defined in your code)
             $sheet1->getStyle('A1:M' . ($headerRowStart + 2))->applyFromArray([
@@ -1429,26 +1427,38 @@ class ReportController extends Controller
                         $sheet1->setCellValue('H' . $row, '=SUM(D' . $row . ':F' . $row . ')'); //ACCOMPLISHMENT: ANNUAL TOTAL
                         $sheet1->setCellValue('I' . $row, '=(G' . $row . '/C' . $row . ')'); // percenatge QTR
 
-                        if(is_numeric($indicator->target) ){
-                            $sheet1->setCellValue('J' . $row, '=(G' . $row . '/B' . $row . ')'); //Percenatge Annual
-                            $sheet1->setCellValue('L' . $row, '=(B' . $row . '-H' . $row . ')'); //  Annual BALANCE
-                        }else{
-                            // $sheet1->setCellValue('I' . $row, '#Div/0!'); // percenatge QTR
-                            // $sheet1->setCellValue('J' . $row, '#Div/0!'); //Percenatge Annual
+                        $sheet1->setCellValue('J' . $row, '=(G' . $row . '/B' . $row . ')'); //Percenatge Annual
+                        $sheet1->setCellValue('L' . $row, '=(B' . $row . '-H' . $row . ')'); //  Annual BALANCE
 
-                        }
                         $sheet1->setCellValue('K' . $row, '=(C' . $row . '-G' . $row . ')'); //  QTR BALANCE
 
                         $sheet1->getStyle('I' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
                         $sheet1->getStyle('J' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
-
-
 
                         // Initialize an array to hold the total accomplishments for each month
                         $totalAccomplishmentsByMonth = [];
                         $monthsForPeriod = $this->getMonthsForPeriod($quarterOne);
                         foreach ($monthsForPeriod as $month) {
                             $totalAccomplishmentsByMonth[$month] = 0; // Initialize each month with 0
+                        }
+
+                        $entries = Entries::whereNull('deleted_at')
+                        ->where('status', 'Completed')
+                        ->where('year', $year)
+                        ->whereIn('months', $this->getMonthsForPeriod($quarterOne))
+                        ->where('indicator_id', $indicator->id)
+                        ->get();
+
+                        foreach ($entries as $entry) {
+                            $month = $entry->months; // Get month as number (1-12)
+
+                            // Sum the accomplishments for the total array
+                            $totalAccomplishmentsByMonth[$month] +=$entry->total_accomplishment ?? 0;
+                        }
+
+                        foreach ($monthsForPeriod as $monthIndex => $month) {
+                            $columnLetter = chr(71 + $monthIndex); // Calculate the column letter based on the index
+                            $sheet1->setCellValue($columnLetter . $row, $totalAccomplishmentsByMonth[$month]); // Set accomplishment in the correct column
                         }
 
                         $sheet1->getStyle('A' . $row . ':M' . $row)->applyFromArray([
@@ -1495,7 +1505,7 @@ class ReportController extends Controller
 
                             // Aggregate the accomplishments for the respective months
                             foreach ($entries as $entry) {
-                                $month = date('n', strtotime($entry->created_at)); // Get month as number (1-12)
+                                $month = $entry->months; // Get month as number (1-12)
                                 $accomField = str_replace(' ', '_', $divisionName) . '_accomplishment';
                                 $accomplishmentsByMonth[$month] += $entry->$accomField ?? 0; // Sum the accomplishments
 
@@ -1514,16 +1524,10 @@ class ReportController extends Controller
                             $sheet1->setCellValue('G' . $row, '=SUM(D' . $row . ':F' . $row . ')'); //QTR.TOTAL
                             $sheet1->setCellValue('H' . $row, '=SUM(D' . $row . ':F' . $row . ')'); // //ACCOMPLISHMENT: ANNUAL TOTAL
                             $sheet1->setCellValue('I' . $row, '=(G' . $row . '/C' . $row . ')'); // percenatge QTR
-                            if(is_numeric($indicator->target) ){
-                                $sheet1->setCellValue('J' . $row, '=(G' . $row . '/B' . $row . ')'); //Percenatge Annual
-                                $sheet1->setCellValue('L' . $row, '=(B' . $row . '-H' . $row . ')'); //  Annual BALANCE
 
-                            }else{
+                            $sheet1->setCellValue('J' . $row, '=(G' . $row . '/B' . $row . ')'); //Percenatge Annual
+                            $sheet1->setCellValue('L' . $row, '=(B' . $row . '-H' . $row . ')'); //  Annual BALANCE
 
-                                // $sheet1->setCellValue('I' . $row, '#Div/0!'); // percenatge QTR
-                                // $sheet1->setCellValue('J' . $row, '#Div/0!'); //Percenatge Annual
-
-                            }
                             $sheet1->setCellValue('K' . $row, '=(C' . $row . '-G' . $row . ')'); //  QTR BALANCE
                             $sheet1->getStyle('I' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
                             $sheet1->getStyle('J' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
@@ -1533,10 +1537,10 @@ class ReportController extends Controller
                         }
 
                         // Insert total accomplishments for the indicator row
-                        foreach ($monthsForPeriod as $monthIndex => $month) {
-                            $columnLetter = chr(68 + $monthIndex);
-                            $sheet1->setCellValue($columnLetter . ($row - 7), $totalAccomplishmentsByMonth[$month]);
-                        }
+                        // foreach ($monthsForPeriod as $monthIndex => $month) {
+                        //     $columnLetter = chr(68 + $monthIndex);
+                        //     $sheet1->setCellValue($columnLetter . ($row - 7), $totalAccomplishmentsByMonth[$month]);
+                        // }
                     }
                 }
 
@@ -1687,6 +1691,25 @@ class ReportController extends Controller
                         $totalAccomplishmentsByMonth[$month] = 0; // Initialize each month with 0
                     }
 
+                    $entries = Entries::whereNull('deleted_at')
+                    ->where('status', 'Completed')
+                    ->where('year', $year)
+                    ->whereIn('months', $this->getMonthsForPeriod($QuarterTwo))
+                    ->where('indicator_id', $indicator->id)
+                    ->get();
+
+                    foreach ($entries as $entry) {
+                        $month = $entry->months; // Get month as number (1-12)
+
+                        // Sum the accomplishments for the total array
+                        $totalAccomplishmentsByMonth[$month] +=$entry->total_accomplishment ?? 0;
+                    }
+
+                    foreach ($monthsForPeriod as $monthIndex => $month) {
+                        $columnLetter = chr(71 + $monthIndex); // Calculate the column letter based on the index
+                        $sheet2->setCellValue($columnLetter . $row, $totalAccomplishmentsByMonth[$month]); // Set accomplishment in the correct column
+                    }
+
                     $sheet2->getStyle('A' . $row . ':Q' . $row)->applyFromArray([
                         'font' => ['bold' => true, 'size' => 12], // Thicker weight
                         'fill' => [
@@ -1745,7 +1768,7 @@ class ReportController extends Controller
 
                         // Aggregate the accomplishments for the respective months
                         foreach ($entries as $entry) {
-                            $month = date('n', strtotime($entry->created_at)); // Get month as number (1-12)
+                            $month = $entry->months; // Get month as number (1-12)
                             $accomField = str_replace(' ', '_', $divisionName) . '_accomplishment';
                             $accomplishmentsByMonth[$month] += $entry->$accomField ?? 0; // Sum the accomplishments
 
@@ -1774,10 +1797,10 @@ class ReportController extends Controller
                     }
 
                     // Insert total accomplishments for the indicator row
-                    foreach ($monthsForPeriod as $monthIndex => $month) {
-                        $columnLetter = chr(72 + $monthIndex);
-                        $sheet2->setCellValue($columnLetter . ($row - 7), $totalAccomplishmentsByMonth[$month]);
-                    }
+                    // foreach ($monthsForPeriod as $monthIndex => $month) {
+                    //     $columnLetter = chr(72 + $monthIndex);
+                    //     $sheet2->setCellValue($columnLetter . ($row - 7), $totalAccomplishmentsByMonth[$month]);
+                    // }
 
                 }
             }
@@ -1935,6 +1958,24 @@ class ReportController extends Controller
                         $totalAccomplishmentsByMonth[$month] = 0; // Initialize each month with 0
                     }
 
+                    $entries = Entries::whereNull('deleted_at')
+                    ->where('status', 'Completed')
+                    ->where('year', $year)
+                    ->whereIn('months', $this->getMonthsForPeriod($QuarterThree))
+                    ->where('indicator_id', $indicator->id)
+                    ->get();
+
+                    foreach ($entries as $entry) {
+                        $month = $entry->months; // Get month as number (1-12)
+                        // Sum the accomplishments for the total array
+                        $totalAccomplishmentsByMonth[$month] +=$entry->total_accomplishment ?? 0;
+                    }
+
+                    foreach ($monthsForPeriod as $monthIndex => $month) {
+                        $columnLetter = chr(71 + $monthIndex); // Calculate the column letter based on the index
+                        $sheet3->setCellValue($columnLetter . $row, $totalAccomplishmentsByMonth[$month]); // Set accomplishment in the correct column
+                    }
+
                     $sheet3->getStyle('A' . $row . ':P' . $row)->applyFromArray([
                         'font' => ['bold' => true, 'size' => 12], // Thicker weight
                         'fill' => [
@@ -1964,7 +2005,6 @@ class ReportController extends Controller
 
                     foreach ($dvisions as $division) {
                         $divisionName = str_replace(' PO', '', $division->division_name);
-
                         $targetField = str_replace(' ', '_', $divisionName) . '_target'; // Convert to lowercase with underscores
                         $targetValue = $indicator->$targetField ?? 0; // Get target value, default to 0 if not set
 
@@ -1988,7 +2028,7 @@ class ReportController extends Controller
 
                         // Aggregate the accomplishments for the respective months
                         foreach ($entries as $entry) {
-                            $month = date('n', strtotime($entry->created_at)); // Get month as number (1-12)
+                            $month = $entry->months; // Get month as number (1-12)
                             $accomField = str_replace(' ', '_', $divisionName) . '_accomplishment';
                             $accomplishmentsByMonth[$month] += $entry->$accomField ?? 0; // Sum the accomplishments
 
@@ -2013,10 +2053,10 @@ class ReportController extends Controller
                     }
 
                     // Insert total accomplishments for the indicator row
-                    foreach ($monthsForPeriod as $monthIndex => $month) {
-                        $columnLetter = chr(71 + $monthIndex);
-                        $sheet3->setCellValue($columnLetter . ($row - 7), $totalAccomplishmentsByMonth[$month]);
-                    }
+                    // foreach ($monthsForPeriod as $monthIndex => $month) {
+                    //     $columnLetter = chr(71 + $monthIndex);
+                    //     $sheet3->setCellValue($columnLetter . ($row - 7), $totalAccomplishmentsByMonth[$month]);
+                    // }
 
                 }
             }
@@ -2158,7 +2198,7 @@ class ReportController extends Controller
                 ->get();
 
                 foreach ($successIndicators as $indicator) {
-                    // Insert Success Indicators (Pink row)
+
                     $sheet4->setCellValue('A' . $row, $indicator->measures); // Measures under INDICATORS
                     $sheet4->setCellValue('B' . $row, $indicator->target); // Annual Target
 
@@ -2170,6 +2210,26 @@ class ReportController extends Controller
                         $totalAccomplishmentsByMonth[$month] = 0; // Initialize each month with 0
                     }
 
+                    $entries = Entries::whereNull('deleted_at')
+                    ->where('status', 'Completed')
+                    ->where('year', $year)
+                    ->whereIn('months', $this->getMonthsForPeriod($QuarterFour))
+                    ->where('indicator_id', $indicator->id)
+                    ->get();
+
+                    foreach ($entries as $entry) {
+                        $month = $entry->months; // Get month as number (1-12)
+
+                        // Sum the accomplishments for the total array
+                        $totalAccomplishmentsByMonth[$month] +=$entry->total_accomplishment ?? 0;
+                    }
+
+                    foreach ($monthsForPeriod as $monthIndex => $month) {
+                        $columnLetter = chr(71 + $monthIndex); // Calculate the column letter based on the index
+                        $sheet4->setCellValue($columnLetter . $row, $totalAccomplishmentsByMonth[$month]); // Set accomplishment in the correct column
+                    }
+
+                    // Insert Success Indicators (Pink row)
                     $sheet4->getStyle('A' . $row . ':P' . $row)->applyFromArray([
                         'font' => ['bold' => true, 'size' => 12], // Thicker weight
                         'fill' => [
@@ -2217,7 +2277,7 @@ class ReportController extends Controller
                             ->get();
 
 
-                    // Initialize month accomplishments for the current division
+                        // Initialize month accomplishments for the current division
                         $accomplishmentsByMonth = [];
                         foreach ($monthsForPeriod as $month) {
                             $accomplishmentsByMonth[$month] = 0; // Initialize each month with 0
@@ -2225,12 +2285,14 @@ class ReportController extends Controller
 
                         // Aggregate the accomplishments for the respective months
                         foreach ($entries as $entry) {
-                            $month = date('n', strtotime($entry->created_at)); // Get month as number (1-12)
+                            $month = $entry->months; // Get month as number (1-12)
                             $accomField = str_replace(' ', '_', $divisionName) . '_accomplishment';
                             $accomplishmentsByMonth[$month] += $entry->$accomField ?? 0; // Sum the accomplishments
 
                             // Sum the accomplishments for the total array
                             $totalAccomplishmentsByMonth[$month] += $entry->$accomField ?? 0;
+
+
                         }
 
                         foreach ($monthsForPeriod as $monthIndex => $month) {
@@ -2252,10 +2314,10 @@ class ReportController extends Controller
                     }
 
                     // Insert total accomplishments for the indicator row
-                    foreach ($monthsForPeriod as $monthIndex => $month) {
-                        $columnLetter = chr(71 + $monthIndex);
-                        $sheet4->setCellValue($columnLetter . ($row - 7), $totalAccomplishmentsByMonth[$month]);
-                    }
+                    // foreach ($monthsForPeriod as $monthIndex => $month) {
+                    //     $columnLetter = chr(71 + $monthIndex);
+                    //     $sheet4->setCellValue($columnLetter . ($row - 7), $totalAccomplishmentsByMonth[$month]);
+                    // }
                 }
             }
 
@@ -2327,7 +2389,7 @@ class ReportController extends Controller
             ->orderBy('order','ASC')
             ->get();
 
-            $row = $headerRowStart + 2; // Start inserting data below the headers
+            $row = $headerRowEnd; // Start inserting data below the headers
 
             foreach ($orgOutcomes as $outcome) {
                 // Insert the Organizational Outcome (Yellow row)
@@ -2364,7 +2426,12 @@ class ReportController extends Controller
                 foreach ($successIndicators as $indicator) {
                     // Insert Success Indicators (Pink row)
                     $sheet5->setCellValue('A' . $row, $indicator->measures); // Measures under INDICATORS
-                    $sheet5->setCellValue('B' . $row, $indicator->Q1_target);
+                    $sheet5->setCellValue('B' . $row, $indicator->target);
+                    $sheet5->setCellValue('C' . $row, $indicator->Q1_target);
+                    $sheet5->setCellValue('D' . $row, $indicator->Q2_target);
+                    $sheet5->setCellValue('E' . $row, $indicator->Q3_target);
+                    $sheet5->setCellValue('F' . $row, $indicator->Q4_target);
+
 
                     $sheet5->getStyle('A' . $row . ':N' . $row)->applyFromArray([
                         'font' => ['bold' => true, 'size' => 12], // Thicker weight
@@ -2380,6 +2447,13 @@ class ReportController extends Controller
                     ],
                     ]);
 
+                    $sheet5->setCellValue('K' . $row, '=SUM(G' . $row . ':J' . $row . ')'); //ACCOMPL TOTAL
+                    $sheet5->setCellValue('M' . $row, "=B". $row); //ANNUAL BALANCE
+                    $sheet5->setCellValue('L' . $row, "=K". $row); //%
+                    $sheet5->setCellValue('G' . $row, "='Q1'!G" . $row + 1); //Q1 Accom Qtr Total
+                    $sheet5->setCellValue('H' . $row, "='Q2'!K" . $row + 1); //Q2 Accom Qtr Total
+                    $sheet5->setCellValue('I' . $row, "='Q3'!J" . $row + 1); //Q3 Accom Qtr Total
+                    $sheet5->setCellValue('J' . $row, "='Q4'!J" . $row + 1); //Q4 Accom Qtr Total
 
                     $row++;
 
@@ -2392,8 +2466,8 @@ class ReportController extends Controller
                         $targetValue = $indicator->$targetField ?? 0; // Get target value, default to 0 if not set
 
                         // Insert division name and target value in respective columns
-                        // $sheet5->setCellValue('A' . $row, $divisionName); // Division Name
-                        // $sheet5->setCellValue('B' . $row, $targetValue); // Corresponding Target
+                        $sheet5->setCellValue('A' . $row, $divisionName); // Division Name
+                        $sheet5->setCellValue('B' . $row, $targetValue); // Corresponding Target
 
                         $entries = Entries::whereNull('deleted_at')
                             ->where('status', 'Completed')
@@ -2402,23 +2476,18 @@ class ReportController extends Controller
                             ->where('indicator_id', $indicator->id)
                             ->get();
 
-
-                        // $sheet5->setCellValue('E' . $row, '=(C' . $row . '+D' . $row . ')'); //4TH TOTAL
-                        // $sheet5->setCellValue('J' . $row, '=SUM(G' . $row . ':I' . $row . ')'); //QTR.TOTAL
-                        // $sheet5->setCellValue('F' . $row, "='Q2'!L" . $row); //ACCOMPLISHMENT: TOTAL ACCOMP
-                        // $sheet5->setCellValue('K' . $row, '=(F' . $row . '+J' . $row . ')'); //ACCOMPLISHMENT: ANNUAL TOTAL
-                        // $sheet5->setCellValue('L' . $row, '=(J' . $row . '/E' . $row . ')'); //PERCENTAGE: QTR
-                        // $sheet5->setCellValue('M' . $row, '=(K' . $row . '/B' . $row . ')'); //PERCENTAGE: ANNUAL
-                        // $sheet5->setCellValue('N' . $row, '=(E' . $row . '-J' . $row . ')'); //QUARTER BALANCE
-                        // $sheet5->setCellValue('O' . $row, '=(B' . $row . '-K' . $row . ')'); //ANNUAL BALANCE
-
+                        $sheet5->setCellValue('K' . $row, '=SUM(G' . $row . ':J' . $row . ')'); //ACCOMPL TOTAL
+                        $sheet5->setCellValue('M' . $row, "=B". $row); //ANNUAL BALANCE
+                        $sheet5->setCellValue('L' . $row, "=K". $row); //%
+                        $sheet5->setCellValue('G' . $row, "='Q1'!G" . $row + 1); //Q1 Accom Qtr Total
+                        $sheet5->setCellValue('H' . $row, "='Q2'!K" . $row + 1); //Q2 Accom Qtr Total
+                        $sheet5->setCellValue('I' . $row, "='Q3'!J" . $row + 1); //Q3 Accom Qtr Total
+                        $sheet5->setCellValue('J' . $row, "='Q4'!J" . $row + 1); //Q4 Accom Qtr Total
 
                         $row++;
                     }
                 }
             }
-
-
 
 
         //END QUARTERLY

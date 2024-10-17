@@ -48,10 +48,10 @@
         @endcan
 
         @can('view-entries')
-        <li class="menu-item {{ request()->is('entries') ? 'active' : '' }}">
-          <a href="/entries" class="menu-link"@if( Auth::user()->role->name === 'SuperAdmin' ||  Auth::user()->role->name === 'Admin') title="Permission: manage_entries" data-toggle="tooltip" data-placement="right" @endif>
+        <li class="menu-item {{ request()->is('accomplishment') ? 'active' : '' }}">
+          <a href="/accomplishment" class="menu-link"@if( Auth::user()->role->name === 'SuperAdmin' ||  Auth::user()->role->name === 'Admin') title="Permission: manage_entries" data-toggle="tooltip" data-placement="right" @endif>
             <i class='menu-icon tf-icons bx bx-file'></i>
-            <div class="text-truncate" data-i18n="Page 2">Entries</div>
+            <div class="text-truncate" data-i18n="Page 2">Accomplishment</div>
             @can('view-entries')
             <span class="badge {{ $entriesCount == 0 ? 'bg-info' : 'bg-danger'}}  badge-notifications p-1 fs-8">{{$entriesCount}}</span>
             @endcan

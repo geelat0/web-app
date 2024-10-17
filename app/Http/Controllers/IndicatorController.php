@@ -6,6 +6,7 @@ use App\Models\Division;
 use App\Models\Entries;
 use App\Models\History;
 use App\Models\Role;
+use App\Models\Quarter_logs;
 use App\Models\SuccessIndicator;
 use App\Models\User;
 use Carbon\Carbon;
@@ -523,6 +524,7 @@ class IndicatorController extends Controller
 
         foreach ($request->measures as $index => $measure) {
 
+
             $successIndicator = SuccessIndicator::create([
                 'org_id' => $request->org_id,
                 'measures' => $measure,
@@ -549,8 +551,20 @@ class IndicatorController extends Controller
             ]);
 
             $successIndicatorIds[] = $successIndicator->id;
-        }
 
+            $quarter = Quarter_logs::create([
+                'indicator_id' => $successIndicator->id,
+                'Q1_target' => $request->Q1_target[$index] ?? 0,
+                'Q2_target' => $request->Q2_target[$index] ?? 0,
+                'Q3_target' => $request->Q3_target[$index] ?? 0,
+                'Q4_target' => $request->Q4_target[$index] ?? 0,
+                'created_by' => Auth::user()->user_name,
+                'updated_by' => Auth::user()->user_name,
+            ]) ;
+
+            $successIndicator->quarter_logs_id = $quarter->id;
+            $successIndicator->save();
+        }
 
         // $indicators = SuccessIndicator::all();
         // $matchingUserIds = [];
@@ -667,6 +681,16 @@ class IndicatorController extends Controller
         $indicator->updated_at =now();
         // Save the updated indicator
         $indicator->save();
+
+        $quarter_logs = new Quarter_logs();
+        $quarter_logs->indicator_id = $request->id;
+        $quarter_logs->Q1_target = $request->input('Q1_target');
+        $quarter_logs->Q2_target = $request->input('Q2_target');
+        $quarter_logs->Q3_target = $request->input('Q3_target');
+        $quarter_logs->Q4_target = $request->input('Q4_target');
+        $quarter_logs->created_by = Auth::user()->user_name;
+        $quarter_logs->updated_by = Auth::user()->user_name;
+        $quarter_logs->save();
 
         $history = new History();
         $history->indicator_id = $indicator->id;

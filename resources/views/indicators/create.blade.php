@@ -102,43 +102,35 @@
                                         <div class="row">
                                             <div class="col">
                                                 <div class="form-group" class="">
-                                                    <label for="Q1_target_0">Quarter 1</label>
-                                                    <input type="number" step="any"  class="form-control capitalize alloted-budget" name="Q1_target[]" id="Q1_target_0" aria-describedby="" placeholder="0" min="0">
+                                                    <label for="quarter1_target_0">Quarter 1</label>
+                                                    <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q1_target[]" id="quarter1_target_0" aria-describedby="" placeholder="0" readonly>
                                                     <div class="invalid-feedback" id="Q1_targetError_0"></div>
                                                 </div>
                                             </div>
 
                                             <div class="col">
                                                 <div class="form-group" class="">
-                                                    <label for="Q2_target_0">Quarter 2</label>
-                                                    <input type="number" step="any"  class="form-control capitalize alloted-budget" name="Q2_target[]" id="Q2_target_0" aria-describedby="" placeholder="0" min="0">
+                                                    <label for="quarter2_target_0">Quarter 2</label>
+                                                    <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q2_target[]" id="quarter2_target_0" aria-describedby="" placeholder="0" readonly>
                                                 </div>
                                             </div>
 
                                             <div class="col">
                                                 <div class="form-group" class="">
-                                                    <label for="Q3_target_0">Quarter 3</label>
-                                                    <input type="number" step="any"  class="form-control capitalize alloted-budget" name="Q3_target[]" id="Q3_target_0" aria-describedby="" placeholder="0" min="0">
+                                                    <label for="quarter3_target_0">Quarter 3</label>
+                                                    <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q3_target[]" id="quarter3_target_0" aria-describedby="" placeholder="0" readonly>
                                                 </div>
                                             </div>
 
                                             <div class="col">
                                                 <div class="form-group" class="">
-                                                    <label for="Q4_target_0">Quarter 4</label>
-                                                    <input type="number" step="any"  class="form-control capitalize alloted-budget" name="Q4_target[]" id="Q4_target_0" aria-describedby="" placeholder="0" min="0">
+                                                    <label for="quarter4_target_0">Quarter 4</label>
+                                                    <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q4_target[]" id="quarter4_target_0" aria-describedby="" placeholder="0" readonly>
                                                 </div>
                                             </div>
                                         </div>
-
-
                                     </div>
                                   </div>
-
-
-
-
-
-
                             </div>
                         </div>
                     </div>
@@ -159,10 +151,6 @@
                 </div>
             </div>
         </div>
-
-
-
-
     </form>
 </div>
 
@@ -248,34 +236,32 @@ $(document).ready(function() {
                                         <div class="row">
                                             <div class="col">
                                                 <div class="form-group" class="">
-                                                    <label for="Q1_target_${outcomeIndex}">Quarter 1</label>
-                                                    <input type="number" step="any"  class="form-control capitalize alloted-budget" name="Q1_target[]" id="Q1_target_${outcomeIndex}" aria-describedby="" placeholder="0" min="0">
+                                                    <label for="quarter1_target_${outcomeIndex}">Quarter 1</label>
+                                                    <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q1_target[]" id="quarter1_target_${outcomeIndex}" aria-describedby="" placeholder="0" readonly>
                                                 </div>
                                             </div>
 
                                             <div class="col">
                                                 <div class="form-group" class="">
-                                                    <label for="Q2_target_${outcomeIndex}">Quarter 2</label>
-                                                    <input type="number" step="any"  class="form-control capitalize alloted-budget" name="Q2_target[]" id="Q2_target_${outcomeIndex}" aria-describedby="" placeholder="0" min="0">
+                                                    <label for="quarter2_target_${outcomeIndex}">Quarter 2</label>
+                                                    <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q2_target[]" id="quarter2_target_${outcomeIndex}" aria-describedby="" placeholder="0" readonly>
                                                 </div>
                                             </div>
 
                                             <div class="col">
                                                 <div class="form-group" class="">
-                                                    <label for="Q3_target_${outcomeIndex}">Quarter 3</label>
-                                                    <input type="number" step="any"  class="form-control capitalize alloted-budget" name="Q3_target[]" id="Q3_target_${outcomeIndex}" aria-describedby="" placeholder="0" min="0">
+                                                    <label for="quarter3_target_${outcomeIndex}">Quarter 3</label>
+                                                    <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q3_target[]" id="quarter3_target_${outcomeIndex}" aria-describedby="" placeholder="0" readonly>
                                                 </div>
                                             </div>
 
                                             <div class="col">
                                                 <div class="form-group" class="">
-                                                    <label for="Q4_target_${outcomeIndex}">Quarter 4</label>
-                                                    <input type="number" step="any"  class="form-control capitalize alloted-budget" name="Q4_target[]" id="Q4_target_${outcomeIndex}" aria-describedby="" placeholder="0" min="0">
+                                                    <label for="quarter4_target_${outcomeIndex}">Quarter 4</label>
+                                                    <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q4_target[]" id="quarter4_target_${outcomeIndex}" aria-describedby="" placeholder="0" readonly>
                                                 </div>
                                             </div>
                                         </div>
-
-
                                     </div>
                                   </div>
                             </div>
@@ -423,6 +409,64 @@ $(document).ready(function() {
         }
 
 
+    });
+
+    $(document).on('change', 'input[name^="targetType"]', function() {
+        const index = $(this).closest('.card').find('input[name^="targetType"]').attr('id').split('_').pop();
+        const selectedType = $(this).val();
+
+        // Loop through all the quarter inputs for the selected target type
+        const quarterInputs = [
+            $(`#quarter1_target_${index}`),
+            $(`#quarter2_target_${index}`),
+            $(`#quarter3_target_${index}`),
+            $(`#quarter4_target_${index}`)
+        ];
+
+        quarterInputs.forEach(function(quarterInput) {
+            let currentValue = quarterInput.val();
+
+            if (selectedType == 'percentage') {
+                quarterInput
+                    .attr('type', 'text') // Set type to text to allow appending "%"
+                    .attr('min', '0')
+                    .attr('max', '100')
+                    .attr('placeholder', '%')
+                    .removeAttr('readonly')
+                    .val(currentValue.includes('Actual') ? '' : `${currentValue.replace('%', '')}%`)
+                    .off('input.percentage')
+                    .on('input.percentage', function() {
+                        // Remove non-numeric characters except '%'
+                        let value = $(this).val().replace(/[^\d%]/g, '');
+
+                        if (value.indexOf('%') !== -1) {
+                            value = value.substring(0, value.indexOf('%') + 1); // Keep only one "%"
+                        }
+                        // Ensure the value is within the range
+                        if ($.isNumeric(value) && value >= 0 && value <= 100) {
+                            $(this).val(`${value}%`);
+                        } else {
+                            $(this).val(value);
+                        }
+                    });
+            } else if (selectedType == 'number') {
+                quarterInput
+                    .attr('type', 'number')
+                    .removeAttr('min')
+                    .removeAttr('max')
+                    .removeAttr('placeholder')
+                    .removeAttr('readonly')
+                    .val(currentValue.replace('%', '').replace('Actual', ''))
+                    .off('input.percentage');
+            } else if (selectedType == 'actual') {
+                quarterInput
+                        .attr('type', 'text')
+                        .attr('readonly', 'readonly')
+                        .removeAttr('placeholder')
+                        .off('input.percentage')
+                        .val('Actual');
+            }
+        });
     });
 
     //---------------------------------------------------END JS FOR TARGET TYPE---------------------------------------------------//

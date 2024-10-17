@@ -10,8 +10,8 @@
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title"> <a href="/entries" class="text-primary"><i class='bx bx-left-arrow-circle'></i></a>
-                            View Entries</h4>
+                        <h4 class="card-title"> <a href="/accomplishment" class="text-primary"><i class='bx bx-left-arrow-circle'></i></a>
+                            View Accomplishment</h4>
                         {{-- <div class="row">
                             <div class="form-group">
                                 <label for="org_id" class="required">Organizational Outcome</label>
@@ -139,7 +139,7 @@
             </div>
             <div class="col">
                 <div class="d-flex justify-content-end">
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
                 </div>
 
             </div>

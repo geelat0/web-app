@@ -12,7 +12,7 @@
     <div class="col">
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title">Entries</h4>
+                <h4 class="card-title">Accomplishment</h4>
                 {{-- <p class="card-description"> Add class <code>.table-bordered</code> --}}
                 </p>
                 <div class="row">
@@ -162,7 +162,7 @@
             buttons: [
 
                 {
-                    text: 'Add Entries',
+                    text: 'Add Accomplishment',
                     enabled: false,
                     className: 'btn btn-success user_btn',
                     action: function (e, dt, node, config) {
@@ -170,7 +170,7 @@
 
                         if (selectedData && selectedData.id) {
 
-                            window.location.href = `/entries_create?id=${selectedData.id}`;
+                            window.location.href = `/accomplishment_create?id=${selectedData.id}`;
                             console.log(selectedData.id);
                         } else {
                             alert('No item selected or invalid ID.');
@@ -287,7 +287,7 @@
 
                         if (selectedData && selectedData.id) {
 
-                            window.location.href = `/entries_view?id=${selectedData.id}`;
+                            window.location.href = `/accomplishment_view?id=${selectedData.id}`;
                             console.log(selectedData.id);
                         } else {
                             alert('No item selected or invalid ID.');

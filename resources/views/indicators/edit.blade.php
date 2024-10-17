@@ -95,40 +95,40 @@
                             <div class="row mt-3">
 
                                 <p class="d-inline-flex gap-1">
-                                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample_0" aria-expanded="false" aria-controls="collapseExample">
-                                     Show Quarterly Target
+                                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample_0" aria-expanded="true" aria-controls="collapseExample">
+                                     Quarterly Target
                                     </button>
                                   </p>
-                                  <div class="collapse" id="collapseExample_0">
+                                  <div class="collapse show" id="collapseExample_0">
                                     <div class="card card-body">
 
                                         <div class="row">
                                             <div class="col">
                                                 <div class="form-group" class="">
-                                                    <label for="Q1_target_">Quarter 1</label>
-                                                    <input type="number" step="any"  class="form-control capitalize alloted-budget" name="Q1_target" id="Q1_target" aria-describedby="" value="{{ $indicator->Q1_target }}" min="0" @if(!in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin'])) disabled @endif>
+                                                    <label for="quarter1_target_0">Quarter 1</label>
+                                                    <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q1_target" id="quarter1_target_0" aria-describedby="" value="{{ $indicator->Q1_target }}" @if(!in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin'])) disabled @endif>
                                                     <div class="invalid-feedback" id="Q1_targetError_0"></div>
                                                 </div>
                                             </div>
 
                                             <div class="col">
                                                 <div class="form-group" class="">
-                                                    <label for="Q2_target">Quarter 2</label>
-                                                    <input type="number" step="any"  class="form-control capitalize alloted-budget" name="Q2_target" id="Q2_target" aria-describedby="" value="{{ $indicator->Q2_target }}" min="0" @if(!in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin'])) disabled @endif>
+                                                    <label for="quarter2_target_0">Quarter 2</label>
+                                                    <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q2_target" id="quarter2_target_0" aria-describedby="" value="{{ $indicator->Q2_target }}" @if(!in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin'])) disabled @endif>
                                                 </div>
                                             </div>
 
                                             <div class="col">
                                                 <div class="form-group" class="">
-                                                    <label for="Q3_target">Quarter 3</label>
-                                                    <input type="number" step="any"  class="form-control capitalize alloted-budget" name="Q3_target" id="Q3_target "aria-describedby="" value="{{ $indicator->Q3_target }}" min="0" @if(!in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin'])) disabled @endif>
+                                                    <label for="quarter3_target_0">Quarter 3</label>
+                                                    <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q3_target" id="quarter3_target_0"aria-describedby="" value="{{ $indicator->Q3_target }}" @if(!in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin'])) disabled @endif>
                                                 </div>
                                             </div>
 
                                             <div class="col">
                                                 <div class="form-group" class="">
-                                                    <label for="Q4_target">Quarter 4</label>
-                                                    <input type="number" step="any"  class="form-control capitalize alloted-budget" name="Q4_target" id="Q4_target" aria-describedby="" value="{{ $indicator->Q4_target }}" min="0" @if(!in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin'])) disabled @endif>
+                                                    <label for="quarter4_target_0">Quarter 4</label>
+                                                    <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q4_target" id="quarter4_target_0" aria-describedby="" value="{{ $indicator->Q4_target }}" @if(!in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin'])) disabled @endif>
                                                 </div>
                                             </div>
                                         </div>
@@ -224,65 +224,123 @@ $(document).ready(function() {
             }
         });
     }
-    // initializeDivisionSelect();
 
 
-    // Handle target type change
+    // $(document).on('change', 'input[name^="targetType"]', function() {
+    //     const index = $(this).closest('.card').find('input[name^="targetType"]').attr('id').split('_').pop();
+    //     const selectedType = $(this).val();
+    //     const targetInput = $(`#target_${index}`);
+    //     let currentValue = targetInput.val();
+    //     // const currentValue = targetInput.val().replace('%', '')
+
+    //     if (selectedType == 'percentage') {
+    //         targetInput
+    //         .attr('type', 'text') // Set type to text to allow appending "%"
+    //         .attr('min', '0')
+    //         .attr('max', '100')
+    //         .attr('placeholder', '%')
+    //         .removeAttr('readonly')
+    //         .val(currentValue.includes('Actual') ? '' : `${currentValue.replace('%', '')}%`)
+    //         .off('input.percentage')
+    //         .on('input.percentage', function() {
+    //             // Remove non-numeric characters except '%'
+    //             let value = $(this).val().replace(/[^\d%]/g, '');
+
+    //             if (value.indexOf('%') !== -1) {
+    //                 value = value.substring(0, value.indexOf('%') + 1); // Keep only one "%"
+    //             }
+    //             // Ensure the value is within the range
+    //             if ($.isNumeric(value) && value >= 0 && value <= 100) {
+    //                 $(this).val(`${value}%`);
+    //             } else {
+    //                 $(this).val(value);
+    //             }
+    //         });
+    //     } else if (selectedType == 'number') {
+    //         targetInput
+    //         .attr('type', 'number')
+    //         .removeAttr('min')
+    //         .removeAttr('max')
+    //         .removeAttr('placeholder')
+    //         .removeAttr('readonly')
+    //         .val(currentValue.replace('%', '').replace('Actual', ''))
+    //         .off('input.percentage');
+    //     } else if (selectedType == 'actual') {
+    //         targetInput
+    //         .attr('type', 'text')
+    //         .attr('readonly', 'readonly')
+    //         .removeAttr('placeholder')
+    //         .off('input.percentage')
+    //         .val('Actual');
+    //         $(`#target_${index}`).val('Actual');
+    //     }
+    // });
+
+    // // Handle target type change
     $(document).on('change', 'input[name^="targetType"]', function() {
         const index = $(this).closest('.card').find('input[name^="targetType"]').attr('id').split('_').pop();
         const selectedType = $(this).val();
-        const targetInput = $(`#target_${index}`);
-        let currentValue = targetInput.val();
-        // const currentValue = targetInput.val().replace('%', '')
 
-        if (selectedType == 'percentage') {
-            targetInput
-            .attr('type', 'text') // Set type to text to allow appending "%"
-            .attr('min', '0')
-            .attr('max', '100')
-            .attr('placeholder', '%')
-            .removeAttr('readonly')
-            .val(currentValue.includes('Actual') ? '' : `${currentValue.replace('%', '')}%`)
-            .off('input.percentage')
-            .on('input.percentage', function() {
-                // Remove non-numeric characters except '%'
-                let value = $(this).val().replace(/[^\d%]/g, '');
+        // Select all inputs that need to be modified (e.g., Q1, Q2, Q3, Q4)
+        const targetInputs = [
+            $(`#target_${index}`),
+            $(`#quarter1_target_${index}`),
+            $(`#quarter2_target_${index}`),
+            $(`#quarter3_target_${index}`),
+            $(`#quarter4_target_${index}`)
+        ];
 
-                if (value.indexOf('%') !== -1) {
-                    value = value.substring(0, value.indexOf('%') + 1); // Keep only one "%"
-                }
-                // Ensure the value is within the range
-                if ($.isNumeric(value) && value >= 0 && value <= 100) {
-                    $(this).val(`${value}%`);
-                } else {
-                    $(this).val(value);
-                }
-            });
-        } else if (selectedType == 'number') {
-            targetInput
-            .attr('type', 'number')
-            .removeAttr('min')
-            .removeAttr('max')
-            .removeAttr('placeholder')
-            .removeAttr('readonly')
-            .val(currentValue.replace('%', '').replace('Actual', ''))
-            .off('input.percentage');
-        } else if (selectedType == 'actual') {
-            targetInput
-            .attr('type', 'text')
-            .attr('readonly', 'readonly')
-            .removeAttr('placeholder')
-            .off('input.percentage')
-            .val('Actual');
-            $(`#target_${index}`).val('Actual');
-        }
+        targetInputs.forEach(function(targetInput) {
+            let currentValue = targetInput.val();
+
+            if (selectedType == 'percentage') {
+                targetInput
+                    .attr('type', 'text') // Set type to text to allow appending "%"
+                    .attr('min', '0')
+                    .attr('max', '100')
+                    .attr('placeholder', '%')
+                    .removeAttr('readonly')
+                    .val(currentValue.includes('Actual') ? '' : `${currentValue.replace('%', '')}%`)
+                    .off('input.percentage')
+                    .on('input.percentage', function() {
+                        // Remove non-numeric characters except '%'
+                        let value = $(this).val().replace(/[^\d%]/g, '');
+
+                        if (value.indexOf('%') !== -1) {
+                            value = value.substring(0, value.indexOf('%') + 1); // Keep only one "%"
+                        }
+                        // Ensure the value is within the range
+                        if ($.isNumeric(value) && value >= 0 && value <= 100) {
+                            $(this).val(`${value}%`);
+                        } else {
+                            $(this).val(value);
+                        }
+                    });
+            } else if (selectedType == 'number') {
+                targetInput
+                    .attr('type', 'number')
+                    .removeAttr('min')
+                    .removeAttr('max')
+                    .removeAttr('placeholder')
+                    .removeAttr('readonly')
+                    .val(currentValue.replace('%', '').replace('Actual', ''))
+                    .off('input.percentage');
+            } else if (selectedType == 'actual') {
+                targetInput
+                    .attr('type', 'text')
+                    .attr('readonly', 'readonly')
+                    .removeAttr('placeholder')
+                    .off('input.percentage')
+                    .val('Actual');
+            }
+        });
     });
 
 
      //---------------------------------------------------START JS FOR DIVISION'S INPUTS---------------------------------------------------//
 
    // Function to update target fields based on selected divisions
-   function updateTargetFields(index, selectedDivisions, isInitialLoad = false) {
+    function updateTargetFields(index, selectedDivisions, isInitialLoad = false) {
         const targetContainer = $(`#targetFields_${index}`);
         targetContainer.empty();
 
@@ -497,87 +555,87 @@ $(document).ready(function() {
 
     // Form submission
     @if(in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin']))
-    $('#NewIndicatorForm').on('submit', function(e) {
-        e.preventDefault();
-        showLoader();
+        $('#NewIndicatorForm').on('submit', function(e) {
+            e.preventDefault();
+            showLoader();
 
-        $.ajax({
-            url: '{{ route('indicator.update', $indicator->id) }}', // Assuming you have a route named 'indicator.update'
-            type: 'PUT',
-            data: $(this).serialize(),
-            success: function(response) {
-                hideLoader();
-                if (response.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: response.message,
-                        showConfirmButton: false,
-                    });
-                    window.location.href = '/indicator';
-                }
-            },
-            error: function(xhr) {
-                hideLoader();
-                if (xhr.status === 422) {
-                    const errors = xhr.responseJSON.errors;
-                    $('.invalid-feedback').html(''); // Clear any previous error messages
-                    for (let key in errors) {
-                        const keyParts = key.split('.');
-                        if (keyParts.length > 1) {
-                            const index = keyParts[1];
-                            const errorKey = keyParts[0];
-                            console.log(errorKey);
-                            $(`#${errorKey}`).addClass('is-invalid');
-                            $(`#${errorKey}Error`).html(errors[key][0]).show();
-                        } else {
-                            $(`#${key}`).addClass('is-invalid');
-                            $(`#${key}Error`).html(errors[key][0]).show();
-                        }
+            $.ajax({
+                url: '{{ route('indicator.update', $indicator->id) }}', // Assuming you have a route named 'indicator.update'
+                type: 'PUT',
+                data: $(this).serialize(),
+                success: function(response) {
+                    hideLoader();
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: response.message,
+                            showConfirmButton: false,
+                        });
+                        window.location.href = '/indicator';
                     }
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Validation Errors!',
-                        html: 'Please fill out the required fields with asterisk',
-                        showConfirmButton: true,
-                    });
-
-                    $('.division-select').each(function() {
-                        const index = $(this).attr('id').split('_').pop();
-                        if ($(this).val().length === 0) { // Check if no value is selected
-                            $(`#division_id_${index}`).addClass('is-invalid');
-                            $(`#division_idError_${index}`).html('Please select at least one division.').show();
-                            isValid = false;
-                        } else {
-                            $(`#division_idError_${index}`).html('').hide();
+                },
+                error: function(xhr) {
+                    hideLoader();
+                    if (xhr.status === 422) {
+                        const errors = xhr.responseJSON.errors;
+                        $('.invalid-feedback').html(''); // Clear any previous error messages
+                        for (let key in errors) {
+                            const keyParts = key.split('.');
+                            if (keyParts.length > 1) {
+                                const index = keyParts[1];
+                                const errorKey = keyParts[0];
+                                console.log(errorKey);
+                                $(`#${errorKey}`).addClass('is-invalid');
+                                $(`#${errorKey}Error`).html(errors[key][0]).show();
+                            } else {
+                                $(`#${key}`).addClass('is-invalid');
+                                $(`#${key}Error`).html(errors[key][0]).show();
+                            }
                         }
-                    });
-
-                    if (!isValid) {
-                        hideLoader();
                         Swal.fire({
                             icon: 'error',
                             title: 'Validation Errors!',
                             html: 'Please fill out the required fields with asterisk',
                             showConfirmButton: true,
                         });
-                        return;
+
+                        $('.division-select').each(function() {
+                            const index = $(this).attr('id').split('_').pop();
+                            if ($(this).val().length === 0) { // Check if no value is selected
+                                $(`#division_id_${index}`).addClass('is-invalid');
+                                $(`#division_idError_${index}`).html('Please select at least one division.').show();
+                                isValid = false;
+                            } else {
+                                $(`#division_idError_${index}`).html('').hide();
+                            }
+                        });
+
+                        if (!isValid) {
+                            hideLoader();
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Validation Errors!',
+                                html: 'Please fill out the required fields with asterisk',
+                                showConfirmButton: true,
+                            });
+                            return;
+                        }
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oh no!',
+                            text: 'Something went wrong.',
+                            showConfirmButton: true,
+                        });
                     }
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oh no!',
-                        text: 'Something went wrong.',
-                        showConfirmButton: true,
-                    });
                 }
-            }
+            });
         });
-    });
     @endif
 
     @if(!in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin']))
-    $('#NewIndicatorForm').on('submit', function(e) {
+        $('#NewIndicatorForm').on('submit', function(e) {
             e.preventDefault();
             showLoader();
 
@@ -655,7 +713,7 @@ $(document).ready(function() {
                 }
             });
         });
-        @endif
+    @endif
 });
 </script>
 @endsection
