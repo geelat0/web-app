@@ -186,7 +186,7 @@ class DashboardController extends Controller
         $login_in = $query->get();
 
         return DataTables::of($login_in)
-            ->addColumn('id', function($data) {
+            ->editColumn('id', function($data) {
                 return $data->id;
             })
             ->addColumn('user', function($data) {

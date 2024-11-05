@@ -51,28 +51,176 @@
                                     <div class="invalid-feedback" id="division_idError"></div>
                                 </div>
                             </div>
-                            <div class="row row-cols-4 mb-3" id="targetFields_0">
-                                <div class="col mb-3" >
-                                </div>
-                            </div>
-                            <div class="row">
+
+
+                            <div class="row  mb-3">
                                 <div class="col">
-                                    <div class="form-group mb-3">
-                                        <label for="target" class="required">Target</label>
-                                        <input type="text" class="form-control capitalize" name="target" id="target_0" aria-describedby="" value="{{ $indicator->target }}" {{ $indicator->targetType == 'actual' ? 'disabled' : '' }} disabled >
-                                        <div class="invalid-feedback" id="targetError[]"></div>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="form-group">
-                                        <label for="alloted_budget" class="required">Alloted Budget</label>
-                                        <input type="number" class="form-control capitalize" name="alloted_budget" id="alloted_budget_0" aria-describedby="" value="{{ $indicator->alloted_budget }}" disabled>
-                                        <div class="invalid-feedback" id="alloted_budgetError"></div>
+                                    <div class="accordion" id="accordionWithIcon">
+                                        @if(in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin']))
+                                        <div class="card accordion-item ">
+                                          <h2 class="accordion-header d-flex align-items-center">
+                                            <button type="button" class="accordion-button collapsed btn-outline-danger"  data-bs-toggle="collapse" data-bs-target="#accordionWithIcon-1" aria-expanded="false">
+                                              <i class='bx bxs-circle-quarter me-2'></i>
+                                              Quarter One Target
+                                            </button>
+                                          </h2>
+                                        
+                                          <div id="accordionWithIcon-1" class="accordion-collapse collapse" >
+                                            <div class="accordion-body">
+
+                                                <div class="row row-cols-3 mb-3" id="Q1targetFields_0">
+                                                    {{-- <div class="col mb-3" >
+                                                    </div> --}}
+                                                </div>
+
+                                            
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="form-group ">
+                                                            <label for="quarter1_target_0" class="required">Q1 Target</label>
+                                                            <input type="text" class="form-control capitalize target-input" name="Q1_target[]" id="quarter1_target_0" aria-describedby="" value="{{ $indicator->Q1_target }}" disabled>
+                                                            {{-- <input type="text" class="form-control capitalize target-input d-none" name="target[]" id="targetDivision_0" aria-describedby="" disabled> --}}
+                                                            <div class="invalid-feedback" id="Q1_targetError_0"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        
+                                        <div class="accordion-item card">
+                                          <h2 class="accordion-header d-flex align-items-center">
+                                            <button type="button" class="accordion-button collapsed btn-outline-warning" data-bs-toggle="collapse" data-bs-target="#accordionWithIcon-2" aria-expanded="false">
+                                                <i class='bx bxs-circle-half me-2'></i>
+                                              Quarter Two Target
+                                            </button>
+                                          </h2>
+                                          <div id="accordionWithIcon-2" class="accordion-collapse collapse" >
+                                            <div class="accordion-body">
+
+                                                <div class="row row-cols-3 mb-3" id="Q2targetFields_0">
+                                                    {{-- <div class="col mb-3" >
+                                                    </div> --}}
+                                                </div>
+
+                                            
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="form-group ">
+                                                            <label for="quarter2_target_0" class="required">Q2 Target</label>
+                                                            <input type="text" class="form-control capitalize target-input" name="Q2_target[]" id="quarter2_target_0" aria-describedby="" value="{{ $indicator->Q2_target }}" disabled>
+                                                            {{-- <input type="text" class="form-control capitalize target-input d-none" name="target[]" id="targetDivision_0" aria-describedby="" disabled> --}}
+                                                            <div class="invalid-feedback" id="Q2_targetError_0"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            
+                                            </div>
+                                          </div>
+                                        </div>
+                                        
+                                        <div class="accordion-item card">
+                                          <h2 class="accordion-header d-flex align-items-center">
+                                            <button type="button" class="accordion-button collapsed btn-outline-success" data-bs-toggle="collapse" data-bs-target="#accordionWithIcon-3" aria-expanded="false">
+                                              <i class='bx bxs-circle-three-quarter me-2' ></i>
+                                              Quarter Three Target
+                                            </button>
+                                          </h2>
+                                          <div id="accordionWithIcon-3" class="accordion-collapse collapse" >
+                                            <div class="accordion-body">
+
+
+                                                <div class="row row-cols-3 mb-3" id="Q3targetFields_0">
+                                                    {{-- <div class="col mb-3" >
+                                                    </div> --}}
+                                                </div>
+
+                                            
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="form-group ">
+                                                            <label for="quarter3_target_0" class="required">Q3 Target</label>
+                                                            <input type="text" class="form-control capitalize target-input" name="Q3_target[]" id="quarter3_target_0" aria-describedby="" value="{{ $indicator->Q3_target }}" disabled>
+                                                            {{-- <input type="text" class="form-control capitalize target-input d-none" name="target[]" id="targetDivision_0" aria-describedby="" disabled> --}}
+                                                            <div class="invalid-feedback" id="Q3_targetError_0"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                             
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        <div class="accordion-item card">
+                                          <h2 class="accordion-header d-flex align-items-center">
+                                            <button type="button" class="accordion-button collapsed btn-outline-info" data-bs-toggle="collapse" data-bs-target="#accordionWithIcon-4" aria-expanded="false">
+                                                <i class='bx bxs-circle me-2' ></i>
+                                              Quarter Four Target
+                                            </button>
+                                          </h2>
+                                          <div id="accordionWithIcon-4" class="accordion-collapse collapse" >
+                                            <div class="accordion-body">
+                                             
+                                                <div class="row row-cols-3 mb-3" id="Q4targetFields_0">
+                                                    {{-- <div class="col mb-3" >
+                                                    </div> --}}
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="form-group ">
+                                                            <label for="quarter4_target_0" class="required">Q4 Target</label>
+                                                            <input type="text" class="form-control capitalize target-input" name="Q4_target[]" id="quarter4_target_0" aria-describedby="" value="{{ $indicator->Q4_target }}" disabled>
+                                                            {{-- <input type="text" class="form-control capitalize target-input d-none" name="target[]" id="targetDivision_0" aria-describedby="" disabled> --}}
+                                                            <div class="invalid-feedback" id="Q4_targetError_0"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                          </div>
+                                        </div>
+                                        @endif
+
+                                        <div class="accordion-item card">
+                                          <h2 class="accordion-header d-flex align-items-center">
+                                            <button type="button" class="accordion-button btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#accordionWithIcon-5" aria-expanded="true">
+                                                <i class='bx bxs-circle me-2' ></i>
+                                              Annual
+                                            </button>
+                                          </h2>
+                                          <div id="accordionWithIcon-5" class="accordion-collapse collapse show" >
+                                            <div class="accordion-body">
+
+                                                <div class="row row-cols-4 mb-3" id="targetFields_0">
+                                                    <div class="col mb-3" >
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="form-group mb-3">
+                                                            <label for="target" class="required">Target</label>
+                                                            <input type="text" class="form-control capitalize" name="target" id="target_0" aria-describedby="" value="{{ $indicator->target }}" {{ $indicator->targetType == 'actual' ? 'disabled' : '' }} disabled >
+                                                            <div class="invalid-feedback" id="targetError[]"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="form-group">
+                                                            <label for="alloted_budget" class="required">Alloted Budget</label>
+                                                            <input type="number" class="form-control capitalize" name="alloted_budget" id="alloted_budget_0" aria-describedby="" value="{{ $indicator->alloted_budget }}" disabled>
+                                                            <div class="invalid-feedback" id="alloted_budgetError"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="row mt-3">
+                            {{-- <div class="row mt-3">
 
                                 <p class="d-inline-flex gap-1">
                                     <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample_0"  aria-expanded="true" aria-controls="collapseExample">
@@ -117,7 +265,7 @@
                                     </div>
                                 </div>
 
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </div>
@@ -132,6 +280,9 @@
 
 <script>
 $(document).ready(function() {
+
+    const regionTargets = @json($region_targets);
+
     // Initialize Select2 for Organizational Outcome
     $('#org_id').select2({
         placeholder: 'Select an Option',
@@ -189,6 +340,7 @@ $(document).ready(function() {
             const index = $(this).attr('id').split('_').pop();
             const selectedDivisions = $(this).val();
             updateTargetFields(index, selectedDivisions);
+            updateQuarterTargetFields(index, selectedDivisions);
         });
 
         // Check if any divisions are already selected and update accordingly
@@ -197,6 +349,7 @@ $(document).ready(function() {
             const selectedDivisions = $(this).val();
             if (selectedDivisions.length > 0) {
                 updateTargetFields(index, selectedDivisions);
+                updateQuarterTargetFields(index, selectedDivisions);
             }
         });
     }
@@ -332,6 +485,71 @@ $(document).ready(function() {
                     });
                 } else {
                     $(`.percent`).removeClass('d-none');
+                }
+            });
+        }
+    }
+
+    function updateQuarterTargetFields(index, selectedDivisions, isInitialLoad = false) {
+        // Define quarterly target field containers
+        const quarters = [
+            `#Q1targetFields_${index}`,
+            `#Q2targetFields_${index}`,
+            `#Q3targetFields_${index}`,
+            `#Q4targetFields_${index}`
+        ];
+
+        const selectedType = $(`input[name="targetType_${index}"]:checked`).val();
+
+        // Iterate over selected divisions
+        if (selectedDivisions.length > 0) {
+            selectedDivisions.forEach((divisionId) => {
+                const divisionName = $(`#division_id_${index} option[value="${divisionId}"]`).text();
+                const cleanedDivisionName = divisionName.replace(/\s*PO$/, '');
+
+                if (divisionName.includes("PO")) {
+                    quarters.forEach((quarter, quarterIndex) => {
+                        // Use regionTargets to get the appropriate value for each region and quarter
+                        const quarterKey = `Q${quarterIndex + 1}`;  // Example: "Q1", "Q2", etc.
+                        const regionName = cleanedDivisionName;  // Assume cleanedDivisionName corresponds to region
+                        const targetValue = regionTargets[regionName] && regionTargets[regionName][quarterKey] ? regionTargets[regionName][quarterKey] : '';  // Default to empty if not found
+                        
+                        const displayValue = targetValue === 'Actual' ? 'Actual' : targetValue;
+                        const targetDisabled = targetValue === 'Actual' ? 'readonly' : '';
+                        const targetHtml = `
+                        <div class="col mb-3">
+                            <div class="form-group">
+                                <label for="target_${divisionId}_${index}_Q${quarterIndex + 1}" class="required">${divisionName} Target (Q${quarterIndex + 1})</label>
+                                <input type="text" class="form-control capitalize target-input" name="${cleanedDivisionName}_target_Q${quarterIndex + 1}[]" id="target_${divisionId}_${index}_Q${quarterIndex + 1}" aria-describedby="" value="${displayValue}" ${targetDisabled} disabled>
+                                <div class="invalid-feedback" id="targetError_${divisionId}_${index}_Q${quarterIndex + 1}"></div>
+                            </div>
+                        </div>
+                        `;
+                        $(quarter).append(targetHtml);
+
+                        // Enable the target input and attach the input event to calculate total
+                        const targetInput = $(`#target_${divisionId}_${index}_Q${quarterIndex + 1}`);
+                        
+                        // Apply the selected target type to the new division fields
+                        if (selectedType === 'percentage') {
+                            targetInput
+                                .attr('type', 'text')
+                                .attr('min', '0')
+                                .attr('max', '100')
+                                .attr('placeholder', '%')
+                                .val(`${displayValue}%`);  // Set value as percentage if not 'Actual'
+                        } else if (selectedType === 'number') {
+                            targetInput
+                                .attr('type', 'number')
+                                .val(displayValue);  // Set value as a number
+                        } else if (selectedType === 'actual') {
+                            targetInput
+                                .attr('type', 'text')
+                                .attr('readonly', 'readonly')
+                                .val('Actual');  // Set as 'Actual'
+                        }
+
+                    });
                 }
             });
         }

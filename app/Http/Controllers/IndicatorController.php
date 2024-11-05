@@ -211,49 +211,151 @@ class IndicatorController extends Controller
         return response()->json($data);
     }
 
+    // public function edit(Request $request){
+    //     $id = $request->query('id');
 
-    public function edit(Request $request){
+    //     // Get the current user's division IDs
+    //     $userDivisionIds = User::where('id', Auth::user()->id)
+    //         ->pluck('division_id')
+    //         ->first();
+    //     $userDivisionIds = json_decode($userDivisionIds, true);
+    //     $userDivisionIds = array_map('intval', $userDivisionIds);
+
+    //     // Decrypt the indicator ID
+    //     $indicator = SuccessIndicator::find(Crypt::decrypt($id));
+
+    //     $quarter = Quarter_logs::where('indicator_id', Crypt::decrypt($id))->first();
+
+    //     // Variables for all roles
+    //     $division_targets = [];
+    //     $division_ids = [];
+
+    //     $currentYear = Carbon::now()->format('Y');
+    //     $currentUser = Auth::user();
+    //     $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
+
+    //     $indicators = $entriesCount->get();
+
+    //     $userDivisionIds = json_decode($currentUser->division_id, true);
+    //     $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
+    //         $indicatorDivisionIds = json_decode($indicator->division_id, true);
+
+    //         return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
+    //     });
+
+    //     $currentMonth = Carbon::now()->format('m');
+    //     $current_Year = Carbon::now()->format('Y');
+
+    //     $currentDate = Carbon::now();
+
+    //     if ($currentDate->day > 5) {
+    //         $targetMonth = $currentDate->month;
+    //         // $targetMonth = $currentDate->addMonth()->month;
+    //     } else {
+    //         $targetMonth = $currentDate->subMonth()->month;
+    //     }
+
+    //     $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
+    //         $completedEntries = Entries::where('indicator_id', $indicator->id)
+    //                                 ->where('months', $targetMonth)
+    //                                 ->whereYear('created_at', $current_Year)
+    //                                 ->where('status', 'Completed')
+    //                                 ->where('user_id',  Auth::user()->id)
+    //                                 ->exists();
+    //         return !$completedEntries;
+    //     });
+
+    //         // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
+    //     $entriesCount = $filteredIndicators->count();
+
+    //     // If user is IT or Admin, show all divisions
+    //     if (Auth::user()->role->name === 'SuperAdmin' || Auth::user()->role->name === 'Admin') {
+
+
+    //         $division_ids = json_decode($indicator->division_id);
+
+    //         foreach ($division_ids as $division_id) {
+    //             $division = Division::find($division_id);
+    //             $cleanedDivisionName = preg_replace('/\s*PO$/', '', $division->division_name);
+    //             $column_name = "{$cleanedDivisionName}_target";
+    //             $division_targets[$division_id] = $indicator->$column_name ?? '';
+
+    //             $column_name_budget = "{$cleanedDivisionName}_budget";
+    //             $division_budget[$division_id] = $indicator->$column_name_budget ?? '';
+    //         }
+
+
+
+    //     } else {
+
+    //         // Filter divisions based on user's divisions
+    //         $indicatorDivisionIds = json_decode($indicator->division_id, true);
+    //         $indicatorDivisionIds = array_map('intval', $indicatorDivisionIds);
+
+    //         // Keep only the divisions that match the user's divisions
+    //         $filteredDivisionIds = array_intersect($userDivisionIds, $indicatorDivisionIds);
+
+    //         foreach ($filteredDivisionIds as $division_id) {
+    //             $division = Division::find($division_id);
+    //             $cleanedDivisionName = preg_replace('/\s*PO$/', '', $division->division_name);
+    //             $column_name = "{$cleanedDivisionName}_target";
+    //             $division_targets[$division_id] = $indicator->$column_name ?? '';
+
+    //             $column_name_budget = "{$cleanedDivisionName}_budget";
+    //             $division_budget[$division_id] = $indicator->$column_name_budget ?? '';
+    //         }
+
+    //         $division_ids = $filteredDivisionIds;
+    //     }
+
+    //     $user=Auth::user();
+    //     return view('indicators.edit', compact('indicator', 'division_ids', 'division_targets', 'user', 'division_budget', 'entriesCount'));
+    // }
+
+    public function edit(Request $request) {
         $id = $request->query('id');
-
+    
         // Get the current user's division IDs
         $userDivisionIds = User::where('id', Auth::user()->id)
             ->pluck('division_id')
             ->first();
         $userDivisionIds = json_decode($userDivisionIds, true);
         $userDivisionIds = array_map('intval', $userDivisionIds);
-
+    
         // Decrypt the indicator ID
         $indicator = SuccessIndicator::find(Crypt::decrypt($id));
-
+    
+        // Retrieve quarter logs
+        $quarter = Quarter_logs::where('indicator_id', Crypt::decrypt($id))->first();
+    
         // Variables for all roles
         $division_targets = [];
         $division_ids = [];
-
+        $region_targets = [];  // New array for storing region targets
+    
         $currentYear = Carbon::now()->format('Y');
         $currentUser = Auth::user();
         $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
-
+    
         $indicators = $entriesCount->get();
-
+    
         $userDivisionIds = json_decode($currentUser->division_id, true);
         $filteredIndicators = $indicators->filter(function($indicator) use ($userDivisionIds) {
             $indicatorDivisionIds = json_decode($indicator->division_id, true);
-
+    
             return !empty(array_intersect($userDivisionIds, $indicatorDivisionIds));
         });
-
+    
         $currentMonth = Carbon::now()->format('m');
         $current_Year = Carbon::now()->format('Y');
-
         $currentDate = Carbon::now();
-
+    
         if ($currentDate->day > 5) {
             $targetMonth = $currentDate->month;
-            // $targetMonth = $currentDate->addMonth()->month;
         } else {
             $targetMonth = $currentDate->subMonth()->month;
         }
-
+    
         $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
             $completedEntries = Entries::where('indicator_id', $indicator->id)
                                     ->where('months', $targetMonth)
@@ -263,51 +365,58 @@ class IndicatorController extends Controller
                                     ->exists();
             return !$completedEntries;
         });
-
-            // $entriesCount = Entries::whereNull('deleted_at')->with('indicator')->where('status', 'Pending')->count();
+    
         $entriesCount = $filteredIndicators->count();
-
+    
         // If user is IT or Admin, show all divisions
         if (Auth::user()->role->name === 'SuperAdmin' || Auth::user()->role->name === 'Admin') {
-
-
             $division_ids = json_decode($indicator->division_id);
-
+    
             foreach ($division_ids as $division_id) {
                 $division = Division::find($division_id);
                 $cleanedDivisionName = preg_replace('/\s*PO$/', '', $division->division_name);
                 $column_name = "{$cleanedDivisionName}_target";
                 $division_targets[$division_id] = $indicator->$column_name ?? '';
-
+    
                 $column_name_budget = "{$cleanedDivisionName}_budget";
                 $division_budget[$division_id] = $indicator->$column_name_budget ?? '';
             }
-
         } else {
-
             // Filter divisions based on user's divisions
             $indicatorDivisionIds = json_decode($indicator->division_id, true);
             $indicatorDivisionIds = array_map('intval', $indicatorDivisionIds);
-
+    
             // Keep only the divisions that match the user's divisions
             $filteredDivisionIds = array_intersect($userDivisionIds, $indicatorDivisionIds);
-
+    
             foreach ($filteredDivisionIds as $division_id) {
                 $division = Division::find($division_id);
                 $cleanedDivisionName = preg_replace('/\s*PO$/', '', $division->division_name);
                 $column_name = "{$cleanedDivisionName}_target";
                 $division_targets[$division_id] = $indicator->$column_name ?? '';
-
+    
                 $column_name_budget = "{$cleanedDivisionName}_budget";
                 $division_budget[$division_id] = $indicator->$column_name_budget ?? '';
             }
-
+    
             $division_ids = $filteredDivisionIds;
         }
-
-        $user=Auth::user();
-        return view('indicators.edit', compact('indicator', 'division_ids', 'division_targets', 'user', 'division_budget', 'entriesCount'));
+    
+        // Get the region targets from the quarter logs
+        $quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+        $regions = ['Albay', 'Camarines_Sur', 'Camarines_Norte', 'Catanduanes', 'Masbate', 'Sorsogon'];
+    
+        foreach ($quarters as $quarterName) {
+            foreach ($regions as $region) {
+                $target_column = "{$region}_target_{$quarterName}";
+                $region_targets[$region][$quarterName] = $quarter->$target_column ?? ''; // Default to 0 if no value
+            }
+        }
+    
+        $user = Auth::user();
+        return view('indicators.edit', compact('indicator', 'division_ids', 'division_targets', 'user', 'division_budget', 'entriesCount', 'region_targets'));
     }
+    
 
     public function view(Request $request){
         $id = $request->query('id');
@@ -322,11 +431,14 @@ class IndicatorController extends Controller
         // Decrypt the indicator ID
         $indicator = SuccessIndicator::find(Crypt::decrypt($id));
 
+        // Retrieve quarter logs
+        $quarter = Quarter_logs::where('indicator_id', Crypt::decrypt($id))->first();
+
         // Variables for all roles
         $division_targets = [];
         $division_ids = [];
-
-
+        $region_targets = [];  // New array for storing region targets
+    
         $currentYear = Carbon::now()->format('Y');
         $currentUser = Auth::user();
         $entriesCount = SuccessIndicator::whereNull('deleted_at')->whereYear('created_at', $currentYear);
@@ -401,8 +513,18 @@ class IndicatorController extends Controller
             $division_ids = $filteredDivisionIds;
         }
 
+        $quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+        $regions = ['Albay', 'Camarines_Sur', 'Camarines_Norte', 'Catanduanes', 'Masbate', 'Sorsogon'];
+    
+        foreach ($quarters as $quarterName) {
+            foreach ($regions as $region) {
+                $target_column = "{$region}_target_{$quarterName}";
+                $region_targets[$region][$quarterName] = $quarter->$target_column ?? '0'; // Default to 0 if no value
+            }
+        }
+
         $user=Auth::user();
-        return view('indicators.view', compact('indicator', 'division_ids', 'division_targets', 'user', 'division_budget', 'entriesCount'));
+        return view('indicators.view', compact('indicator', 'division_ids', 'division_targets', 'user', 'division_budget', 'entriesCount', 'region_targets'));
     }
 
     public function list(Request $request){
@@ -449,7 +571,7 @@ class IndicatorController extends Controller
         $indicator = $query->get();
 
         return DataTables::of($indicator)
-            ->addColumn('id', function($data) {
+            ->editColumn('id', function($data) {
                 return Crypt::encrypt($data->id);
 
             })
@@ -463,7 +585,7 @@ class IndicatorController extends Controller
                 return $data->updated_at->format('m/d/Y');
             })
             ->editColumn('alloted_budget', function($data) {
-                return number_format($data->alloted_budget, 2);
+                return number_format($data->alloted_budget, 3, '.', ',');
             })
             ->editColumn('division_id', function($data) {
                 // Decode the JSON array of division IDs
@@ -519,6 +641,7 @@ class IndicatorController extends Controller
         ]);
 
         $data = $request->all();
+        // dd($data);
 
         $successIndicatorIds = [];
 
@@ -543,24 +666,30 @@ class IndicatorController extends Controller
                 'Sorsogon_budget' => $request->Sorsogon_budget[$index] ?? 0,
                 'division_id' => json_encode($request->division_id[$index]),
                 'alloted_budget' => $request->alloted_budget[$index] ?? 0,
-                'Q1_target' => $request->Q1_target[$index] ?? 0,
-                'Q2_target' => $request->Q2_target[$index] ?? 0,
-                'Q3_target' => $request->Q3_target[$index] ?? 0,
-                'Q4_target' => $request->Q4_target[$index] ?? 0,
+                'Q1_target' => $request->Q1_target[$index] ?? '',
+                'Q2_target' => $request->Q2_target[$index] ?? '',
+                'Q3_target' => $request->Q3_target[$index] ?? '',
+                'Q4_target' => $request->Q4_target[$index] ?? '',
                 'created_by' => Auth::user()->user_name,
             ]);
 
             $successIndicatorIds[] = $successIndicator->id;
 
-            $quarter = Quarter_logs::create([
+            $quarterData = [
                 'indicator_id' => $successIndicator->id,
-                'Q1_target' => $request->Q1_target[$index] ?? 0,
-                'Q2_target' => $request->Q2_target[$index] ?? 0,
-                'Q3_target' => $request->Q3_target[$index] ?? 0,
-                'Q4_target' => $request->Q4_target[$index] ?? 0,
                 'created_by' => Auth::user()->user_name,
                 'updated_by' => Auth::user()->user_name,
-            ]) ;
+            ];
+            
+            foreach (['Q1', 'Q2', 'Q3', 'Q4'] as $quarter) {
+                $quarterData["{$quarter}_target"] = $request["{$quarter}_target"][$index] ?? null;
+            
+                foreach (['Albay', 'Camarines_Sur', 'Camarines_Norte', 'Catanduanes', 'Masbate', 'Sorsogon'] as $region) {
+                    $quarterData["{$region}_target_{$quarter}"] = $request["{$region}_target_{$quarter}"][$index] ?? null;
+                }
+            }
+            
+            $quarter = Quarter_logs::create($quarterData);
 
             $successIndicator->quarter_logs_id = $quarter->id;
             $successIndicator->save();
@@ -682,15 +811,32 @@ class IndicatorController extends Controller
         // Save the updated indicator
         $indicator->save();
 
+
         $quarter_logs = new Quarter_logs();
-        $quarter_logs->indicator_id = $request->id;
+
+        $quarter_logs->indicator_id = $indicator->id;
         $quarter_logs->Q1_target = $request->input('Q1_target');
         $quarter_logs->Q2_target = $request->input('Q2_target');
         $quarter_logs->Q3_target = $request->input('Q3_target');
         $quarter_logs->Q4_target = $request->input('Q4_target');
+        
+        // Store region targets for each quarter
+        foreach (['Albay', 'Camarines_Sur', 'Camarines_Norte', 'Catanduanes', 'Masbate', 'Sorsogon'] as $region) {
+            $quarter_logs->{"{$region}_target_Q1"} = $request->input("{$region}_target_Q1");
+            $quarter_logs->{"{$region}_target_Q2"} = $request->input("{$region}_target_Q2");
+            $quarter_logs->{"{$region}_target_Q3"} = $request->input("{$region}_target_Q3");
+            $quarter_logs->{"{$region}_target_Q4"} = $request->input("{$region}_target_Q4");
+        }
+
+        // Set created and updated by user
         $quarter_logs->created_by = Auth::user()->user_name;
         $quarter_logs->updated_by = Auth::user()->user_name;
+
+        // Save the quarter logs
         $quarter_logs->save();
+
+        $indicator->quarter_logs_id = $quarter_logs->id;
+        $indicator->save();
 
         $history = new History();
         $history->indicator_id = $indicator->id;

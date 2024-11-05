@@ -8,12 +8,13 @@ use App\Models\Organizational;
 use App\Models\Report;
 use App\Models\SuccessIndicator;
 use App\Models\User;
+use App\Models\Quarter_logs;
 use PDF;
+use Mpdf\Mpdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Maatwebsite\Excel\Excel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
@@ -164,7 +165,7 @@ class ReportController extends Controller
                         ->where('status','Completed')
                         ->when($period, function($query) use ($period) {
                             $months = $this->getMonthsForPeriod($period);
-                            $query->whereIn(DB::raw('MONTH(created_at)'), $months);
+                            $query->whereIn('months', $months);
                         })
                         ->when($province, function($query) use ($province) {
                             $query->whereHas('user', function($query) use ($province) {
@@ -203,29 +204,43 @@ class ReportController extends Controller
                 return $entry->indicator_id; // Group by each indicator
             });
 
-            // $entries = Entries::whereYear('created_at', $year)
-
-            //     ->when($period, function($query) use ($period) {
-            //         $months = $this->getMonthsForPeriod($period);
-            //         $query->whereIn(DB::raw('MONTH(created_at)'), $months);
-            //     })
-            //     ->when($province, function($query) use ($province) {
-            //         $query->whereHas('user', function($query) use ($province) {
-            //             $query->where('province', $province);
-            //         });
-            //     })
-            //     ->get()
-            //     ->groupBy('indicator_id');
-
         }
 
         $entryCount = $entry->count();
 
+       // Prepare the PDF content
+    $html = view('generate.pdf', compact('orgOutcomes', 'entries', 'divisionIds'))->render();
+    
+    // Create new mPDF instance
+    $mpdf = new Mpdf(['mode' => 'utf-8', 'format' => 'A4-L']);
 
-        $pdf = PDF::loadView('generate.pdf', compact('orgOutcomes', 'entries', 'divisionIds', 'entryCount', 'entry'))
-                ->setPaper('a4', 'landscape');
+    // Add header
+    $header = '
+        <div class="header" style="text-align: center; margin-bottom: 20px;">
+            <div class="header_page" style="font-size: 10.8px;">Republic of the Philippines</div>
+            <div class="subheader" style="font-weight: bold; font-size: 13px;">Department of Labor and Employment</div>
+            <div class="header_page" style="font-size: 10.8px; margin-top: 2px;">Doña Aurora St., Old Albay, Legaspi City, Albay</div>
+        </div>
+    ';
 
-        return $pdf->stream('OPCR-RO5.pdf');
+    $footer = '<div style="text-align: right; font-size: 10.8px;"><span class="page-number">{PAGENO}</span></div>';
+
+    // Write the header
+    $mpdf->WriteHTML($header);
+    $mpdf->SetHTMLFooter($footer);
+   
+    // Write the main content
+    $mpdf->WriteHTML($html);
+
+    
+
+    // Output the PDF
+    return $mpdf->Output('OPCR-RO5.pdf', 'D'); // Download the PDF
+
+        // $pdf = PDF::loadView('generate.pdf', compact( 'orgOutcomes', 'entries', 'divisionIds', 'entryCount', 'entry'))
+        //         ->setPaper('a4', 'landscape');
+
+        // return $pdf->stream('OPCR-RO5.pdf');
     }
 
     private function getMonthsForPeriod($period)
@@ -1417,12 +1432,23 @@ class ReportController extends Controller
                         ->whereYear('created_at', $year)
                         ->where('org_id', $outcome->id)
                         ->get();
+                        
 
                     foreach ($successIndicators as $indicator) {
+
+                        $cleanString = $indicator->division_id;
+                        $cleanString = stripslashes($cleanString);
+                        $cleanString = str_replace(['[', ']', '"'], '', $cleanString);
+                        $divisionArray = explode(',', $cleanString);
+                        $divisionArray = array_map('trim', $divisionArray);
+
+                        $q1_indicator = $indicator->Q1_target ? $indicator->Q1_target : 0;
+                        // dd($q1_indicator);
+
                         // Insert Success Indicators (Pink row)
                         $sheet1->setCellValue('A' . $row, $indicator->measures); // Measures under INDICATORS
                         $sheet1->setCellValue('B' . $row, $indicator->target); // Annual Target
-                        $sheet1->setCellValue('C' . $row, $indicator->Q1_target); //1st QUARTER
+                        $sheet1->setCellValue('C' . $row,  $q1_indicator); //1st QUARTER
                         $sheet1->setCellValue('G' . $row, '=SUM(D' . $row . ':F' . $row . ')');  //QTR.TOTAL
                         $sheet1->setCellValue('H' . $row, '=SUM(D' . $row . ':F' . $row . ')'); //ACCOMPLISHMENT: ANNUAL TOTAL
                         $sheet1->setCellValue('I' . $row, '=(G' . $row . '/C' . $row . ')'); // percenatge QTR
@@ -1457,7 +1483,7 @@ class ReportController extends Controller
                         }
 
                         foreach ($monthsForPeriod as $monthIndex => $month) {
-                            $columnLetter = chr(71 + $monthIndex); // Calculate the column letter based on the index
+                            $columnLetter = chr(68 + $monthIndex); // Calculate the column letter based on the index
                             $sheet1->setCellValue($columnLetter . $row, $totalAccomplishmentsByMonth[$month]); // Set accomplishment in the correct column
                         }
 
@@ -1478,7 +1504,11 @@ class ReportController extends Controller
 
                         $row++;
 
-                        $dvisions = Division::where('division_name', 'like', '%PO%')->get();
+                        $dvisions = Division::WhereIn('id', $divisionArray)->get();
+
+                        // where('division_name', 'like', '%PO%')->
+
+                        // dd($dvisions);
 
                         foreach ($dvisions as $division) {
                             $divisionName = str_replace(' PO', '', $division->division_name);
@@ -1489,6 +1519,25 @@ class ReportController extends Controller
                             // Insert division name and target value in respective columns
                             $sheet1->setCellValue('A' . $row, $divisionName); //Division Name
                             $sheet1->setCellValue('B' . $row, $targetValue); // Corresponding Target
+
+                            $quarter = Quarter_logs::where('indicator_id', $indicator->id)
+                            ->orderBy('created_at', 'desc')
+                            ->first(); 
+
+                            foreach ($quarter as $q) {
+                                $target_column = "{$divisionName}_target_{$quarterOne}";
+                                $region_targets[$divisionName][$quarterOne] = $quarter->$target_column ?? '0'; // Default to 0 if no value
+
+                                $targetQuarter = str_replace(' ', '_', $target_column); 
+                                $quarteValue =  $quarter->$targetQuarter ?? 0;
+
+                                // if($quarteValue === NULL){
+                                    // $sheet1->setCellValue('C' . $row, $indicator->Q1_target);
+                                // }else{
+                                    $sheet1->setCellValue('C' . $row, $quarteValue); 
+                                // }
+                               
+                            }
 
                             $entries = Entries::whereNull('deleted_at')
                             ->where('status', 'Completed')
@@ -1519,8 +1568,6 @@ class ReportController extends Controller
                                 $sheet1->setCellValue($columnLetter . $row, $accomplishmentsByMonth[$month]); // Set accomplishment in the correct column
                             }
 
-                            $sheet1->setCellValue('C' . $row, '=SUM(D' . $row . ':F' . $row . ')'); //1st QUARTER
-
                             $sheet1->setCellValue('G' . $row, '=SUM(D' . $row . ':F' . $row . ')'); //QTR.TOTAL
                             $sheet1->setCellValue('H' . $row, '=SUM(D' . $row . ':F' . $row . ')'); // //ACCOMPLISHMENT: ANNUAL TOTAL
                             $sheet1->setCellValue('I' . $row, '=(G' . $row . '/C' . $row . ')'); // percenatge QTR
@@ -1531,7 +1578,6 @@ class ReportController extends Controller
                             $sheet1->setCellValue('K' . $row, '=(C' . $row . '-G' . $row . ')'); //  QTR BALANCE
                             $sheet1->getStyle('I' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
                             $sheet1->getStyle('J' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
-
 
                             $row++;
                         }
@@ -1677,11 +1723,20 @@ class ReportController extends Controller
                 ->get();
 
                 foreach ($successIndicators as $indicator) {
+
+                    $cleanString = $indicator->division_id;
+                    $cleanString = stripslashes($cleanString);
+                    $cleanString = str_replace(['[', ']', '"'], '', $cleanString);
+                    $divisionArray = explode(',', $cleanString);
+                    $divisionArray = array_map('trim', $divisionArray);
+
+                    $q2_indicator = $indicator->Q2_target ? $indicator->Q2_target : 0;
+                    
                     // Insert Success Indicators (Pink row)
                     $sheet2->setCellValue('A' . $row, $indicator->measures); // Measures under INDICATORS
                     $sheet2->setCellValue('B' . $row, $indicator->target); // Annual Target
                     $sheet2->setCellValue('D' . $row, "='Q1'!C" . $row); // 1st Quarter
-                    $sheet2->setCellValue('E' . $row, $indicator->Q2_target); // 2nd Quarter
+                    $sheet2->setCellValue('E' . $row, $q2_indicator); // 2nd Quarter                  
 
                     // Initialize an array to hold the total accomplishments for each month
                     $totalAccomplishmentsByMonth = [];
@@ -1740,7 +1795,8 @@ class ReportController extends Controller
 
                     $row++;
 
-                    $dvisions = Division::where('division_name', 'like', '%PO%')->get();
+                    $dvisions = Division::WhereIn('id', $divisionArray)->get();
+                    // where('division_name', 'like', '%PO%')->get();
 
                     foreach ($dvisions as $division) {
                         $divisionName = str_replace(' PO', '', $division->division_name);
@@ -1751,6 +1807,21 @@ class ReportController extends Controller
                         // Insert division name and target value in respective columns
                         $sheet2->setCellValue('A' . $row, $divisionName); // Division Name
                         $sheet2->setCellValue('B' . $row, $targetValue); // Corresponding Target
+                        $sheet2->setCellValue('D' . $row, "='Q1'!C" . $row); // 1st Quarter
+
+                        $quarter = Quarter_logs::where('indicator_id', $indicator->id)
+                        ->orderBy('created_at', 'desc')
+                        ->first(); 
+
+                        foreach ($quarter as $q) {
+                            $target_column = "{$divisionName}_target_{$QuarterTwo}";
+                            $region_targets[$divisionName][$quarterOne] = $quarter->$target_column ?? '0'; // Default to 0 if no value
+
+                            $targetQuarter = str_replace(' ', '_', $target_column); 
+                            $quarteValue =  $quarter->$targetQuarter ?? 0;
+                            
+                            $sheet2->setCellValue('E' . $row, $quarteValue); 
+                        }
 
                         $entries = Entries::whereNull('deleted_at')
                             ->where('status', 'Completed')
@@ -1804,8 +1875,6 @@ class ReportController extends Controller
 
                 }
             }
-
-
 
         //END 2ND QUARTER
 
@@ -1942,11 +2011,19 @@ class ReportController extends Controller
                 ->get();
 
                 foreach ($successIndicators as $indicator) {
+
+                    $cleanString = $indicator->division_id;
+                    $cleanString = stripslashes($cleanString);
+                    $cleanString = str_replace(['[', ']', '"'], '', $cleanString);
+                    $divisionArray = explode(',', $cleanString);
+                    $divisionArray = array_map('trim', $divisionArray);
+
+                    $q3_indicator = $indicator->Q3_target ? $indicator->Q3_target : 0;
                     // Insert Success Indicators (Pink row)
                     $sheet3->setCellValue('A' . $row, $indicator->measures); // Measures under INDICATORS
                     $sheet3->setCellValue('B' . $row, $indicator->target); // Annual Target
                     $sheet3->setCellValue('C' . $row, "='Q2'!E" . $row); // 2nd Quarter
-                    $sheet3->setCellValue('D' . $row, $indicator->Q3_target); // 3rd Quarter
+                    $sheet3->setCellValue('D' . $row, $q3_indicator); // 3rd Quarter
                     $sheet3->setCellValue('E' . $row, '=(C' . $row . '+D' . $row . ')'); //3RD TOTAL
 
 
@@ -1996,12 +2073,15 @@ class ReportController extends Controller
                     $sheet3->setCellValue('K' . $row, '=(F' . $row . '+J' . $row . ')'); //ACCOMPLISHMENT: ANNUAL TOTAL
                     $sheet3->setCellValue('L' . $row, '=(J' . $row . '/E' . $row . ')'); //PERCENTAGE: QTR
                     $sheet3->setCellValue('M' . $row, '=(K' . $row . '/B' . $row . ')'); //PERCENTAGE: ANNUAL
+                    $sheet3->getStyle('L' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+                    $sheet3->getStyle('M' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
                     $sheet3->setCellValue('N' . $row, '=(E' . $row . '-J' . $row . ')'); //QUARTER BALANCE
                     $sheet3->setCellValue('O' . $row, '=(B' . $row . '-K' . $row . ')'); //ANNUAL BALANCE
 
                     $row++;
 
-                    $dvisions = Division::where('division_name', 'like', '%PO%')->get();
+                    // $dvisions = Division::where('division_name', 'like', '%PO%')->get();
+                    $dvisions = Division::WhereIn('id', $divisionArray)->get();
 
                     foreach ($dvisions as $division) {
                         $divisionName = str_replace(' PO', '', $division->division_name);
@@ -2011,6 +2091,22 @@ class ReportController extends Controller
                         // Insert division name and target value in respective columns
                         $sheet3->setCellValue('A' . $row, $divisionName); // Division Name
                         $sheet3->setCellValue('B' . $row, $targetValue); // Corresponding Target
+
+
+                        $quarter = Quarter_logs::where('indicator_id', $indicator->id)
+                        ->orderBy('created_at', 'desc')
+                        ->first(); 
+
+                        foreach ($quarter as $q) {
+                            $target_column = "{$divisionName}_target_{$QuarterThree}";
+                            $region_targets[$divisionName][$quarterOne] = $quarter->$target_column ?? '0'; // Default to 0 if no value
+
+                            $targetQuarter = str_replace(' ', '_', $target_column); 
+                            $quarteValue =  $quarter->$targetQuarter ?? 0;
+                            
+                            $sheet3->setCellValue('D' . $row, $quarteValue); 
+                        }
+
 
                         $entries = Entries::whereNull('deleted_at')
                         ->where('status', 'Completed')
@@ -2041,12 +2137,15 @@ class ReportController extends Controller
                             $sheet3->setCellValue($columnLetter . $row, $accomplishmentsByMonth[$month]); // Set accomplishment in the correct column
                         }
 
+                        $sheet3->setCellValue('C' . $row, "='Q2'!E" . $row); // 2nd Quarter
                         $sheet3->setCellValue('E' . $row, '=(C' . $row . '+D' . $row . ')'); //3RD TOTAL
                         $sheet3->setCellValue('J' . $row, '=SUM(G' . $row . ':I' . $row . ')'); //QTR.TOTAL
                         $sheet3->setCellValue('F' . $row, "='Q2'!L" . $row); //ACCOMPLISHMENT: TOTAL ACCOMP
                         $sheet3->setCellValue('K' . $row, '=(F' . $row . '+J' . $row . ')'); //ACCOMPLISHMENT: ANNUAL TOTAL
                         $sheet3->setCellValue('L' . $row, '=(J' . $row . '/E' . $row . ')'); //PERCENTAGE: QTR
                         $sheet3->setCellValue('M' . $row, '=(K' . $row . '/B' . $row . ')'); //PERCENTAGE: ANNUAL
+                        $sheet3->getStyle('L' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+                        $sheet3->getStyle('M' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
                         $sheet3->setCellValue('N' . $row, '=(E' . $row . '-J' . $row . ')'); //QUARTER BALANCE
                         $sheet3->setCellValue('O' . $row, '=(B' . $row . '-K' . $row . ')'); //ANNUAL BALANCE
                         $row++;
@@ -2060,8 +2159,6 @@ class ReportController extends Controller
 
                 }
             }
-
-
 
         //END 3RD QUARTER
 
@@ -2199,6 +2296,14 @@ class ReportController extends Controller
 
                 foreach ($successIndicators as $indicator) {
 
+                    $cleanString = $indicator->division_id;
+                    $cleanString = stripslashes($cleanString);
+                    $cleanString = str_replace(['[', ']', '"'], '', $cleanString);
+                    $divisionArray = explode(',', $cleanString);
+                    $divisionArray = array_map('trim', $divisionArray);
+
+                    $q4_indicator = $indicator->Q4_target ? $indicator->Q4_target : 0;
+
                     $sheet4->setCellValue('A' . $row, $indicator->measures); // Measures under INDICATORS
                     $sheet4->setCellValue('B' . $row, $indicator->target); // Annual Target
 
@@ -2245,19 +2350,22 @@ class ReportController extends Controller
                     ]);
 
                     $sheet4->setCellValue('C' . $row, "='Q3'!D" . $row);//3RD QUARTER
-                    $sheet4->setCellValue('D' . $row, $indicator->Q4_target); // 4TH Quarter
+                    $sheet4->setCellValue('D' . $row, $q4_indicator); // 4TH Quarter
                     $sheet4->setCellValue('E' . $row, '=(C' . $row . '+D' . $row . ')'); //4TH TOTAL
                     $sheet4->setCellValue('J' . $row, '=SUM(G' . $row . ':I' . $row . ')'); //QTR.TOTAL
                     $sheet4->setCellValue('F' . $row, "='Q2'!L" . $row); //ACCOMPLISHMENT: TOTAL ACCOMP
                     $sheet4->setCellValue('K' . $row, '=(F' . $row . '+J' . $row . ')'); //ACCOMPLISHMENT: ANNUAL TOTAL
                     $sheet4->setCellValue('L' . $row, '=(J' . $row . '/E' . $row . ')'); //PERCENTAGE: QTR
                     $sheet4->setCellValue('M' . $row, '=(K' . $row . '/B' . $row . ')'); //PERCENTAGE: ANNUAL
+                    $sheet4->getStyle('L' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+                    $sheet4->getStyle('M' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
                     $sheet4->setCellValue('N' . $row, '=(E' . $row . '-J' . $row . ')'); //QUARTER BALANCE
                     $sheet4->setCellValue('O' . $row, '=(B' . $row . '-K' . $row . ')'); //ANNUAL BALANCE
 
                     $row++;
 
-                    $dvisions = Division::where('division_name', 'like', '%PO%')->get();
+                    // $dvisions = Division::where('division_name', 'like', '%PO%')->get();
+                    $dvisions = Division::WhereIn('id', $divisionArray)->get();
 
                     foreach ($dvisions as $division) {
                         $divisionName = str_replace(' PO', '', $division->division_name);
@@ -2268,6 +2376,21 @@ class ReportController extends Controller
                         // Insert division name and target value in respective columns
                         $sheet4->setCellValue('A' . $row, $divisionName); // Division Name
                         $sheet4->setCellValue('B' . $row, $targetValue); // Corresponding Target
+
+
+                        $quarter = Quarter_logs::where('indicator_id', $indicator->id)
+                        ->orderBy('created_at', 'desc')
+                        ->first(); 
+
+                        foreach ($quarter as $q) {
+                            $target_column = "{$divisionName}_target_{$QuarterFour}";
+                            $region_targets[$divisionName][$quarterOne] = $quarter->$target_column ?? '0'; // Default to 0 if no value
+
+                            $targetQuarter = str_replace(' ', '_', $target_column); 
+                            $quarteValue =  $quarter->$targetQuarter ?? 0;
+                            
+                            $sheet4->setCellValue('D' . $row, $quarteValue); 
+                        }
 
                         $entries = Entries::whereNull('deleted_at')
                             ->where('status', 'Completed')
@@ -2299,13 +2422,15 @@ class ReportController extends Controller
                             $columnLetter = chr(71 + $monthIndex); // Calculate the column letter based on the index
                             $sheet4->setCellValue($columnLetter . $row, $accomplishmentsByMonth[$month]); // Set accomplishment in the correct column
                         }
-
+                        $sheet4->setCellValue('C' . $row, "='Q3'!D" . $row);//3RD QUARTER
                         $sheet4->setCellValue('E' . $row, '=(C' . $row . '+D' . $row . ')'); //4TH TOTAL
                         $sheet4->setCellValue('J' . $row, '=SUM(G' . $row . ':I' . $row . ')'); //QTR.TOTAL
                         $sheet4->setCellValue('F' . $row, "='Q2'!L" . $row); //ACCOMPLISHMENT: TOTAL ACCOMP
                         $sheet4->setCellValue('K' . $row, '=(F' . $row . '+J' . $row . ')'); //ACCOMPLISHMENT: ANNUAL TOTAL
                         $sheet4->setCellValue('L' . $row, '=(J' . $row . '/E' . $row . ')'); //PERCENTAGE: QTR
                         $sheet4->setCellValue('M' . $row, '=(K' . $row . '/B' . $row . ')'); //PERCENTAGE: ANNUAL
+                        $sheet4->getStyle('L' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+                        $sheet4->getStyle('M' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
                         $sheet4->setCellValue('N' . $row, '=(E' . $row . '-J' . $row . ')'); //QUARTER BALANCE
                         $sheet4->setCellValue('O' . $row, '=(B' . $row . '-K' . $row . ')'); //ANNUAL BALANCE
 
@@ -2427,10 +2552,10 @@ class ReportController extends Controller
                     // Insert Success Indicators (Pink row)
                     $sheet5->setCellValue('A' . $row, $indicator->measures); // Measures under INDICATORS
                     $sheet5->setCellValue('B' . $row, $indicator->target);
-                    $sheet5->setCellValue('C' . $row, $indicator->Q1_target);
-                    $sheet5->setCellValue('D' . $row, $indicator->Q2_target);
-                    $sheet5->setCellValue('E' . $row, $indicator->Q3_target);
-                    $sheet5->setCellValue('F' . $row, $indicator->Q4_target);
+                    $sheet5->setCellValue('C' . $row, $indicator->Q1_target ? $indicator->Q1_target : 0);
+                    $sheet5->setCellValue('D' . $row, $indicator->Q2_target ? $indicator->Q2_target : 0);
+                    $sheet5->setCellValue('E' . $row, $indicator->Q3_target ? $indicator->Q3_target : 0);
+                    $sheet5->setCellValue('F' . $row, $indicator->Q4_target ? $indicator->Q4_target: 0);
 
 
                     $sheet5->getStyle('A' . $row . ':N' . $row)->applyFromArray([
@@ -2457,35 +2582,76 @@ class ReportController extends Controller
 
                     $row++;
 
-                    $dvisions = Division::where('division_name', 'like', '%PO%')->get();
+                    // $dvisions = Division::where('division_name', 'like', '%PO%')->get();
+                    $dvisions = Division::WhereIn('id', $divisionArray)->get();
 
-                    foreach ($dvisions as $division) {
-                        $divisionName = str_replace(' PO', '', $division->division_name);
+                    // foreach ($quarters as $quarterName) {
 
-                        $targetField = str_replace(' ', '_', $divisionName) . '_target'; // Convert to lowercase with underscores
-                        $targetValue = $indicator->$targetField ?? 0; // Get target value, default to 0 if not set
+                        foreach ($dvisions as $division) {
+                            $divisionName = str_replace(' PO', '', $division->division_name);
+    
+                            $targetField = str_replace(' ', '_', $divisionName) . '_target'; // Convert to lowercase with underscores
+                            $targetValue = $indicator->$targetField ?? 0; // Get target value, default to 0 if not set
+    
+                            // Insert division name and target value in respective columns
+                            $sheet5->setCellValue('A' . $row, $divisionName); // Division Name
+                            $sheet5->setCellValue('B' . $row, $targetValue); // Corresponding Target
+    
+    
+                            $quarter = Quarter_logs::where('indicator_id', $indicator->id)
+                            ->orderBy('created_at', 'desc')
+                            ->first(); 
+    
+                            $quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
 
-                        // Insert division name and target value in respective columns
-                        $sheet5->setCellValue('A' . $row, $divisionName); // Division Name
-                        $sheet5->setCellValue('B' . $row, $targetValue); // Corresponding Target
+                            foreach ($quarter as $q) {
+                                foreach ($quarters as $quarterName) {
+                                
+                                    $target_column = "{$divisionName}_target_{$quarterName}";
+                                    $region_targets[$divisionName][$quarterOne] = $quarter->$target_column ?? '0'; // Default to 0 if no value
+        
+                                    $targetQuarter = str_replace(' ', '_', $target_column); 
+                                    $quarteValue =  $quarter->$targetQuarter ?? 0;
 
-                        $entries = Entries::whereNull('deleted_at')
-                            ->where('status', 'Completed')
-                            ->where('year', $year)
-                            ->whereIn('months', $this->getMonthsForPeriod($QuarterFour))
-                            ->where('indicator_id', $indicator->id)
-                            ->get();
+                                    if($quarterName === 'Q1'){
+                                        $sheet5->setCellValue('C' . $row, $quarteValue); 
+                                    }
+                                    else if ($quarterName === 'Q2'){
+                                        $sheet5->setCellValue('D' . $row, $quarteValue); 
+                                    }
+                                    else if ($quarterName === 'Q3'){
+                                        $sheet5->setCellValue('E' . $row, $quarteValue); 
+                                    }
+                                    else if ($quarterName === 'Q4'){
+                                        $sheet5->setCellValue('F' . $row, $quarteValue); 
+                                    }  
+                                }
+                               
+                            }
 
-                        $sheet5->setCellValue('K' . $row, '=SUM(G' . $row . ':J' . $row . ')'); //ACCOMPL TOTAL
-                        $sheet5->setCellValue('M' . $row, "=B". $row); //ANNUAL BALANCE
-                        $sheet5->setCellValue('L' . $row, "=K". $row); //%
-                        $sheet5->setCellValue('G' . $row, "='Q1'!G" . $row + 1); //Q1 Accom Qtr Total
-                        $sheet5->setCellValue('H' . $row, "='Q2'!K" . $row + 1); //Q2 Accom Qtr Total
-                        $sheet5->setCellValue('I' . $row, "='Q3'!J" . $row + 1); //Q3 Accom Qtr Total
-                        $sheet5->setCellValue('J' . $row, "='Q4'!J" . $row + 1); //Q4 Accom Qtr Total
+                            // $entries = Entries::whereNull('deleted_at')
+                            //     ->where('status', 'Completed')
+                            //     ->where('year', $year)
+                            //     // ->whereIn('months', $this->getMonthsForPeriod($quarterName))
+                            //     ->where('indicator_id', $indicator->id)
+                            //     ->get();
+    
+                            $sheet5->setCellValue('K' . $row, '=SUM(G' . $row . ':J' . $row . ')'); //ACCOMPL TOTAL
+                            $sheet5->setCellValue('M' . $row, "=B". $row); //ANNUAL BALANCE
+                            $sheet5->setCellValue('L' . $row, "=K". $row); //%
+                            $sheet5->setCellValue('G' . $row, "='Q1'!G" . $row + 1); //Q1 Accom Qtr Total
+                            $sheet5->setCellValue('H' . $row, "='Q2'!K" . $row + 1); //Q2 Accom Qtr Total
+                            $sheet5->setCellValue('I' . $row, "='Q3'!J" . $row + 1); //Q3 Accom Qtr Total
+                            $sheet5->setCellValue('J' . $row, "='Q4'!J" . $row + 1); //Q4 Accom Qtr Total
+    
+                            $row++;
+                        }
 
-                        $row++;
-                    }
+                    // }
+
+
+
+                    
                 }
             }
 

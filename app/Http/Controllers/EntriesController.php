@@ -424,7 +424,7 @@ class EntriesController extends Controller
         });
 
         return DataTables::of($filteredIndicators)
-            ->addColumn('id', function($data) {
+            ->editColumn('id', function($data) {
                 return Crypt::encrypt($data->id);
             })
             // ->editColumn('org_id', function($data) {
@@ -493,7 +493,7 @@ class EntriesController extends Controller
         $indicator = $query->get();
 
         return DataTables::of($indicator)
-            ->addColumn('id', function($data) {
+            ->editColumn('id', function($data) {
                 return Crypt::encrypt($data->id);
             })
             // ->editColumn('org_id', function($data) {

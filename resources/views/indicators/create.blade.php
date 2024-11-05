@@ -43,7 +43,12 @@
                                     <div class="invalid-feedback" id="division_idError_0"></div>
                                 </div>
 
-                                <div class="form-group mb-3">
+
+                                <div class="col-12">
+                                    <small class="text-danger">Please select a target type before editing the targets.</small>
+                                </div>
+
+                                <div class="form-group mb-4">
                                     <label for="">Target Type:</label>
                                         <div class="form-check form-check-inline percent">
                                         <input class="form-check-input" type="radio" name="targetType_0" id="Percentage_0" value="percentage">
@@ -60,36 +65,176 @@
                                 </div>
                             </div>
 
-                            {{-- CONTAINER FOR TARGET AND BUDGET --}}
 
-                            <div class="row row-cols-4 mb-3" id="targetFields_0">
-                                <div class="col mb-3" >
+                            <div class="row  mb-3">
+                                <div class="col">
+                                    <div class="accordion" id="accordionWithIcon">
+                                        <div class="card accordion-item ">
+                                          <h2 class="accordion-header d-flex align-items-center">
+                                            <button type="button" class="accordion-button collapsed btn-outline-danger"  data-bs-toggle="collapse" data-bs-target="#accordionWithIcon-1" aria-expanded="false">
+                                              <i class='bx bxs-circle-quarter me-2'></i>
+                                              Quarter One Target
+                                            </button>
+                                          </h2>
+                                        
+                                          <div id="accordionWithIcon-1" class="accordion-collapse collapse" data-bs-parent="#accordionWithIcon">
+                                            <div class="accordion-body">
+
+                                                <div class="row row-cols-3 mb-3" id="Q1targetFields_0">
+                                                    <div class="col mb-3" >
+                                                    </div>
+                                                </div>
+
+                                            
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="form-group ">
+                                                            <label for="quarter1_target_0" class="required">Q1 Target</label>
+                                                            <input type="text" class="form-control capitalize target-input" name="Q1_target[]" id="quarter1_target_0" aria-describedby="" readonly>
+                                                            {{-- <input type="text" class="form-control capitalize target-input d-none" name="target[]" id="targetDivision_0" aria-describedby="" disabled> --}}
+                                                            <div class="invalid-feedback" id="Q1_targetError_0"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        
+                                        <div class="accordion-item card">
+                                          <h2 class="accordion-header d-flex align-items-center">
+                                            <button type="button" class="accordion-button collapsed btn-outline-warning" data-bs-toggle="collapse" data-bs-target="#accordionWithIcon-2" aria-expanded="false">
+                                                <i class='bx bxs-circle-half me-2'></i>
+                                              Quarter Two Target
+                                            </button>
+                                          </h2>
+                                          <div id="accordionWithIcon-2" class="accordion-collapse collapse" data-bs-parent="#accordionWithIcon">
+                                            <div class="accordion-body">
+
+                                                <div class="row row-cols-3 mb-3" id="Q2targetFields_0">
+                                                    <div class="col mb-3" >
+                                                    </div>
+                                                </div>
+
+                                            
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="form-group ">
+                                                            <label for="quarter2_target_0" class="required">Q2 Target</label>
+                                                            <input type="text" class="form-control capitalize target-input" name="Q2_target[]" id="quarter2_target_0" aria-describedby="" readonly>
+                                                            {{-- <input type="text" class="form-control capitalize target-input d-none" name="target[]" id="targetDivision_0" aria-describedby="" disabled> --}}
+                                                            <div class="invalid-feedback" id="Q2_targetError_0"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            
+                                            </div>
+                                          </div>
+                                        </div>
+                                        
+                                        <div class="accordion-item card">
+                                          <h2 class="accordion-header d-flex align-items-center">
+                                            <button type="button" class="accordion-button collapsed btn-outline-success" data-bs-toggle="collapse" data-bs-target="#accordionWithIcon-3" aria-expanded="false">
+                                              <i class='bx bxs-circle-three-quarter me-2' ></i>
+                                              Quarter Three Target
+                                            </button>
+                                          </h2>
+                                          <div id="accordionWithIcon-3" class="accordion-collapse collapse" data-bs-parent="#accordionWithIcon">
+                                            <div class="accordion-body">
+
+
+                                                <div class="row row-cols-3 mb-3" id="Q3targetFields_0">
+                                                    <div class="col mb-3" >
+                                                    </div>
+                                                </div>
+
+                                            
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="form-group ">
+                                                            <label for="quarter3_target_0" class="required">Q3 Target</label>
+                                                            <input type="text" class="form-control capitalize target-input" name="Q3_target[]" id="quarter3_target_0" aria-describedby="" readonly>
+                                                            {{-- <input type="text" class="form-control capitalize target-input d-none" name="target[]" id="targetDivision_0" aria-describedby="" disabled> --}}
+                                                            <div class="invalid-feedback" id="Q3_targetError_0"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                             
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        <div class="accordion-item card">
+                                          <h2 class="accordion-header d-flex align-items-center">
+                                            <button type="button" class="accordion-button collapsed btn-outline-info" data-bs-toggle="collapse" data-bs-target="#accordionWithIcon-4" aria-expanded="false">
+                                                <i class='bx bxs-circle me-2' ></i>
+                                              Quarter Four Target
+                                            </button>
+                                          </h2>
+                                          <div id="accordionWithIcon-4" class="accordion-collapse collapse" data-bs-parent="#accordionWithIcon">
+                                            <div class="accordion-body">
+                                             
+                                                <div class="row row-cols-3 mb-3" id="Q4targetFields_0">
+                                                    <div class="col mb-3" >
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="form-group ">
+                                                            <label for="quarter4_target_0" class="required">Q4 Target</label>
+                                                            <input type="text" class="form-control capitalize target-input" name="Q4_target[]" id="quarter4_target_0" aria-describedby="" readonly>
+                                                            {{-- <input type="text" class="form-control capitalize target-input d-none" name="target[]" id="targetDivision_0" aria-describedby="" disabled> --}}
+                                                            <div class="invalid-feedback" id="Q4_targetError_0"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        <div class="accordion-item card">
+                                          <h2 class="accordion-header d-flex align-items-center">
+                                            <button type="button" class="accordion-button btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#accordionWithIcon-5" aria-expanded="true">
+                                                <i class='bx bxs-circle me-2' ></i>
+                                              Annual
+                                            </button>
+                                          </h2>
+                                          <div id="accordionWithIcon-5" class="accordion-collapse collapse show" >
+                                            <div class="accordion-body">
+
+                                                <div class="row row-cols-4 mb-3" id="targetFields_0">
+                                                    <div class="col mb-3" >
+                                                    </div>
+                                                </div>
+                    
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="form-group ">
+                                                            <label for="target_0" class="required">Target</label>
+                                                            <input type="text" class="form-control capitalize target-input" name="target[]" id="target_0" aria-describedby="" readonly>
+                                                            {{-- <input type="text" class="form-control capitalize target-input d-none" name="target[]" id="targetDivision_0" aria-describedby="" disabled> --}}
+                                                            <div class="invalid-feedback" id="targetError_0"></div>
+                                                        </div>
+                    
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="form-group" class="required">
+                                                            <label for="alloted_budget_0">Alloted Budget</label>
+                                                            <input type="number" step="any"  class="form-control capitalize alloted-budget" name="alloted_budget[]" id="alloted_budget_0" aria-describedby="" placeholder="0" min="0">
+                                                            <div class="invalid-feedback" id="alloted_budgetError_0"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="row">
-                                <div class="col">
-                                    <div class="form-group ">
-                                        <label for="target_0" class="required">Target</label>
-                                        <input type="text" class="form-control capitalize target-input" name="target[]" id="target_0" aria-describedby="" readonly>
-                                        {{-- <input type="text" class="form-control capitalize target-input d-none" name="target[]" id="targetDivision_0" aria-describedby="" disabled> --}}
-                                        <div class="invalid-feedback" id="targetError_0"></div>
-                                    </div>
-
-                                </div>
-                                <div class="col">
-                                    <div class="form-group" class="required">
-                                        <label for="alloted_budget_0">Alloted Budget</label>
-                                        <input type="number" step="any"  class="form-control capitalize alloted-budget" name="alloted_budget[]" id="alloted_budget_0" aria-describedby="" placeholder="0" min="0">
-                                        <div class="invalid-feedback" id="alloted_budgetError_0"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-
-
-
-                            <div class="row mt-3">
+                            {{-- <div class="row mt-3">
 
                                 <p class="d-inline-flex gap-1">
                                     <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample_0" aria-expanded="false" aria-controls="collapseExample">
@@ -131,7 +276,7 @@
                                         </div>
                                     </div>
                                   </div>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </div>
@@ -142,7 +287,7 @@
         <div class="row mt-3">
             <div class="col">
                 <div class="d-flex justify-content-start">
-                    <button type="button" class="btn btn-primary btn-add-card" id="addOutcomeBtn"><i class="mdi mdi-plus-circle-outline"></i>Add Entries</button>
+                    {{-- <button type="button" class="btn btn-primary btn-add-card" id="addOutcomeBtn"><i class="mdi mdi-plus-circle-outline"></i>Add Entries</button> --}}
                 </div>
             </div>
             <div class="col">
@@ -163,130 +308,130 @@ $(document).ready(function() {
 
     //---------------------------------------------------START NEW CARD---------------------------------------------------//
 
-    let outcomeIndex = 1;
+    // let outcomeIndex = 1;
 
-    function addOutcomeCard() {
-        const newOutcomeHtml = `
-        <div class="row mt-4">
-            <div class="col-lg-12 grid-margin stretch-card card-template cards-container" id="cards-container_${outcomeIndex}">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="form-group mb-3">
-                                <label for="measures_${outcomeIndex}" class="required">Measure</label>
-                                <textarea type="text" class="form-control capitalize" name="measures[]" id="measures_${outcomeIndex}" aria-describedby=""></textarea>
-                                <div class="invalid-feedback" id="measuresError_${outcomeIndex}"></div>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="division_id_${outcomeIndex}" class="required">Division</label>
-                                <select id="division_id_${outcomeIndex}" class="division-select form-select" name="division_id[${outcomeIndex}][]" multiple="multiple">
-                                </select>
-                                <div class="invalid-feedback" id="division_idError_${outcomeIndex}"></div>
-                            </div>
-                             <div class="form-group mb-3">
-                                 <label for="">Target Type:</label>
-                                <div class="form-check form-check-inline percent">
-                                    <input class="form-check-input target-type" type="radio" name="targetType_${outcomeIndex}" id="Percentage_${outcomeIndex}" value="percentage">
-                                    <label class="form-check-label" for="Percentage_${outcomeIndex}">Percentage</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input target-type" type="radio" name="targetType_${outcomeIndex}" id="Number_${outcomeIndex}" value="number">
-                                    <label class="form-check-label" for="Number_${outcomeIndex}">Number</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input target-type" type="radio" name="targetType_${outcomeIndex}" id="Actual_${outcomeIndex}" value="actual">
-                                    <label class="form-check-label" for="Actual_${outcomeIndex}">Actual</label>
-                                </div>
-                            </div>
+    // function addOutcomeCard() {
+    //     const newOutcomeHtml = `
+    //     <div class="row mt-4">
+    //         <div class="col-lg-12 grid-margin stretch-card card-template cards-container" id="cards-container_${outcomeIndex}">
+    //             <div class="card">
+    //                 <div class="card-body">
+    //                     <div class="row">
+    //                         <div class="form-group mb-3">
+    //                             <label for="measures_${outcomeIndex}" class="required">Measure</label>
+    //                             <textarea type="text" class="form-control capitalize" name="measures[]" id="measures_${outcomeIndex}" aria-describedby=""></textarea>
+    //                             <div class="invalid-feedback" id="measuresError_${outcomeIndex}"></div>
+    //                         </div>
+    //                         <div class="form-group mb-3">
+    //                             <label for="division_id_${outcomeIndex}" class="required">Division</label>
+    //                             <select id="division_id_${outcomeIndex}" class="division-select form-select" name="division_id[${outcomeIndex}][]" multiple="multiple">
+    //                             </select>
+    //                             <div class="invalid-feedback" id="division_idError_${outcomeIndex}"></div>
+    //                         </div>
+    //                          <div class="form-group mb-3">
+    //                              <label for="">Target Type:</label>
+    //                             <div class="form-check form-check-inline percent">
+    //                                 <input class="form-check-input target-type" type="radio" name="targetType_${outcomeIndex}" id="Percentage_${outcomeIndex}" value="percentage">
+    //                                 <label class="form-check-label" for="Percentage_${outcomeIndex}">Percentage</label>
+    //                             </div>
+    //                             <div class="form-check form-check-inline">
+    //                                 <input class="form-check-input target-type" type="radio" name="targetType_${outcomeIndex}" id="Number_${outcomeIndex}" value="number">
+    //                                 <label class="form-check-label" for="Number_${outcomeIndex}">Number</label>
+    //                             </div>
+    //                             <div class="form-check form-check-inline">
+    //                                 <input class="form-check-input target-type" type="radio" name="targetType_${outcomeIndex}" id="Actual_${outcomeIndex}" value="actual">
+    //                                 <label class="form-check-label" for="Actual_${outcomeIndex}">Actual</label>
+    //                             </div>
+    //                         </div>
 
 
-                            <div class="row row-cols-4 mb-3" id="targetFields_${outcomeIndex}">
-                                <div class="col mb-3" >
-                                </div>
-                            </div>
-                        </div>
-                         <div class="row">
-                            <div class="col">
-                                <div class="form-group">
-                                     <label for="target_${outcomeIndex}" class="required">Target</label>
-                                    <input type="text" class="form-control capitalize" name="target[]" id="target_${outcomeIndex}" aria-describedby="" disabled>
-                                    <div class="invalid-feedback" id="targetError_${outcomeIndex}"></div>
-                                </div>
+    //                         <div class="row row-cols-4 mb-3" id="targetFields_${outcomeIndex}">
+    //                             <div class="col mb-3" >
+    //                             </div>
+    //                         </div>
+    //                     </div>
+    //                      <div class="row">
+    //                         <div class="col">
+    //                             <div class="form-group">
+    //                                  <label for="target_${outcomeIndex}" class="required">Target</label>
+    //                                 <input type="text" class="form-control capitalize" name="target[]" id="target_${outcomeIndex}" aria-describedby="" disabled>
+    //                                 <div class="invalid-feedback" id="targetError_${outcomeIndex}"></div>
+    //                             </div>
 
-                            </div>
-                            <div class="col">
-                                <div class="form-group">
-                                    <label for="alloted_budget_${outcomeIndex}">Alloted Budget</label>
-                                    <input type="number" step="any"  class="form-control capitalize" name="alloted_budget[]" id="alloted_budget_${outcomeIndex}" aria-describedby="" placeholder="0" min="0">
-                                    <div class="invalid-feedback" id="alloted_budgetError_${outcomeIndex}"></div>
-                                </div>
-                            </div>
-                        </div>
+    //                         </div>
+    //                         <div class="col">
+    //                             <div class="form-group">
+    //                                 <label for="alloted_budget_${outcomeIndex}">Alloted Budget</label>
+    //                                 <input type="number" step="any"  class="form-control capitalize" name="alloted_budget[]" id="alloted_budget_${outcomeIndex}" aria-describedby="" placeholder="0" min="0">
+    //                                 <div class="invalid-feedback" id="alloted_budgetError_${outcomeIndex}"></div>
+    //                             </div>
+    //                         </div>
+    //                     </div>
 
-                         <div class="row mt-3">
+    //                      <div class="row mt-3">
 
-                                <p class="d-inline-flex gap-1">
-                                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample_${outcomeIndex}" aria-expanded="false" aria-controls="collapseExample">
-                                      Add Quarterly Target
-                                    </button>
-                                  </p>
-                                  <div class="collapse" id="collapseExample_${outcomeIndex}">
-                                    <div class="card card-body">
+    //                             <p class="d-inline-flex gap-1">
+    //                                 <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample_${outcomeIndex}" aria-expanded="false" aria-controls="collapseExample">
+    //                                   Add Quarterly Target
+    //                                 </button>
+    //                               </p>
+    //                               <div class="collapse" id="collapseExample_${outcomeIndex}">
+    //                                 <div class="card card-body">
 
-                                        <div class="row">
-                                            <div class="col">
-                                                <div class="form-group" class="">
-                                                    <label for="quarter1_target_${outcomeIndex}">Quarter 1</label>
-                                                    <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q1_target[]" id="quarter1_target_${outcomeIndex}" aria-describedby="" placeholder="0" readonly>
-                                                </div>
-                                            </div>
+    //                                     <div class="row">
+    //                                         <div class="col">
+    //                                             <div class="form-group" class="">
+    //                                                 <label for="quarter1_target_${outcomeIndex}">Quarter 1</label>
+    //                                                 <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q1_target[]" id="quarter1_target_${outcomeIndex}" aria-describedby="" placeholder="0" readonly>
+    //                                             </div>
+    //                                         </div>
 
-                                            <div class="col">
-                                                <div class="form-group" class="">
-                                                    <label for="quarter2_target_${outcomeIndex}">Quarter 2</label>
-                                                    <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q2_target[]" id="quarter2_target_${outcomeIndex}" aria-describedby="" placeholder="0" readonly>
-                                                </div>
-                                            </div>
+    //                                         <div class="col">
+    //                                             <div class="form-group" class="">
+    //                                                 <label for="quarter2_target_${outcomeIndex}">Quarter 2</label>
+    //                                                 <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q2_target[]" id="quarter2_target_${outcomeIndex}" aria-describedby="" placeholder="0" readonly>
+    //                                             </div>
+    //                                         </div>
 
-                                            <div class="col">
-                                                <div class="form-group" class="">
-                                                    <label for="quarter3_target_${outcomeIndex}">Quarter 3</label>
-                                                    <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q3_target[]" id="quarter3_target_${outcomeIndex}" aria-describedby="" placeholder="0" readonly>
-                                                </div>
-                                            </div>
+    //                                         <div class="col">
+    //                                             <div class="form-group" class="">
+    //                                                 <label for="quarter3_target_${outcomeIndex}">Quarter 3</label>
+    //                                                 <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q3_target[]" id="quarter3_target_${outcomeIndex}" aria-describedby="" placeholder="0" readonly>
+    //                                             </div>
+    //                                         </div>
 
-                                            <div class="col">
-                                                <div class="form-group" class="">
-                                                    <label for="quarter4_target_${outcomeIndex}">Quarter 4</label>
-                                                    <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q4_target[]" id="quarter4_target_${outcomeIndex}" aria-describedby="" placeholder="0" readonly>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                  </div>
-                            </div>
+    //                                         <div class="col">
+    //                                             <div class="form-group" class="">
+    //                                                 <label for="quarter4_target_${outcomeIndex}">Quarter 4</label>
+    //                                                 <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q4_target[]" id="quarter4_target_${outcomeIndex}" aria-describedby="" placeholder="0" readonly>
+    //                                             </div>
+    //                                         </div>
+    //                                     </div>
+    //                                 </div>
+    //                               </div>
+    //                         </div>
 
-                            <button type="button" class="btn btn-danger btn-sm mt-2 removeOutcomeBtn" data-index="${outcomeIndex}">Remove</button>
+    //                         <button type="button" class="btn btn-danger btn-sm mt-2 removeOutcomeBtn" data-index="${outcomeIndex}">Remove</button>
 
-                    </div>
-                </div>
-            </div>
-        </div>
-        `;
-        $('#cards-containers').append(newOutcomeHtml);
+    //                 </div>
+    //             </div>
+    //         </div>
+    //     </div>
+    //     `;
+    //     $('#cards-containers').append(newOutcomeHtml);
 
-        initializeDivisionSelect();
-        outcomeIndex++;
-    }
+    //     initializeDivisionSelect();
+    //     outcomeIndex++;
+    // }
 
-    $('#addOutcomeBtn').click(function () {
-        addOutcomeCard();
-    });
+    // $('#addOutcomeBtn').click(function () {
+    //     addOutcomeCard();
+    // });
 
-    $(document).on('click', '.removeOutcomeBtn', function () {
-        const index = $(this).data('index');
-        $(`#cards-container_${index}`).remove();
-    });
+    // $(document).on('click', '.removeOutcomeBtn', function () {
+    //     const index = $(this).data('index');
+    //     $(`#cards-container_${index}`).remove();
+    // });
 
     //---------------------------------------------------END NEW CARD---------------------------------------------------//
 
@@ -358,121 +503,40 @@ $(document).ready(function() {
 
     //---------------------------------------------------START JS FOR TARGET TYPE---------------------------------------------------//
 
+    // Function to calculate and update the annual target based on quarterly inputs
+    function updateAnnualTarget(index, selectedType) {
+        // Get the values of the quarterly targets
+        const q1 = parseFloat($(`#quarter1_target_${index}`).val()) || 0;
+        const q2 = parseFloat($(`#quarter2_target_${index}`).val()) || 0;
+        const q3 = parseFloat($(`#quarter3_target_${index}`).val()) || 0;
+        const q4 = parseFloat($(`#quarter4_target_${index}`).val()) || 0;
 
-    $(document).on('change', 'input[name^="targetType"]', function() {
-        const index = $(this).closest('.card').find('input[name^="targetType"]').attr('id').split('_').pop();
-        const selectedType = $(this).val();
-        const targetInput = $(`#target_${index}`);
-        let currentValue = targetInput.val();
-        // const currentValue = targetInput.val().replace('%', '')
+        // Calculate the overall total
+        const overallTotal = q1 + q2 + q3 + q4;
 
-        if (selectedType == 'percentage') {
-            targetInput
-            .attr('type', 'text') // Set type to text to allow appending "%"
-            .attr('min', '0')
-            .attr('max', '100')
-            .attr('placeholder', '%')
-            .removeAttr('readonly')
-            .val(currentValue.includes('Actual') ? '' : `${currentValue.replace('%', '')}%`)
-            .off('input.percentage')
-            .on('input.percentage', function() {
-                // Remove non-numeric characters except '%'
-                let value = $(this).val().replace(/[^\d%]/g, '');
+        // Format the total based on the selected type
+        $(`#target_${index}`).val(formatTotal(overallTotal, selectedType));
+    }
 
-                if (value.indexOf('%') !== -1) {
-                    value = value.substring(0, value.indexOf('%') + 1); // Keep only one "%"
-                }
-                // Ensure the value is within the range
-                if ($.isNumeric(value) && value >= 0 && value <= 100) {
-                    $(this).val(`${value}%`);
-                } else {
-                    $(this).val(value);
-                }
-            });
-        } else if (selectedType == 'number') {
-            targetInput
-            .attr('type', 'number')
-            .removeAttr('min')
-            .removeAttr('max')
-            .removeAttr('placeholder')
-            .removeAttr('readonly')
-            .val(currentValue.replace('%', '').replace('Actual', ''))
-            .off('input.percentage');
-        } else if (selectedType == 'actual') {
-            targetInput
-            .attr('type', 'text')
-            .attr('readonly', 'readonly')
-            .removeAttr('placeholder')
-            .off('input.percentage')
-            .val('Actual');
-            $(`#target_${index}`).val('Actual');
-        }
-
-
-    });
-
-    $(document).on('change', 'input[name^="targetType"]', function() {
-        const index = $(this).closest('.card').find('input[name^="targetType"]').attr('id').split('_').pop();
-        const selectedType = $(this).val();
-
-        // Loop through all the quarter inputs for the selected target type
-        const quarterInputs = [
-            $(`#quarter1_target_${index}`),
-            $(`#quarter2_target_${index}`),
-            $(`#quarter3_target_${index}`),
-            $(`#quarter4_target_${index}`)
-        ];
-
-        quarterInputs.forEach(function(quarterInput) {
-            let currentValue = quarterInput.val();
-
-            if (selectedType == 'percentage') {
-                quarterInput
-                    .attr('type', 'text') // Set type to text to allow appending "%"
-                    .attr('min', '0')
-                    .attr('max', '100')
-                    .attr('placeholder', '%')
-                    .removeAttr('readonly')
-                    .val(currentValue.includes('Actual') ? '' : `${currentValue.replace('%', '')}%`)
-                    .off('input.percentage')
-                    .on('input.percentage', function() {
-                        // Remove non-numeric characters except '%'
-                        let value = $(this).val().replace(/[^\d%]/g, '');
-
-                        if (value.indexOf('%') !== -1) {
-                            value = value.substring(0, value.indexOf('%') + 1); // Keep only one "%"
-                        }
-                        // Ensure the value is within the range
-                        if ($.isNumeric(value) && value >= 0 && value <= 100) {
-                            $(this).val(`${value}%`);
-                        } else {
-                            $(this).val(value);
-                        }
-                    });
-            } else if (selectedType == 'number') {
-                quarterInput
-                    .attr('type', 'number')
-                    .removeAttr('min')
-                    .removeAttr('max')
-                    .removeAttr('placeholder')
-                    .removeAttr('readonly')
-                    .val(currentValue.replace('%', '').replace('Actual', ''))
-                    .off('input.percentage');
-            } else if (selectedType == 'actual') {
-                quarterInput
-                        .attr('type', 'text')
-                        .attr('readonly', 'readonly')
-                        .removeAttr('placeholder')
-                        .off('input.percentage')
-                        .val('Actual');
-            }
+    // Attach event listeners to the quarterly inputs
+    function attachQuarterListeners(index, selectedType) {
+        // Listen for changes in each quarter input
+        $(`#quarter1_target_${index}, #quarter2_target_${index}, #quarter3_target_${index}, #quarter4_target_${index}`).on('input', function() {
+            updateAnnualTarget(index, selectedType);  // Update annual total on any change
         });
+    }
+
+    // Call this function when initializing or whenever the quarterly inputs are updated dynamically
+    $(document).on('change', 'input[name^="targetType"]', function() {
+        const index = $(this).closest('.card').find('input[name^="targetType"]').attr('id').split('_').pop();
+        const selectedType = $(this).val();
+        // Attach listeners to update the annual target whenever a quarter input changes
+        attachQuarterListeners(index, selectedType);
     });
 
     //---------------------------------------------------END JS FOR TARGET TYPE---------------------------------------------------//
 
     //---------------------------------------------------START JS FOR DIVISION'S INPUTS---------------------------------------------------//
-
 
     function updateTargetFields(index, selectedDivisions) {
         const targetContainer = $(`#targetFields_${index}`);
@@ -537,6 +601,14 @@ $(document).ready(function() {
                         }
                     });
 
+                    for (let q = 1; q <= 4; q++) {
+                        const targetInput = $(`#target_${divisionId}_${index}_Q${q}`);
+                        targetInput.on('input', function() {
+                            const selectedType = $(`input[name="targetType_${index}"]:checked`).val();
+                            updateTotalTarget(index, divisionId, cleanedDivisionName, selectedType); // Update the total target
+                        });
+                    }
+
                     // Attach the input event to budget fields to calculate the total budget
                     const budgetInput = $(`#budget_${divisionId}_${index}`);
                     budgetInput.on('input', function() {
@@ -564,11 +636,43 @@ $(document).ready(function() {
         }
     }
 
-    // Function to apply the target type to new divisions without clearing the input value
+   // Function to apply the target type to new divisions without clearing the input value
     function applyTargetType(targetInput, selectedType) {
         let currentValue = targetInput.val().replace('%', ''); // Remove the '%' symbol if present but keep the value
 
-        if (selectedType === 'percentage') {
+        if (currentValue === "Actual") {
+            currentValue = ''; // Clear the value for percentage type
+        }
+        // else {
+        //     currentValue = '0';
+        // }
+
+        if (selectedType === 'percentage' &&  currentValue === '') {
+            
+            targetInput
+                .attr('type', 'text')
+                .attr('min', '0')
+                .attr('max', '100')
+                .attr('placeholder', '%')
+                .removeAttr('readonly')
+                .val(`${currentValue}`) // Add the '%' symbol to the existing value
+                .off('input.percentage')
+                .on('input.percentage', function() {
+                    let value = $(this).val().replace(/[^\d]/g, ''); // Remove non-numeric characters
+
+                    // Show the '%' sign only if there is a valid number input
+                    if (value && $.isNumeric(value) && value >= 0 && value <= 100) {
+                        $(this).val(`${value}%`);
+                    } else {
+                        $(this).val(value); // Only show numeric input, no '%'
+                    }
+                });
+
+            // Remove any hidden input if present
+            // targetInput.siblings('input[type="hidden"]').remove();
+
+        } else if (selectedType === 'percentage' &&  currentValue >= 0) {
+            
             targetInput
                 .attr('type', 'text')
                 .attr('min', '0')
@@ -578,21 +682,21 @@ $(document).ready(function() {
                 .val(`${currentValue}%`) // Add the '%' symbol to the existing value
                 .off('input.percentage')
                 .on('input.percentage', function() {
-                    let value = $(this).val().replace(/[^\d%]/g, '');
-                    if (value.indexOf('%') !== -1) {
-                        value = value.substring(0, value.indexOf('%') + 1); // Keep only one "%"
-                    }
-                    if ($.isNumeric(value) && value >= 0 && value <= 100) {
+                    let value = $(this).val().replace(/[^\d]/g, ''); // Remove non-numeric characters
+
+                    // Show the '%' sign only if there is a valid number input
+                    if (value && $.isNumeric(value) && value >= 0 && value <= 100) {
                         $(this).val(`${value}%`);
                     } else {
-                        $(this).val(value);
+                        $(this).val(value); // Only show numeric input, no '%'
                     }
                 });
 
             // Remove any hidden input if present
             // targetInput.siblings('input[type="hidden"]').remove();
 
-        } else if (selectedType === 'number') {
+        }
+        else if (selectedType === 'number') {
             targetInput
                 .attr('type', 'number')
                 .removeAttr('min')
@@ -627,6 +731,170 @@ $(document).ready(function() {
         }
     }
 
+    // Function to update the total target for a division
+    function updateTotalTarget(index, divisionId, cleanedDivisionName, selectedType) {
+        let totalTarget = 0;
+        console.log(selectedType);
+
+        // Sum up all quarterly targets
+        for (let q = 1; q <= 4; q++) {
+            const targetValue = parseFloat($(`#target_${divisionId}_${index}_Q${q}`).val());
+            if (!isNaN(targetValue)) {
+                totalTarget += targetValue;
+            }
+        }
+
+        // Update the total target field
+        $(`#target_${divisionId}_${index}`).val(formatTotal(totalTarget, selectedType));
+
+        // Update the overall total for the selected index
+        let overallTotal = 0;
+        $(`#targetFields_${index} .target-input`).each(function() {
+            let value = parseFloat($(this).val());
+            if (!isNaN(value)) {
+                overallTotal += value;
+            }
+        });
+
+        $(`#target_${index}`).val(formatTotal(overallTotal, selectedType));
+
+
+    }
+
+    let activeAccordionIndex = 5; // Default to the Annual accordion
+
+    // Event listener for accordion shown (collapse open)
+    $('#accordionWithIcon').on('shown.bs.collapse', function (event) {
+        activeAccordionIndex = $(event.target).attr('id').split('-')[1]; // Get the active accordion's index
+    });
+
+    function calculateQuarterlyTotals(index, selectedType) {
+        const quarters = [
+            `#Q1targetFields_${index}`,
+            `#Q2targetFields_${index}`,
+            `#Q3targetFields_${index}`,
+            `#Q4targetFields_${index}`
+        ];
+
+        // Initialize totals
+        let totalQ1 = 0;
+        let totalQ2 = 0;
+        let totalQ3 = 0;
+        let totalQ4 = 0;
+
+        // Loop over the quarter fields and sum up the target inputs
+        quarters.forEach((quarter, quarterIndex) => {
+            $(`${quarter} .target-input`).each(function() {
+                let value = parseFloat($(this).val());
+                if (!isNaN(value)) {
+                    switch (quarterIndex) {
+                        case 0:
+                            totalQ1 += value;
+                            break;
+                        case 1:
+                            totalQ2 += value;
+                            break;
+                        case 2:
+                            totalQ3 += value;
+                            break;
+                        case 3:
+                            totalQ4 += value;
+                            break;
+                    }
+                }
+            });
+        });
+
+        let overallTotal = totalQ1 + totalQ2 + totalQ3 + totalQ4;
+
+        // Update the quarter totals for the active accordion
+        if (activeAccordionIndex == 1) {
+        $('#quarter1_target_' + index).val(formatTotal(totalQ1, selectedType));
+        } else if (activeAccordionIndex == 2) {
+            $('#quarter2_target_' + index).val(formatTotal(totalQ2, selectedType));
+        } else if (activeAccordionIndex == 3) {
+            $('#quarter3_target_' + index).val(formatTotal(totalQ3, selectedType));
+        } else if (activeAccordionIndex == 4) {
+            $('#quarter4_target_' + index).val(formatTotal(totalQ4, selectedType));
+        }
+
+         // Set the overall total in the target field
+        $(`#target_${index}`).val(formatTotal(overallTotal, selectedType));
+    }
+
+    function formatTotal(value, selectedType) {
+        if (selectedType === 'percentage') {
+            return `${value}%`;
+        } else if (selectedType === 'actual') {
+            return 'Actual';
+        } else {
+            return value; // For 'number'
+        }
+    }
+
+    function updateQuarterTargetFields(index, selectedDivisions) {
+        // Define quarterly target field containers
+        const quarters = [
+            `#Q1targetFields_${index}`,
+            `#Q2targetFields_${index}`,
+            `#Q3targetFields_${index}`,
+            `#Q4targetFields_${index}`
+        ];
+
+        // Store existing input values
+        let existingValues = {};
+        quarters.forEach((quarter) => {
+            $(`${quarter} .target-input`).each(function() {
+                const targetId = $(this).attr('id');
+                existingValues[targetId] = $(this).val(); // Store the current target value
+            });
+        });
+
+        // Clear the containers
+        quarters.forEach((quarter) => $(quarter).empty());
+
+        // Iterate over selected divisions
+        if (selectedDivisions.length > 0) {
+            selectedDivisions.forEach((divisionId) => {
+                const divisionName = $(`#division_id_${index} option[value="${divisionId}"]`).text();
+                const cleanedDivisionName = divisionName.replace(/\s*PO$/, '');
+
+                if (divisionName.includes("PO")) {
+                    quarters.forEach((quarter, quarterIndex) => {
+                        const targetHtml = `
+                        <div class="col mb-3">
+                            <div class="form-group">
+                                <label for="target_${divisionId}_${index}_Q${quarterIndex + 1}" class="required">${divisionName} Target (Q${quarterIndex + 1})</label>
+                                <input type="text" class="form-control capitalize target-input" name="${cleanedDivisionName}_target_Q${quarterIndex + 1}[]" id="target_${divisionId}_${index}_Q${quarterIndex + 1}" aria-describedby="" readonly>
+                                <div class="invalid-feedback" id="targetError_${divisionId}_${index}_Q${quarterIndex + 1}"></div>
+                            </div>
+                        </div>
+                        `;
+                        $(quarter).append(targetHtml);
+
+                         // Enable the target input and attach the input event to calculate total
+                            const targetInput = $(`#target_${divisionId}_${index}_Q${quarterIndex + 1}`);
+                            const selectedType = $(`input[name="targetType_${index}"]:checked`).val(); // Get the selected target type
+                            applyTargetType(targetInput, selectedType); // Apply the existing target type to the new division
+                            
+                        targetInput.on('input', function() {
+                            const selectedType = $(`input[name="targetType_${index}"]:checked`).val();
+                            updateTotalTarget(index, divisionId, cleanedDivisionName, selectedType); // Update the total target
+                            calculateQuarterlyTotals(index, selectedType);
+                        });
+
+                        // Restore existing values after the new inputs are appended
+                        if (existingValues[`target_${divisionId}_${index}_Q${quarterIndex + 1}`]) {
+                            targetInput.val(existingValues[`target_${divisionId}_${index}_Q${quarterIndex + 1}`]);
+                        }
+                        
+                    });
+                }
+            });
+        }
+    }
+    
+
     $(document).on('change', '.division-select', function() {
         const index = $(this).attr('id').split('_').pop();
         const selectedDivisions = $(this).val();
@@ -639,8 +907,11 @@ $(document).ready(function() {
         $(`.percent`).removeClass('d-none');
 
         updateTargetFields(index, selectedDivisions);
+        updateQuarterTargetFields(index, selectedDivisions);
         if (hasPO) {
             updateTargetFields(index, selectedDivisions);
+            updateQuarterTargetFields(index, selectedDivisions);
+
         }
     });
 
@@ -648,12 +919,30 @@ $(document).ready(function() {
         const index = $(this).closest('.card').find('input[name^="targetType"]').attr('id').split('_').pop();
         const selectedType = $(this).val();
 
+        // Apply the target type to all current fields in target fields
         $(`#targetFields_${index} .target-input`).each(function() {
             const targetInput = $(this);
-            applyTargetType(targetInput, selectedType); // Apply target type to all current fields without clearing values
+            applyTargetType(targetInput, selectedType);
         });
-    });
+        $(`#target_${index}`).each(function() {
+            const targetInput = $(this);
+            applyTargetType(targetInput, selectedType);
+        });
 
+        // Apply the target type to all quarterly target fields
+        for (let q = 1; q <= 4; q++) {
+            $(`#Q${q}targetFields_${index} .target-input`).each(function() {
+                const targetInput = $(this);
+                applyTargetType(targetInput, selectedType);
+            });
+        }
+        for (let q = 1; q <= 4; q++) {
+            $(`#quarter${q}_target_${index}`).each(function() {
+                const targetInput = $(this);
+                applyTargetType(targetInput, selectedType);
+            });
+        }
+    });
 
     //---------------------------------------------------END JS FOR DIVISION'S INPUTS---------------------------------------------------//
 

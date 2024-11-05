@@ -101,7 +101,7 @@ class RoleController extends Controller
         $roles = $query->get();
 
         return DataTables::of($roles)
-            ->addColumn('id', function($role) {
+            ->editColumn('id', function($role) {
                 return Crypt::encrypt($role->id);
 
             })

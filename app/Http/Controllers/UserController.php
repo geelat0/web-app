@@ -118,7 +118,7 @@ class UserController extends Controller
         $users = $query->get();
 
         return DataTables::of($users)
-            ->addColumn('id', function($user) {
+            ->editColumn('id', function($user) {
                 return Crypt::encrypt($user->id);
             })
             ->addColumn('name', function($user) {
@@ -130,7 +130,7 @@ class UserController extends Controller
             ->addColumn('role', function($user) {
                 return $user->role ? $user->role->name : 'N/A';
             })
-            ->addColumn('division_id', function($user) {
+            ->editColumn('division_id', function($user) {
                 $divisionIds = json_decode($user->division_id, true);
                 if (is_array($divisionIds)) {
                     $divisions = Division::whereIn('id', $divisionIds)->pluck('division_name')->toArray();

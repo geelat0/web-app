@@ -48,32 +48,57 @@
                                 </div>
                             </div>
 
+
+                            <div class="row  mb-3">
+                                <div class="col">
+                                    <div class="accordion" id="accordionWithIcon">
+                                        
+
+                                        <div class="accordion-item card">
+                                          <h2 class="accordion-header d-flex align-items-center">
+                                            <button type="button" class="accordion-button btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#accordionWithIcon-5" aria-expanded="true">
+                                                <i class='bx bxs-circle me-2' ></i>
+                                              Annual
+                                            </button>
+                                          </h2>
+                                          <div id="accordionWithIcon-5" class="accordion-collapse collapse show" >
+                                            <div class="accordion-body">
+
+                                                <div class="row row-cols-4 mb-3" id="targetFields_0">
+                                                    <div class="col mb-3" >
+                                                    </div>
+                                                </div>
+                    
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="form-group">
+                                                            <label for="target" class="required">Total Target</label>
+                                                            <input type="text" class="form-control capitalize target-input" name="target" id="target" aria-describedby="" disabled>
+                                                            {{-- <input type="text" class="form-control capitalize target-input d-none" name="target[]" id="targetDivision_0" aria-describedby="" disabled> --}}
+                                                            <div class="invalid-feedback" id="targetError"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="form-group" class="required">
+                                                            <label for="alloted_budget">Alloted Budget</label>
+                                                            <input type="number" step="any"  class="form-control capitalize" name="alloted_budget" id="alloted_budget" aria-describedby="">
+                                                            <div class="invalid-feedback" id="alloted_budgetError"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+
                              {{-- CONTAINER FOR TARGET AND BUDGET --}}
 
-                            <div class="row row-cols-4 mb-3" id="targetFields_0">
-                                <div class="col mb-3" >
-                                </div>
-                            </div>
+                           
 
-                            <div class="row">
-                                <div class="col">
-                                    <div class="form-group">
-                                        <label for="target" class="required">Total Target</label>
-                                        <input type="text" class="form-control capitalize target-input" name="target" id="target" aria-describedby="" disabled>
-                                        {{-- <input type="text" class="form-control capitalize target-input d-none" name="target[]" id="targetDivision_0" aria-describedby="" disabled> --}}
-                                        <div class="invalid-feedback" id="targetError"></div>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="form-group" class="required">
-                                        <label for="alloted_budget">Alloted Budget</label>
-                                        <input type="number" step="any"  class="form-control capitalize" name="alloted_budget" id="alloted_budget" aria-describedby="">
-                                        <div class="invalid-feedback" id="alloted_budgetError"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row mt-3">
+                            {{-- <div class="row mt-3">
 
                                 <p class="d-inline-flex gap-1">
                                     <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample_0" aria-expanded="false" aria-controls="collapseExample">
@@ -114,7 +139,7 @@
                                         </div>
                                     </div>
                                   </div>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </div>

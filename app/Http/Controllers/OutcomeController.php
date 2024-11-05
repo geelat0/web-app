@@ -91,7 +91,7 @@ class OutcomeController extends Controller
         $orgs = $query->get();
 
         return DataTables::of($orgs)
-            ->addColumn('id', function($org) {
+            ->editColumn('id', function($org) {
                 return Crypt::encrypt($org->id);
 
             })

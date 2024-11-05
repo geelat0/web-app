@@ -16,25 +16,21 @@
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 5px;
         }
 
         .header_page {
-            font-size: 12px;
+            font-size: 10px;
         }
 
         .subheader {
             font-weight: bold;
         }
 
-        @page {
-            /* margin: 100px 25px; */
-        }
-
         .table {
             width: 100%;
             border-collapse: collapse;
-            margin: 0 auto; /* Center the table */
+            margin: 0 auto;
         }
 
         .table th, .table td {
@@ -45,17 +41,18 @@
 
         .table th {
             background-color: #8ccdf0;
-            font-size: 14px;
+            font-size: 12px;
             text-align: center;
         }
 
         .table td {
             vertical-align: top;
-            font-size: 12px;
+            font-size: 11px;
+            /* page-break-inside: avoid; */
         }
 
         .no-indicators td {
-            border: 1px solid  black; /* Special border for rows without indicators */
+            border: 1px solid black;
             padding: 8px;
             text-align: left;
         }
@@ -71,31 +68,28 @@
         .page-number:before {
             content: counter(page);
         }
+
+        .avoid-page-break {
+            page-break-inside: avoid;
+        }
+        .page-break {
+            page-break-after: always;
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="header_page">
-            Republic of the Philippines
-        </div>
-        <div class="subheader">
-            Department of Labor and Employment
-        </div>
-        <div class="header_page">
-            Intramuros, Manila
-        </div>
-    </div>
+
     <div class="container">
         <table class="table">
             <thead>
                 <tr>
-                    <th rowspan="2">Organizational Outcome/PAP</th>
-                    <th rowspan="2">Success Indicator</th>
+                    <th rowspan="2" style="width: 14%;">Organizational Outcome/PAP</th>
+                    <th rowspan="2" style="width: 18.5%;">Success Indicator</th>
                     <th rowspan="2">Allotted Budget</th>
-                    <th rowspan="2">Division/Individuals Accountable</th>
-                    <th rowspan="2">Actual Accomplishment</th>
+                    <th rowspan="2" style="width: 15%;">Division/Individuals Accountable</th>
+                    <th rowspan="2" style="width: 18%;">Actual Accomplishment</th>
                     <th colspan="4">Rating</th>
-                    <th rowspan="2" style="width: 15%;">Remarks</th>
+                    <th rowspan="2" style="width: 13%;">Remarks</th>
                 </tr>
                 <tr class="rating-header">
                     <th>Q1</th>
@@ -105,6 +99,7 @@
                 </tr>
             </thead>
             <tbody>
+                
                 @foreach($orgOutcomes as $outcome)
                     @php
                         $hasIndicators = count($outcome->successIndicators) > 0;
@@ -118,18 +113,23 @@
                         </tr>
 
                     @else
-                        <tr>
-                            <td rowspan="{{ count($outcome->successIndicators) }}">
-                                {{ $outcome->organizational_outcome }}
-                            </td>
-                            @foreach($outcome->successIndicators as $index => $indicator)
+                        @foreach($outcome->successIndicators as $index => $indicator)
                                 @php
                                     $division_ids = json_decode($indicator->division_id);
                                     $filteredDivisionIds = $divisionIds ?? []; // The filtered division IDs from the request
                                     $entriesForIndicator = $entries[$indicator->id] ?? collect();
                                 @endphp
-                                @if($index > 0)
-                                    <tr>
+
+                                @if($index > 0 && $index % 10 === 0)
+                                <!-- Add a page break every 10 rows for large tables -->
+                                <tr class="page-break"><td colspan="10"></td></tr>
+                                @endif
+                            <tr>
+                                
+                                @if($index === 0)
+                                {{-- <td></td> --}}
+                                <td rowspan="{{ count($outcome->successIndicators) }}">{{ $outcome->organizational_outcome }}</td>
+
                                 @endif
                                 <td>
                                     @if(empty($filteredDivisionIds))
@@ -144,27 +144,28 @@
                                             @endphp
 
                                             @if($showDivision && $division)
-                                                @if($division->division_name === 'Albay PO')
-                                                {{ '(' .($indicator->Albay_target  == 0 ? 'Actual' : $indicator->Albay_target ) . ')' . ' ' . $indicator->measures }}
-
-                                                @elseif($division->division_name === 'Camarines Norte PO')
-                                                {{ '(' . ($indicator->Camarines_Norte_target == 0 ? 'Actual' : $indicator->Camarines_Norte_target)  . ')' . ' ' . $indicator->measures }}
-
-                                                @elseif($division->division_name === 'Camarines Sur PO')
-                                                {{ '(' . ($indicator->Camarines_Sur_target == 0 ? 'Actual' :  $indicator->Camarines_Sur_target) . ')' . ' ' . $indicator->measures }}
-
-                                                @elseif($division->division_name === 'Catanduanes PO')
-                                                {{ '(' . ($indicator->Catanduanes_target == 0 ? 'Actual' : $indicator->Catanduanes_target)   . ')' . ' ' . $indicator->measures }}
-
-                                                @elseif($division->division_name === 'Masbate PO')
-                                                {{ '(' . ($indicator->Masbate_target  == 0 ? 'Actual' : $indicator->Masbate_target ) . ')' . ' ' . $indicator->measures }}
-
-                                                @elseif($division->division_name === 'Sorsogon PO')
-                                                {{ '(' . ($indicator->Sorsogon_target== 0 ? 'Actual' : $indicator->Sorsogon_target)   . ')' . ' ' . $indicator->measures }}
-
-                                                @else
-                                                {{ '(' . ($indicator->target == 0 ? 'Actual' : $indicator->target) . ')' . ' ' . $indicator->measures }}
-                                                @endif
+                                                @switch($division->division_name)
+                                                    @case('Albay PO')
+                                                        {{ '(' . ($indicator->Albay_target  == 0 ? 'Actual' : $indicator->Albay_target ) . ') ' . $indicator->measures }}
+                                                        @break
+                                                    @case('Camarines Norte PO')
+                                                        {{ '(' . ($indicator->Camarines_Norte_target == 0 ? 'Actual' : $indicator->Camarines_Norte_target) . ') ' . $indicator->measures }}
+                                                        @break
+                                                    @case('Camarines Sur PO')
+                                                        {{ '(' . ($indicator->Camarines_Sur_target == 0 ? 'Actual' :  $indicator->Camarines_Sur_target) . ') ' . $indicator->measures }}
+                                                        @break
+                                                    @case('Catanduanes PO')
+                                                        {{ '(' . ($indicator->Catanduanes_target == 0 ? 'Actual' : $indicator->Catanduanes_target) . ') ' . $indicator->measures }}
+                                                        @break
+                                                    @case('Masbate PO')
+                                                        {{ '(' . ($indicator->Masbate_target  == 0 ? 'Actual' : $indicator->Masbate_target ) . ') ' . $indicator->measures }}
+                                                        @break
+                                                    @case('Sorsogon PO')
+                                                        {{ '(' . ($indicator->Sorsogon_target == 0 ? 'Actual' : $indicator->Sorsogon_target) . ') ' . $indicator->measures }}
+                                                        @break
+                                                    @default
+                                                        {{ '(' . ($indicator->target == 0 ? 'Actual' : $indicator->target) . ') ' . $indicator->measures }}
+                                                @endswitch
                                             @endif
                                         @endforeach
                                     @endif
@@ -183,27 +184,28 @@
                                             @endphp
 
                                             @if($showDivision && $division)
-                                                @if($division->division_name === 'Albay PO')
-                                                {{ number_format($indicator->Albay_budget, 2) }}
-
-                                                @elseif($division->division_name === 'Camarines Norte PO')
-                                                {{ number_format($indicator->Camarines_Norte_budget, 2) }}
-
-                                                @elseif($division->division_name === 'Camarines Sur PO')
-                                                {{ number_format($indicator->Camarines_Sur_budget, 2) }}
-
-                                                @elseif($division->division_name === 'Catanduanes PO')
-                                                {{ number_format($indicator->Catanduanes_budget, 2) }}
-
-                                                @elseif($division->division_name === 'Masbate PO')
-                                                {{ number_format($indicator->Masbate_budget, 2) }}
-
-                                                @elseif($division->division_name === 'Sorsogon PO')
-                                                {{ number_format($indicator->Sorsogon_budget, 2) }}
-
-                                                @else
-                                                {{ number_format($indicator->alloted_budget, 2) }}
-                                                @endif
+                                                @switch($division->division_name)
+                                                    @case('Albay PO')
+                                                        {{ number_format($indicator->Albay_budget, 2) }}
+                                                        @break
+                                                    @case('Camarines Norte PO')
+                                                        {{ number_format($indicator->Camarines_Norte_budget, 2) }}
+                                                        @break
+                                                    @case('Camarines Sur PO')
+                                                        {{ number_format($indicator->Camarines_Sur_budget, 2) }}
+                                                        @break
+                                                    @case('Catanduanes PO')
+                                                        {{ number_format($indicator->Catanduanes_budget, 2) }}
+                                                        @break
+                                                    @case('Masbate PO')
+                                                        {{ number_format($indicator->Masbate_budget, 2) }}
+                                                        @break
+                                                    @case('Sorsogon PO')
+                                                        {{ number_format($indicator->Sorsogon_budget, 2) }}
+                                                        @break
+                                                    @default
+                                                        {{ number_format($indicator->alloted_budget, 2) }}
+                                                @endswitch
                                             @endif
                                         @endforeach
                                     @endif
@@ -234,27 +236,28 @@
                                             @endphp
 
                                             @if($showDivision && $division)
-                                                @if($division->division_name === 'Albay PO')
-                                                {{ '(' .($entriesForIndicator->sum('Albay_accomplishment')) . ')' . ' ' . $indicator->measures }}
-
-                                                @elseif($division->division_name === 'Camarines Norte PO')
-                                                {{ '(' . ($entriesForIndicator->sum('Camarines_Norte_accomplishment'))  . ')' . ' ' . $indicator->measures }}
-
-                                                @elseif($division->division_name === 'Camarines Sur PO')
-                                                {{ '(' . ($entriesForIndicator->sum('Camarines_Sur_accomplishment')) . ')' . ' ' . $indicator->measures }}
-
-                                                @elseif($division->division_name === 'Catanduanes PO')
-                                                {{ '(' . ($entriesForIndicator->sum('Catanduanes_accomplishment'))   . ')' . ' ' . $indicator->measures }}
-
-                                                @elseif($division->division_name === 'Masbate PO')
-                                                {{ '(' . ($entriesForIndicator->sum('Masbate_accomplishment') ) . ')' . ' ' . $indicator->measures }}
-
-                                                @elseif($division->division_name === 'Sorsogon PO')
-                                                {{ '(' . ($entriesForIndicator->sum('Sorsogon_accomplishment'))   . ')' . ' ' . $indicator->measures }}
-
-                                                @else
-                                                {{ number_format($entriesForIndicator->sum('total_accomplishment')) . ' ' . $indicator->measures }}
-                                                @endif
+                                                @switch($division->division_name)
+                                                    @case('Albay PO')
+                                                        {{ '(' . ($entriesForIndicator->sum('Albay_accomplishment')) . ') ' . $indicator->measures }}
+                                                        @break
+                                                    @case('Camarines Norte PO')
+                                                        {{ '(' . ($entriesForIndicator->sum('Camarines_Norte_accomplishment')) . ') ' . $indicator->measures }}
+                                                        @break
+                                                    @case('Camarines Sur PO')
+                                                        {{ '(' . ($entriesForIndicator->sum('Camarines_Sur_accomplishment')) . ') ' . $indicator->measures }}
+                                                        @break
+                                                    @case('Catanduanes PO')
+                                                        {{ '(' . ($entriesForIndicator->sum('Catanduanes_accomplishment')) . ') ' . $indicator->measures }}
+                                                        @break
+                                                    @case('Masbate PO')
+                                                        {{ '(' . ($entriesForIndicator->sum('Masbate_accomplishment')) . ') ' . $indicator->measures }}
+                                                        @break
+                                                    @case('Sorsogon PO')
+                                                        {{ '(' . ($entriesForIndicator->sum('Sorsogon_accomplishment')) . ') ' . $indicator->measures }}
+                                                        @break
+                                                    @default
+                                                        {{ '(' . number_format($entriesForIndicator->sum('total_accomplishment'), 2) . ') ' . $indicator->measures }}
+                                                @endswitch
                                             @endif
                                         @endforeach
                                     @endif
@@ -270,10 +273,12 @@
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                            @endforeach
-                        </tr>
+
+                            </tr>
+                        @endforeach
                     @endif
                 @endforeach
+            
             </tbody>
         </table>
     </div>

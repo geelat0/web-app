@@ -18,10 +18,10 @@ return new class extends Migration
             $table->string('target')->default('0');
 
             $table->unsignedBigInteger('quarter_logs_id')->nullable();
-            $table->string('Q1_target')->default('0');
-            $table->string('Q2_target')->default('0');
-            $table->string('Q3_target')->default('0');
-            $table->string('Q4_target')->default('0');
+            $table->string('Q1_target')->nullable();
+            $table->string('Q2_target')->nullable();
+            $table->string('Q3_target')->nullable();
+            $table->string('Q4_target')->nullable();
 
             $table->string('Albay_target')->nullable();
             $table->string('Camarines_Sur_target')->nullable();
@@ -37,7 +37,7 @@ return new class extends Migration
             $table->decimal('Masbate_budget', 20, 3)->nullable();
             $table->decimal('Sorsogon_budget', 20, 3)->nullable();
 
-            $table->string('measures');
+            $table->longText('measures');
             $table->decimal('alloted_budget', 20, 3);
             $table->json('division_id')->nullable();
             $table->string('status')->default('Active');
