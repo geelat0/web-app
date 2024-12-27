@@ -62,5 +62,10 @@ class SuccessIndicator extends Model
         return $this->belongsTo(Entries::class);
     }
 
+    public function quarter()
+    {
+        return $this->belongsTo(Quarter_logs::class, 'quarter_logs_id', 'id');
+    }
+
 
 }

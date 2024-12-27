@@ -2,44 +2,7 @@
 
 @section('content')
 <div class="container">
-    {{-- @can('filter_dashboard')
-        <div class="d-flex justify-content-start mb-4">
-            <i class='bx bxs-filter-alt text-primary' id="filterIcon" style="cursor: pointer; font-size: 30px;"></i>
-        </div>
-
-        <!-- Filters Section (Hidden by Default) -->
-        <div id="filtersSection" class="hidden">
-            <div class="row mb-3 justify-content-center">
-                <div class="col">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="YYYY-MM-DD to YYYY-MM-DD" id="flatpickr-range" />
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="input-group">
-                        <select id="month" class="form-select">
-                            <option value="">Select Month</option>
-                            @for ($i = 1; $i <= 12; $i++)
-                                <option value="{{ $i }}">{{ date('F', mktime(0, 0, 0, $i, 10)) }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="input-group">
-                        <select id="year" class="form-select">
-                            <option value="">Select Year</option>
-                            @for ($i = date('Y'); $i >= 2020; $i--)
-                                <option value="{{ $i }}">{{ $i }}</option>
-                            @endfor
-                        </select>
-                        <button class="btn btn-primary" id="filterBtn"> <i class="mdi mdi-filter-outline"></i> Filter</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    @endcan --}}
+    
     @if(auth()->user()->can('view-entries') && Auth::user()->role->name !== 'SuperAdmin')
         <div class="row mb-3">
             <div class="col-md-6">
@@ -48,12 +11,12 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h4 class="card-title">Pending Entries For {{\Carbon\Carbon::create()->month($targetMonth)->format('F')}}</h4>
-                                <h3 id="entriesCount" class="{{ $entriesCount == 0 ? 'text-info' : 'text-danger' }} mt-1">
-                                    {{ $entriesCount }}
+                                <h3 id="entriesCount" class=" mt-1" style="color: {{ $entriesCount == 0 ? 'blue' : '#ff1500' }};">
+                                    {{ $entriesCount ?? 0 }}
                                 </h3>
                             </div>
                             <div>
-                                <i class="bx bxs-bell-ring {{ $entriesCount == 0 ? 'text-info' : 'text-danger' }} dash-icon"></i>
+                                <i class="bx bxs-bell-ring dash-icon" style="color: {{ $entriesCount == 0 ? 'blue' : '#ff1500' }};"></i>
                             </div>
                         </div>
                     </div>
@@ -99,7 +62,6 @@
         </div>
     @endif
 
-    {{-- </div> --}}
     @if(Auth::user()->role->name === 'SuperAdmin')
         <div class="row mb-3">
             <div class="col-md-4">
@@ -167,6 +129,8 @@
             </div>
         </div>
     @endif
+    
+    
 
 </div>
 @endsection

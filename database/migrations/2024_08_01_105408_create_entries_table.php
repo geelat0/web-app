@@ -23,7 +23,7 @@ return new class extends Migration
             $table->decimal('Masbate_accomplishment')->nullable();
             $table->decimal('Sorsogon_accomplishment')->nullable();
             $table->decimal('total_accomplishment');
-            $table->string('accomplishment_text');
+            $table->longText('accomplishment_text');
             $table->unsignedTinyInteger('months')->nullable();
             $table->year('year')->nullable();
             $table->string('status')->default('Completed');

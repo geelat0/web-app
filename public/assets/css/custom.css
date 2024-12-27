@@ -73,4 +73,14 @@ label.required::after {
   display: none;
 }
 
+.is-invalid {
+  border-color: #dc3545 !important;
+}
+
+.text-danger {
+  display: none;
+  font-size: 80%;
+  margin-top: 0.25rem;
+}
+
   

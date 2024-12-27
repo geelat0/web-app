@@ -90,7 +90,6 @@
                     } else {
                         // Reload the tables if a valid range is selected
                         table.ajax.reload(null, false);
-                        completed_table.ajax.reload(null, false);
                     }
                 }
             },
@@ -108,7 +107,6 @@
                 clearButton.addEventListener("click", function() {
                     instance.clear(); // Clear the date range
                     table.ajax.reload(null, false); // Reload the tables
-                    completed_table.ajax.reload(null, false);
                 });
             }
         });

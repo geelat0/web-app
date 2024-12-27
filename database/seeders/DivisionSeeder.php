@@ -77,5 +77,12 @@ class DivisionSeeder extends Seeder
 
             ]
           );
+          Division::create(
+            [
+                'division_name'=> 'MALSU',
+                'created_by'=> 'SuperAdmin',
+
+            ]
+          );
     }
 }

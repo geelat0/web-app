@@ -236,28 +236,27 @@
                                             @endphp
 
                                             @if($showDivision && $division)
-                                                @switch($division->division_name)
-                                                    @case('Albay PO')
-                                                        {{ '(' . ($entriesForIndicator->sum('Albay_accomplishment')) . ') ' . $indicator->measures }}
-                                                        @break
-                                                    @case('Camarines Norte PO')
-                                                        {{ '(' . ($entriesForIndicator->sum('Camarines_Norte_accomplishment')) . ') ' . $indicator->measures }}
-                                                        @break
-                                                    @case('Camarines Sur PO')
-                                                        {{ '(' . ($entriesForIndicator->sum('Camarines_Sur_accomplishment')) . ') ' . $indicator->measures }}
-                                                        @break
-                                                    @case('Catanduanes PO')
-                                                        {{ '(' . ($entriesForIndicator->sum('Catanduanes_accomplishment')) . ') ' . $indicator->measures }}
-                                                        @break
-                                                    @case('Masbate PO')
-                                                        {{ '(' . ($entriesForIndicator->sum('Masbate_accomplishment')) . ') ' . $indicator->measures }}
-                                                        @break
-                                                    @case('Sorsogon PO')
-                                                        {{ '(' . ($entriesForIndicator->sum('Sorsogon_accomplishment')) . ') ' . $indicator->measures }}
-                                                        @break
-                                                    @default
-                                                        {{ '(' . number_format($entriesForIndicator->sum('total_accomplishment'), 2) . ') ' . $indicator->measures }}
-                                                @endswitch
+                                                @if($division->division_name === 'Albay PO')
+                                                {{ '(' .($entriesForIndicator->sum('Albay_accomplishment')) . ')' . ' ' . $indicator->measures }}
+
+                                                @elseif($division->division_name === 'Camarines Norte PO')
+                                                {{ '(' . ($entriesForIndicator->sum('Camarines_Norte_accomplishment'))  . ')' . ' ' . $indicator->measures }}
+
+                                                @elseif($division->division_name === 'Camarines Sur PO')
+                                                {{ '(' . ($entriesForIndicator->sum('Camarines_Sur_accomplishment')) . ')' . ' ' . $indicator->measures }}
+
+                                                @elseif($division->division_name === 'Catanduanes PO')
+                                                {{ '(' . ($entriesForIndicator->sum('Catanduanes_accomplishment'))   . ')' . ' ' . $indicator->measures }}
+
+                                                @elseif($division->division_name === 'Masbate PO')
+                                                {{ '(' . ($entriesForIndicator->sum('Masbate_accomplishment') ) . ')' . ' ' . $indicator->measures }}
+
+                                                @elseif($division->division_name === 'Sorsogon PO')
+                                                {{ '(' . ($entriesForIndicator->sum('Sorsogon_accomplishment'))   . ')' . ' ' . $indicator->measures }}
+
+                                                @else
+                                                {{ number_format($entriesForIndicator->sum('total_accomplishment')) . ' ' . $indicator->measures }}
+                                                @endif
                                             @endif
                                         @endforeach
                                     @endif

@@ -104,18 +104,25 @@ class OutcomeController extends Controller
 
     public function store(Request $request)
     {
-        // Custom validation rule to check unique organizational outcomes where deleted_at is null
-        Validator::extend('unique_with_soft_delete', function ($attribute, $value, $parameters, $validator) {
+        // Custom validation rule to check unique organizational outcomes where deleted_at is null and year is the same or current year
+        Validator::extend('unique_with_soft_delete_and_year', function ($attribute, $value, $parameters, $validator) {
+            $currentYear = Carbon::now()->format('Y');
             $count = DB::table($parameters[0])
                 ->where($parameters[1], $value)
-                ->whereNull('deleted_at')
+                ->where(function($query) use ($currentYear) {
+                    $query->whereNull('deleted_at')
+                          ->where(function($subQuery) use ($currentYear) {
+                              $subQuery->whereYear('created_at', $currentYear)
+                                       ->orWhere('created_at', '>', now()->startOfYear());
+                          });
+                })
                 ->count();
             return $count === 0;
-        }, 'The :input has already been taken.');
+        }, 'The :input has already been taken for the current or same year.');
 
         $validator = Validator::make($request->all(), [
 
-            'organizational_outcome.*' => 'required|string|max:255|unique_with_soft_delete:org_otc,organizational_outcome',
+            'organizational_outcome.*' => 'required|string|max:255|unique_with_soft_delete_and_year:org_otc,organizational_outcome',
             'order.*' => 'required',
             'status' => 'required|string',
 

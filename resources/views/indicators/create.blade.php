@@ -193,16 +193,12 @@
                                           </div>
                                         </div>
 
-                                        <div class="accordion-item card">
-                                          <h2 class="accordion-header d-flex align-items-center">
-                                            <button type="button" class="accordion-button btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#accordionWithIcon-5" aria-expanded="true">
-                                                <i class='bx bxs-circle me-2' ></i>
+                                        {{-- ANNUAL --}}
+                                        <div class="card">
+                                            <div class="card-header">
                                               Annual
-                                            </button>
-                                          </h2>
-                                          <div id="accordionWithIcon-5" class="accordion-collapse collapse show" >
-                                            <div class="accordion-body">
-
+                                            </div>
+                                            <div class="card-body">
                                                 <div class="row row-cols-4 mb-3" id="targetFields_0">
                                                     <div class="col mb-3" >
                                                     </div>
@@ -227,56 +223,11 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                          </div>
                                         </div>
-                                        
                                     </div>
                                 </div>
                             </div>
 
-                            {{-- <div class="row mt-3">
-
-                                <p class="d-inline-flex gap-1">
-                                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample_0" aria-expanded="false" aria-controls="collapseExample">
-                                      Add Quarterly Target
-                                    </button>
-                                  </p>
-                                  <div class="collapse" id="collapseExample_0">
-                                    <div class="card card-body">
-
-                                        <div class="row">
-                                            <div class="col">
-                                                <div class="form-group" class="">
-                                                    <label for="quarter1_target_0">Quarter 1</label>
-                                                    <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q1_target[]" id="quarter1_target_0" aria-describedby="" placeholder="0" readonly>
-                                                    <div class="invalid-feedback" id="Q1_targetError_0"></div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col">
-                                                <div class="form-group" class="">
-                                                    <label for="quarter2_target_0">Quarter 2</label>
-                                                    <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q2_target[]" id="quarter2_target_0" aria-describedby="" placeholder="0" readonly>
-                                                </div>
-                                            </div>
-
-                                            <div class="col">
-                                                <div class="form-group" class="">
-                                                    <label for="quarter3_target_0">Quarter 3</label>
-                                                    <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q3_target[]" id="quarter3_target_0" aria-describedby="" placeholder="0" readonly>
-                                                </div>
-                                            </div>
-
-                                            <div class="col">
-                                                <div class="form-group" class="">
-                                                    <label for="quarter4_target_0">Quarter 4</label>
-                                                    <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q4_target[]" id="quarter4_target_0" aria-describedby="" placeholder="0" readonly>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                  </div>
-                            </div> --}}
                         </div>
                     </div>
                 </div>
@@ -919,28 +870,54 @@ $(document).ready(function() {
         const index = $(this).closest('.card').find('input[name^="targetType"]').attr('id').split('_').pop();
         const selectedType = $(this).val();
 
-        // Apply the target type to all current fields in target fields
-        $(`#targetFields_${index} .target-input`).each(function() {
-            const targetInput = $(this);
-            applyTargetType(targetInput, selectedType);
-        });
-        $(`#target_${index}`).each(function() {
-            const targetInput = $(this);
-            applyTargetType(targetInput, selectedType);
-        });
+        if (selectedType) {
+            // Hide warning message
+            $('#target-type-warning').hide();
 
-        // Apply the target type to all quarterly target fields
-        for (let q = 1; q <= 4; q++) {
-            $(`#Q${q}targetFields_${index} .target-input`).each(function() {
+            // Apply the target type to all current fields in target fields
+            $(`#targetFields_${index} .target-input`).each(function() {
                 const targetInput = $(this);
                 applyTargetType(targetInput, selectedType);
             });
+            $(`#target_${index}`).each(function() {
+                const targetInput = $(this);
+                applyTargetType(targetInput, selectedType);
+            });
+
+            // Apply the target type to all quarterly target fields
+            for (let q = 1; q <= 4; q++) {
+                $(`#Q${q}targetFields_${index} .target-input`).each(function() {
+                    const targetInput = $(this);
+                    applyTargetType(targetInput, selectedType);
+                });
+            }
+            for (let q = 1; q <= 4; q++) {
+                $(`#quarter${q}_target_${index}`).each(function() {
+                    const targetInput = $(this);
+                    applyTargetType(targetInput, selectedType);
+                });
+            }
+        }else {
+            // Show warning message
+            $('#target-type-warning').show();
         }
-        for (let q = 1; q <= 4; q++) {
-            $(`#quarter${q}_target_${index}`).each(function() {
-                const targetInput = $(this);
-                applyTargetType(targetInput, selectedType);
-            });
+
+      
+    });
+
+     // Add warning message above target type selection
+    $(document).ready(function() {
+            // Add warning message
+            const warningHtml = `
+                <div class="alert alert-warning mb-2" id="target-type-warning">
+                    Please select a target type to enable target inputs.
+                </div>
+            `;
+            $('input[name="targetType_0"]').closest('.form-group').prepend(warningHtml);
+
+            // Initially hide warning if target type is selected
+            if ($('input[name="targetType_0"]:checked').val()) {
+                $('#target-type-warning').hide();
         }
     });
 

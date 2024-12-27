@@ -80,6 +80,7 @@ class DashboardController extends Controller
             ->count();
 
             $entriesCount = $filteredIndicators->count();
+           
             return view('dashboard', compact('user', 'userCount', 'roleCount', 'entriesCount', 'loggedInUsersCount', 'targetMonth', 'CompleteEntriesCount'));
     }
 

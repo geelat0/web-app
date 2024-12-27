@@ -12,14 +12,7 @@
                     <div class="card-body">
                         <h4 class="card-title"> <a href="/accomplishment" class="text-primary"><i class='bx bx-left-arrow-circle'></i></a>
                             View Accomplishment</h4>
-                        {{-- <div class="row">
-                            <div class="form-group">
-                                <label for="org_id" class="required">Organizational Outcome</label>
-                                <select id="org_id" class="form-select capitalize" name="org_id">
-                                </select>
-                                <div class="invalid-feedback" id="org_idError"></div>
-                            </div>
-                        </div> --}}
+                       
                     </div>
                 </div>
             </div>
@@ -104,7 +97,7 @@
                                     <div class="mb-3">
                                         <div class="form-group">
                                             <label for="accomplishment" class="required">Accomplishment Total</label>
-                                            <input type="number" id="total_accomplishment" class="form-control" name="total_accomplishment" value="{{$entries->total_accomplishment}}" disabled>
+                                            <input type="text" id="total_accomplishment" class="form-control" name="total_accomplishment" value="{{$entries->total_accomplishment}}" disabled>
                                             <div id="total_accomplishmentError" class="invalid-feedback"></div>
                                         </div>
                                     </div>
@@ -273,7 +266,7 @@
                                 <div class="col mb-3 target-accomplisment-group" data-division-id="${divisionId}">
                                     <div class="form-group">
                                         <label for="accomplisment_${divisionId}_${index}" class="required">${divisionName} Accomplisment</label>
-                                        <input type="number" step="any"  class="form-control capitalize accomplisment" name="${cleanedDivisionName}_accomplishment[]" id="accomplisment_${divisionId}_${index}" value="${budgetValue}" aria-describedby="" disabled>
+                                        <input type="text"  class="form-control capitalize accomplisment" name="${cleanedDivisionName}_accomplishment[]" id="accomplisment_${divisionId}_${index}" value="${budgetValue}" aria-describedby="" disabled>
                                         <div class="invalid-feedback" id="accomplismentError_${divisionId}_${index}"></div>
                                     </div>
                                 </div>

@@ -119,7 +119,7 @@ class ReportController extends Controller
 
         // If no matching indicators, do not show organizational outcomes
         if ($indicatorIds->isEmpty()) {
-            return PDF::loadView('generate.pdf', compact('orgOutcomes', 'entries', 'divisionIds'))
+            return PDF::loadView('generate.pdf', compact('orgOutcomes', 'entries', 'divisionIds', 'period'))
             ->setPaper('a4', 'landscape')->stream('OPCR-RO5.pdf');
         }
 
@@ -165,7 +165,7 @@ class ReportController extends Controller
                         ->where('status','Completed')
                         ->when($period, function($query) use ($period) {
                             $months = $this->getMonthsForPeriod($period);
-                            $query->whereIn('months', $months);
+                            $query->whereIn(DB::raw('MONTH(created_at)'), $months);
                         })
                         ->when($province, function($query) use ($province) {
                             $query->whereHas('user', function($query) use ($province) {
@@ -209,7 +209,7 @@ class ReportController extends Controller
         $entryCount = $entry->count();
 
        // Prepare the PDF content
-    $html = view('generate.pdf', compact('orgOutcomes', 'entries', 'divisionIds'))->render();
+    $html = view('generate.pdf', compact('orgOutcomes', 'entries', 'divisionIds', 'period'))->render();
     
     // Create new mPDF instance
     $mpdf = new Mpdf(['mode' => 'utf-8', 'format' => 'A4-L']);
@@ -1451,15 +1451,41 @@ class ReportController extends Controller
                         $sheet1->setCellValue('C' . $row,  $q1_indicator); //1st QUARTER
                         $sheet1->setCellValue('G' . $row, '=SUM(D' . $row . ':F' . $row . ')');  //QTR.TOTAL
                         $sheet1->setCellValue('H' . $row, '=SUM(D' . $row . ':F' . $row . ')'); //ACCOMPLISHMENT: ANNUAL TOTAL
-                        $sheet1->setCellValue('I' . $row, '=(G' . $row . '/C' . $row . ')'); // percenatge QTR
 
-                        $sheet1->setCellValue('J' . $row, '=(G' . $row . '/B' . $row . ')'); //Percenatge Annual
-                        $sheet1->setCellValue('L' . $row, '=(B' . $row . '-H' . $row . ')'); //  Annual BALANCE
+                        if (!is_string($sheet1->getCell('C' . $row)->getValue())) {
+                            $sheet1->setCellValue('I' . $row, '=(G' . $row . '/C' . $row . ')'); // percenatge QTR
+                            $sheet1->getStyle('I' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+    
+                        } else {
+                            $sheet1->setCellValue('I' . $row, '0'); // Return 0 if the value is a string
+                        }
 
-                        $sheet1->setCellValue('K' . $row, '=(C' . $row . '-G' . $row . ')'); //  QTR BALANCE
+                        
+                        if (!is_string($sheet1->getCell('B' . $row)->getValue())) {
+                            $sheet1->setCellValue('J' . $row, '=(G' . $row . '/B' . $row . ')'); //Percenatge Annual
+                            $sheet1->getStyle('J' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+    
+                        } else {
+                            $sheet1->setCellValue('J' . $row, '0'); // Return 0 if the value is a string
+                        }
 
-                        $sheet1->getStyle('I' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
-                        $sheet1->getStyle('J' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+                        $cValue = is_numeric($sheet1->getCell('C' . $row)->getValue()) ? $sheet1->getCell('C' . $row)->getValue() : 0;
+                        $bValue = is_numeric($sheet1->getCell('B' . $row)->getValue()) ? $sheet1->getCell('B' . $row)->getValue() : 0;
+                       
+
+                        if (!is_string($sheet1->getCell('B' . $row)->getValue())) {
+                            $sheet1->setCellValue('L' . $row, '=(B' . $row . '-H' . $row . ')'); //  Annual BALANCE
+    
+                        } else {
+                            $sheet1->setCellValue('L' . $row, '0'); // Return 0 if the value is a string
+                        }
+                        if (!is_string($sheet1->getCell('C' . $row)->getValue())) {
+                            $sheet1->setCellValue('K' . $row, '=(C' . $row . '-G' . $row . ')'); //  QTR BALANCE
+    
+                        } else {
+                            $sheet1->setCellValue('K' . $row, '0'); // Return 0 if the value is a string
+                        }
+                        
 
                         // Initialize an array to hold the total accomplishments for each month
                         $totalAccomplishmentsByMonth = [];
@@ -1570,14 +1596,45 @@ class ReportController extends Controller
 
                             $sheet1->setCellValue('G' . $row, '=SUM(D' . $row . ':F' . $row . ')'); //QTR.TOTAL
                             $sheet1->setCellValue('H' . $row, '=SUM(D' . $row . ':F' . $row . ')'); // //ACCOMPLISHMENT: ANNUAL TOTAL
-                            $sheet1->setCellValue('I' . $row, '=(G' . $row . '/C' . $row . ')'); // percenatge QTR
+                            // $sheet1->setCellValue('I' . $row, '=(G' . $row . '/C' . $row . ')'); // percenatge QTR
 
-                            $sheet1->setCellValue('J' . $row, '=(G' . $row . '/B' . $row . ')'); //Percenatge Annual
-                            $sheet1->setCellValue('L' . $row, '=(B' . $row . '-H' . $row . ')'); //  Annual BALANCE
+                            // $sheet1->setCellValue('J' . $row, '=(G' . $row . '/B' . $row . ')'); //Percenatge Annual
+                            // $sheet1->setCellValue('L' . $row, '=(B' . $row . '-H' . $row . ')'); //  Annual BALANCE
 
-                            $sheet1->setCellValue('K' . $row, '=(C' . $row . '-G' . $row . ')'); //  QTR BALANCE
+                            // $sheet1->setCellValue('K' . $row, '=(C' . $row . '-G' . $row . ')'); //  QTR BALANCE
                             $sheet1->getStyle('I' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
                             $sheet1->getStyle('J' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+
+                            if (!is_string($sheet1->getCell('C' . $row)->getValue())) {
+                                $sheet1->setCellValue('I' . $row, '=(G' . $row . '/C' . $row . ')'); // percenatge QTR
+                                $sheet1->getStyle('I' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+        
+                            } else {
+                                $sheet1->setCellValue('I' . $row, '0'); // Return 0 if the value is a string
+                            }
+                            if (!is_string($sheet1->getCell('B' . $row)->getValue())) {
+                                $sheet1->setCellValue('J' . $row, '=(G' . $row . '/B' . $row . ')'); //Percenatge Annual
+                                $sheet1->getStyle('J' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+        
+                            } else {
+                                $sheet1->setCellValue('J' . $row, '0'); // Return 0 if the value is a string
+                            }
+    
+                            $cValue = is_numeric($sheet1->getCell('C' . $row)->getValue()) ? $sheet1->getCell('C' . $row)->getValue() : 0;
+                            $bValue = is_numeric($sheet1->getCell('B' . $row)->getValue()) ? $sheet1->getCell('B' . $row)->getValue() : 0;
+    
+                            if (!is_string($sheet1->getCell('B' . $row)->getValue())) {
+                                $sheet1->setCellValue('L' . $row, '=(B' . $row . '-H' . $row . ')'); //  Annual BALANCE
+        
+                            } else {
+                                $sheet1->setCellValue('L' . $row, '0'); // Return 0 if the value is a string
+                            }
+                            if (!is_string($sheet1->getCell('C' . $row)->getValue())) {
+                                $sheet1->setCellValue('K' . $row, '=(C' . $row . '-G' . $row . ')'); //  QTR BALANCE
+        
+                            } else {
+                                $sheet1->setCellValue('K' . $row, '0'); // Return 0 if the value is a string
+                            }
 
                             $row++;
                         }
@@ -1782,15 +1839,44 @@ class ReportController extends Controller
 
                     $sheet2->setCellValue('K' . $row, '=SUM(H' . $row . ':J' . $row . ')'); //QTR.TOTAL
                     $sheet2->setCellValue('C' . $row, "='Q1'!L" . $row); //TARGET: ANNUAL BALANCE
+
                     $sheet2->setCellValue('F' . $row, '=(D' . $row . '+E' . $row . ')'); //2ND TOTAL
+
+                    if (is_string($sheet2->getCell('E' . $row)->getValue()) && is_string($sheet2->getCell('D' . $row)->getValue())) {
+                        $sheet2->getStyle('F' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+                    }
+
                     $sheet2->setCellValue('G' . $row, "='Q1'!G" . $row); //ACCOMPLISHMENT: TOTAL ACCOMP
                     $sheet2->setCellValue('L' . $row, '=(G' . $row . '+K' . $row . ')'); //ANNUAL TOTAL
-                    $sheet2->setCellValue('M' . $row, '=(K' . $row . '/F' . $row . ')'); //PERCENTAGE QTR
-                    $sheet2->setCellValue('N' . $row, '=(L' . $row . '/B' . $row . ')'); //PERCENTAGE ANNUAL
-                    $sheet2->getStyle('M' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
-                    $sheet2->getStyle('N' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
-                    $sheet2->setCellValue('O' . $row, '=(K' . $row . '-F' . $row . ')'); //QUARTER BALANCE
-                    $sheet2->setCellValue('P' . $row, '=(B' . $row . '-L' . $row . ')'); //ANNUAL BALANCE
+
+                    if (!is_string($sheet2->getCell('F' . $row)->getValue())) {
+                        $sheet2->setCellValue('M' . $row, '=(K' . $row . '/F' . $row . ')'); //PERCENTAGE QTR
+                        $sheet2->getStyle('M' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+
+                    } else {
+                        $sheet2->setCellValue('M' . $row, '0'); // Return 0 if the value is a string
+                    }
+                    if (!is_string($sheet2->getCell('E' . $row)->getValue()) && is_string($sheet2->getCell('D' . $row)->getValue())) {
+                        $sheet2->setCellValue('N' . $row, '=(L' . $row . '/B' . $row . ')'); //PERCENTAGE ANNUAL
+                        $sheet2->getStyle('N' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+
+                    } else {
+                        $sheet2->setCellValue('N' . $row, '0'); // Return 0 if the value is a string
+                    }
+
+
+                    if (!is_string($sheet2->getCell('E' . $row)->getValue()) && is_string($sheet2->getCell('D' . $row)->getValue())) {
+                        $sheet2->setCellValue('O' . $row, '=(F' . $row . '-K' . $row . ')'); //QUARTER BALANCE
+
+                    } else {
+                        $sheet2->setCellValue('O' . $row, '0'); // Return 0 if the value is a string
+                    }
+                    if (!is_string($sheet1->getCell('B' . $row)->getValue())) {
+                        $sheet2->setCellValue('P' . $row, '=(B' . $row . '-L' . $row . ')'); //ANNUAL BALANCE
+
+                    } else {
+                        $sheet2->setCellValue('P' . $row, '0'); // Return 0 if the value is a string
+                    }
 
 
                     $row++;
@@ -1854,15 +1940,45 @@ class ReportController extends Controller
 
                         $sheet2->setCellValue('K' . $row, '=SUM(H' . $row . ':J' . $row . ')'); //QTR.TOTAL
                         $sheet2->setCellValue('C' . $row, "='Q1'!L" . $row); //TARGET: ANNUAL BALANCE
+    
                         $sheet2->setCellValue('F' . $row, '=(D' . $row . '+E' . $row . ')'); //2ND TOTAL
+
+                        if (is_string($sheet2->getCell('E' . $row)->getValue()) && is_string($sheet2->getCell('D' . $row)->getValue())) {
+                            $sheet2->getStyle('F' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+                        }
+
+
                         $sheet2->setCellValue('G' . $row, "='Q1'!G" . $row); //ACCOMPLISHMENT: TOTAL ACCOMP
                         $sheet2->setCellValue('L' . $row, '=(G' . $row . '+K' . $row . ')'); //ANNUAL TOTAL
+
+                      if (!is_string($sheet2->getCell('E' . $row)->getValue()) && is_string($sheet2->getCell('D' . $row)->getValue())) {
                         $sheet2->setCellValue('M' . $row, '=(K' . $row . '/F' . $row . ')'); //PERCENTAGE QTR
-                        $sheet2->setCellValue('N' . $row, '=(L' . $row . '/B' . $row . ')'); //PERCENTAGE ANNUAL
                         $sheet2->getStyle('M' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+
+                    } else {
+                        $sheet2->setCellValue('M' . $row, '0'); // Return 0 if the value is a string
+                    }
+                    if (!is_string($sheet2->getCell('B' . $row)->getValue())) {
+                        $sheet2->setCellValue('N' . $row, '=(L' . $row . '/B' . $row . ')'); //PERCENTAGE ANNUAL
                         $sheet2->getStyle('N' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
-                        $sheet2->setCellValue('O' . $row, '=(K' . $row . '-F' . $row . ')'); //QUARTER BALANCE
+
+                    } else {
+                        $sheet2->setCellValue('N' . $row, '0'); // Return 0 if the value is a string
+                    }
+
+
+                    if (!is_string($sheet2->getCell('E' . $row)->getValue()) && is_string($sheet2->getCell('D' . $row)->getValue())) {
+                        $sheet2->setCellValue('O' . $row, '=(F' . $row . '-K' . $row . ')'); //QUARTER BALANCE
+
+                    } else {
+                        $sheet2->setCellValue('O' . $row, '0'); // Return 0 if the value is a string
+                    }
+                    if (!is_string($sheet1->getCell('B' . $row)->getValue())) {
                         $sheet2->setCellValue('P' . $row, '=(B' . $row . '-L' . $row . ')'); //ANNUAL BALANCE
+
+                    } else {
+                        $sheet2->setCellValue('P' . $row, '0'); // Return 0 if the value is a string
+                    }
 
                         $row++;
                     }
@@ -2026,6 +2142,10 @@ class ReportController extends Controller
                     $sheet3->setCellValue('D' . $row, $q3_indicator); // 3rd Quarter
                     $sheet3->setCellValue('E' . $row, '=(C' . $row . '+D' . $row . ')'); //3RD TOTAL
 
+                    if (is_string($sheet3->getCell('C' . $row)->getValue()) && is_string($sheet3->getCell('D' . $row)->getValue())) {
+                        $sheet3->getStyle('E' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+                    }
+
 
                     // Initialize an array to hold the total accomplishments for each month
                     $totalAccomplishmentsByMonth = [];
@@ -2066,18 +2186,42 @@ class ReportController extends Controller
                         ],
                     ],
                     ]);
+                    // $sheet3->getStyle('A' . $row . ':P' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT); // Align content to the right
 
 
                     $sheet3->setCellValue('J' . $row, '=SUM(G' . $row . ':I' . $row . ')'); //QTR.TOTAL
                     $sheet3->setCellValue('F' . $row, "='Q2'!L" . $row); //ACCOMPLISHMENT: TOTAL ACCOMP
                     $sheet3->setCellValue('K' . $row, '=(F' . $row . '+J' . $row . ')'); //ACCOMPLISHMENT: ANNUAL TOTAL
-                    $sheet3->setCellValue('L' . $row, '=(J' . $row . '/E' . $row . ')'); //PERCENTAGE: QTR
-                    $sheet3->setCellValue('M' . $row, '=(K' . $row . '/B' . $row . ')'); //PERCENTAGE: ANNUAL
-                    $sheet3->getStyle('L' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
-                    $sheet3->getStyle('M' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
-                    $sheet3->setCellValue('N' . $row, '=(E' . $row . '-J' . $row . ')'); //QUARTER BALANCE
-                    $sheet3->setCellValue('O' . $row, '=(B' . $row . '-K' . $row . ')'); //ANNUAL BALANCE
 
+                    if (is_string($sheet3->getCell('C' . $row)->getValue()) && !is_string($sheet3->getCell('D' . $row)->getValue())) {
+                        $sheet3->setCellValue('L' . $row, '=(J' . $row . '/E' . $row . ')'); //PERCENTAGE: QTR
+                        $sheet3->getStyle('L' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+
+                    } else {
+                        $sheet3->setCellValue('L' . $row, '0'); // Return 0 if the value is a string
+                    }
+
+                    if (!is_string($sheet3->getCell('B' . $row)->getValue())) {
+                        $sheet3->setCellValue('M' . $row, '=(K' . $row . '/B' . $row . ')'); 
+                        $sheet3->getStyle('M' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+
+                    } else {
+                        $sheet3->setCellValue('M' . $row, '0'); // Return 0 if the value is a string
+                    }
+
+                    if (is_string($sheet3->getCell('C' . $row)->getValue()) && !is_string($sheet3->getCell('D' . $row)->getValue())) {
+                        $sheet3->setCellValue('N' . $row, '=(E' . $row . '-J' . $row . ')'); //QUARTER BALANCE
+
+                    } else {
+                        $sheet3->setCellValue('N' . $row, '0'); // Return 0 if the value is a string
+                    }
+                    if (!is_string($sheet3->getCell('B' . $row)->getValue())) {
+                        $sheet3->setCellValue('O' . $row, '=(B' . $row . '-K' . $row . ')'); //ANNUAL BALANCE
+
+                    } else {
+                        $sheet3->setCellValue('O' . $row, '0'); // Return 0 if the value is a string
+                    }
+                
                     $row++;
 
                     // $dvisions = Division::where('division_name', 'like', '%PO%')->get();
@@ -2139,15 +2283,41 @@ class ReportController extends Controller
 
                         $sheet3->setCellValue('C' . $row, "='Q2'!E" . $row); // 2nd Quarter
                         $sheet3->setCellValue('E' . $row, '=(C' . $row . '+D' . $row . ')'); //3RD TOTAL
+                        if (is_string($sheet3->getCell('C' . $row)->getValue()) && is_string($sheet3->getCell('D' . $row)->getValue())) {
+                            $sheet3->getStyle('E' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+                        }
+
                         $sheet3->setCellValue('J' . $row, '=SUM(G' . $row . ':I' . $row . ')'); //QTR.TOTAL
                         $sheet3->setCellValue('F' . $row, "='Q2'!L" . $row); //ACCOMPLISHMENT: TOTAL ACCOMP
                         $sheet3->setCellValue('K' . $row, '=(F' . $row . '+J' . $row . ')'); //ACCOMPLISHMENT: ANNUAL TOTAL
-                        $sheet3->setCellValue('L' . $row, '=(J' . $row . '/E' . $row . ')'); //PERCENTAGE: QTR
-                        $sheet3->setCellValue('M' . $row, '=(K' . $row . '/B' . $row . ')'); //PERCENTAGE: ANNUAL
-                        $sheet3->getStyle('L' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
-                        $sheet3->getStyle('M' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
-                        $sheet3->setCellValue('N' . $row, '=(E' . $row . '-J' . $row . ')'); //QUARTER BALANCE
-                        $sheet3->setCellValue('O' . $row, '=(B' . $row . '-K' . $row . ')'); //ANNUAL BALANCE
+                        if (is_string($sheet3->getCell('C' . $row)->getValue()) && !is_string($sheet3->getCell('D' . $row)->getValue())) {
+                            $sheet3->setCellValue('L' . $row, '=(J' . $row . '/E' . $row . ')'); //PERCENTAGE: QTR
+                            $sheet3->getStyle('L' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+    
+                        } else {
+                            $sheet3->setCellValue('L' . $row, '0'); // Return 0 if the value is a string
+                        }
+    
+                        if (!is_string($sheet3->getCell('B' . $row)->getValue())) {
+                            $sheet3->setCellValue('M' . $row, '=(K' . $row . '/B' . $row . ')'); 
+                            $sheet3->getStyle('M' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+    
+                        } else {
+                            $sheet3->setCellValue('M' . $row, '0'); // Return 0 if the value is a string
+                        }
+    
+                        if (is_string($sheet3->getCell('C' . $row)->getValue()) && !is_string($sheet3->getCell('D' . $row)->getValue())) {
+                            $sheet3->setCellValue('N' . $row, '=(E' . $row . '-J' . $row . ')'); //QUARTER BALANCE
+    
+                        } else {
+                            $sheet3->setCellValue('N' . $row, '0'); // Return 0 if the value is a string
+                        }
+                        if (!is_string($sheet3->getCell('B' . $row)->getValue())) {
+                            $sheet3->setCellValue('O' . $row, '=(B' . $row . '-K' . $row . ')'); //ANNUAL BALANCE
+    
+                        } else {
+                            $sheet3->setCellValue('O' . $row, '0'); // Return 0 if the value is a string
+                        }
                         $row++;
                     }
 
@@ -2351,17 +2521,45 @@ class ReportController extends Controller
 
                     $sheet4->setCellValue('C' . $row, "='Q3'!D" . $row);//3RD QUARTER
                     $sheet4->setCellValue('D' . $row, $q4_indicator); // 4TH Quarter
-                    $sheet4->setCellValue('E' . $row, '=(C' . $row . '+D' . $row . ')'); //4TH TOTAL
+                    $sheet4->setCellValue('E' . $row, '=(C' . $row . '+D' . $row . ')');
+                    
+                    if (is_string($sheet4->getCell('C' . $row)->getValue()) && is_string($sheet4->getCell('D' . $row)->getValue())) {
+                        $sheet4->getStyle('E' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+                    }
+
                     $sheet4->setCellValue('J' . $row, '=SUM(G' . $row . ':I' . $row . ')'); //QTR.TOTAL
                     $sheet4->setCellValue('F' . $row, "='Q2'!L" . $row); //ACCOMPLISHMENT: TOTAL ACCOMP
                     $sheet4->setCellValue('K' . $row, '=(F' . $row . '+J' . $row . ')'); //ACCOMPLISHMENT: ANNUAL TOTAL
-                    $sheet4->setCellValue('L' . $row, '=(J' . $row . '/E' . $row . ')'); //PERCENTAGE: QTR
-                    $sheet4->setCellValue('M' . $row, '=(K' . $row . '/B' . $row . ')'); //PERCENTAGE: ANNUAL
-                    $sheet4->getStyle('L' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
-                    $sheet4->getStyle('M' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
-                    $sheet4->setCellValue('N' . $row, '=(E' . $row . '-J' . $row . ')'); //QUARTER BALANCE
-                    $sheet4->setCellValue('O' . $row, '=(B' . $row . '-K' . $row . ')'); //ANNUAL BALANCE
+                    
 
+                    if (is_string($sheet4->getCell('C' . $row)->getValue()) && !is_string($sheet4->getCell('D' . $row)->getValue())) {
+                        $sheet4->setCellValue('L' . $row, '=(J' . $row . '/E' . $row . ')'); //PERCENTAGE: QTR
+                        $sheet4->getStyle('L' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+
+                    } else {
+                        $sheet4->setCellValue('L' . $row, '0'); // Return 0 if the value is a string
+                    }
+                    if (!is_string($sheet4->getCell('B' . $row)->getValue())) {
+                        $sheet4->setCellValue('M' . $row, '=(K' . $row . '/B' . $row . ')'); 
+                        $sheet4->getStyle('M' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+
+                    } else {
+                        $sheet4->setCellValue('M' . $row, '0'); // Return 0 if the value is a string
+                    }
+
+                   
+                    if (is_string($sheet4->getCell('C' . $row)->getValue()) && !is_string($sheet4->getCell('D' . $row)->getValue())) {
+                        $sheet4->setCellValue('N' . $row, '=(E' . $row . '-J' . $row . ')'); //QUARTER BALANCE
+
+                    } else {
+                        $sheet4->setCellValue('N' . $row, '0'); // Return 0 if the value is a string
+                    }
+                    if (!is_string($sheet4->getCell('B' . $row)->getValue())) {
+                        $sheet4->setCellValue('O' . $row, '=(B' . $row . '-K' . $row . ')'); //ANNUAL BALANCE
+
+                    } else {
+                        $sheet4->setCellValue('O' . $row, '0'); // Return 0 if the value is a string
+                    }
                     $row++;
 
                     // $dvisions = Division::where('division_name', 'like', '%PO%')->get();
@@ -2423,17 +2621,45 @@ class ReportController extends Controller
                             $sheet4->setCellValue($columnLetter . $row, $accomplishmentsByMonth[$month]); // Set accomplishment in the correct column
                         }
                         $sheet4->setCellValue('C' . $row, "='Q3'!D" . $row);//3RD QUARTER
-                        $sheet4->setCellValue('E' . $row, '=(C' . $row . '+D' . $row . ')'); //4TH TOTAL
+                        $sheet4->setCellValue('E' . $row, '=(C' . $row . '+D' . $row . ')');
+                    
+                        if (is_string($sheet4->getCell('C' . $row)->getValue()) && is_string($sheet4->getCell('D' . $row)->getValue())) {
+                            $sheet4->getStyle('E' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+                        }
+
                         $sheet4->setCellValue('J' . $row, '=SUM(G' . $row . ':I' . $row . ')'); //QTR.TOTAL
                         $sheet4->setCellValue('F' . $row, "='Q2'!L" . $row); //ACCOMPLISHMENT: TOTAL ACCOMP
                         $sheet4->setCellValue('K' . $row, '=(F' . $row . '+J' . $row . ')'); //ACCOMPLISHMENT: ANNUAL TOTAL
-                        $sheet4->setCellValue('L' . $row, '=(J' . $row . '/E' . $row . ')'); //PERCENTAGE: QTR
-                        $sheet4->setCellValue('M' . $row, '=(K' . $row . '/B' . $row . ')'); //PERCENTAGE: ANNUAL
-                        $sheet4->getStyle('L' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
-                        $sheet4->getStyle('M' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
-                        $sheet4->setCellValue('N' . $row, '=(E' . $row . '-J' . $row . ')'); //QUARTER BALANCE
-                        $sheet4->setCellValue('O' . $row, '=(B' . $row . '-K' . $row . ')'); //ANNUAL BALANCE
+                        $sheet4->setCellValue('K' . $row, '=(F' . $row . '+J' . $row . ')'); //ACCOMPLISHMENT: ANNUAL TOTAL
 
+                        if (is_string($sheet4->getCell('C' . $row)->getValue()) && !is_string($sheet4->getCell('D' . $row)->getValue())) {
+                            $sheet4->setCellValue('L' . $row, '=(J' . $row . '/E' . $row . ')'); //PERCENTAGE: QTR
+                            $sheet4->getStyle('L' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+    
+                        } else {
+                            $sheet4->setCellValue('L' . $row, '0'); // Return 0 if the value is a string
+                        }
+
+                        if (!is_string($sheet4->getCell('B' . $row)->getValue())) {
+                            $sheet4->setCellValue('M' . $row, '=(K' . $row . '/B' . $row . ')'); 
+                            $sheet4->getStyle('M' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+    
+                        } else {
+                            $sheet4->setCellValue('M' . $row, '0'); // Return 0 if the value is a string
+                        }
+
+                        if (is_string($sheet4->getCell('C' . $row)->getValue()) && !is_string($sheet4->getCell('D' . $row)->getValue())) {
+                            $sheet4->setCellValue('N' . $row, '=(E' . $row . '-J' . $row . ')'); //QUARTER BALANCE
+    
+                        } else {
+                            $sheet4->setCellValue('N' . $row, '0'); // Return 0 if the value is a string
+                        }
+                        if (!is_string($sheet4->getCell('B' . $row)->getValue())) {
+                            $sheet4->setCellValue('O' . $row, '=(B' . $row . '-K' . $row . ')'); //ANNUAL BALANCE
+    
+                        } else {
+                            $sheet4->setCellValue('O' . $row, '0'); // Return 0 if the value is a string
+                        }
 
                         $row++;
                     }
@@ -2494,7 +2720,7 @@ class ReportController extends Controller
 
 
             // Apply the header style to the sheet5 (this style is already defined in your code)
-            $sheet5->getStyle('A1:N' . ($headerRowStart + 2))->applyFromArray([
+            $sheet5->getStyle('A1:N' . ($headerRowStart + 1))->applyFromArray([
                 'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
                 'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '8B0000']],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
@@ -2549,6 +2775,13 @@ class ReportController extends Controller
                 ->get();
 
                 foreach ($successIndicators as $indicator) {
+
+                    $cleanString = $indicator->division_id;
+                    $cleanString = stripslashes($cleanString);
+                    $cleanString = str_replace(['[', ']', '"'], '', $cleanString);
+                    $divisionArray = explode(',', $cleanString);
+                    $divisionArray = array_map('trim', $divisionArray);
+
                     // Insert Success Indicators (Pink row)
                     $sheet5->setCellValue('A' . $row, $indicator->measures); // Measures under INDICATORS
                     $sheet5->setCellValue('B' . $row, $indicator->target);
@@ -2648,9 +2881,6 @@ class ReportController extends Controller
                         }
 
                     // }
-
-
-
                     
                 }
             }

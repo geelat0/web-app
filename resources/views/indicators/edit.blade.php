@@ -86,7 +86,7 @@
                                             </button>
                                           </h2>
                                         
-                                          <div id="accordionWithIcon-1" class="accordion-collapse collapse" >
+                                          <div id="accordionWithIcon-1" class="accordion-collapse collapse" data-bs-parent="#accordionWithIcon">
                                             <div class="accordion-body">
 
                                                 <div class="row row-cols-3 mb-3" id="Q1targetFields_0">
@@ -116,7 +116,7 @@
                                               Quarter Two Target
                                             </button>
                                           </h2>
-                                          <div id="accordionWithIcon-2" class="accordion-collapse collapse" >
+                                          <div id="accordionWithIcon-2" class="accordion-collapse collapse" data-bs-parent="#accordionWithIcon">
                                             <div class="accordion-body">
 
                                                 <div class="row row-cols-3 mb-3" id="Q2targetFields_0">
@@ -147,7 +147,7 @@
                                               Quarter Three Target
                                             </button>
                                           </h2>
-                                          <div id="accordionWithIcon-3" class="accordion-collapse collapse" >
+                                          <div id="accordionWithIcon-3" class="accordion-collapse collapse" data-bs-parent="#accordionWithIcon">
                                             <div class="accordion-body">
 
 
@@ -179,7 +179,7 @@
                                               Quarter Four Target
                                             </button>
                                           </h2>
-                                          <div id="accordionWithIcon-4" class="accordion-collapse collapse" >
+                                          <div id="accordionWithIcon-4" class="accordion-collapse collapse" data-bs-parent="#accordionWithIcon">
                                             <div class="accordion-body">
                                              
                                                 <div class="row row-cols-3 mb-3" id="Q4targetFields_0">
@@ -201,18 +201,14 @@
                                             </div>
                                           </div>
                                         </div>
+
                                         @endif
-
-                                        <div class="accordion-item card">
-                                          <h2 class="accordion-header d-flex align-items-center">
-                                            <button type="button" class="accordion-button btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#accordionWithIcon-5" aria-expanded="true">
-                                                <i class='bx bxs-circle me-2' ></i>
+                                          {{-- ANNUAL --}}
+                                          <div class="card">
+                                            <div class="card-header">
                                               Annual
-                                            </button>
-                                          </h2>
-                                          <div id="accordionWithIcon-5" class="accordion-collapse collapse show" >
-                                            <div class="accordion-body">
-
+                                            </div>
+                                            <div class="card-body">
                                                 <div class="row row-cols-4 mb-3" id="targetFields_0">
                                                     <div class="col mb-3" >
                                                     </div>
@@ -232,57 +228,15 @@
                                                             <div class="invalid-feedback" id="alloted_budgetError"></div>
                                                         </div>
                                                     </div>
+                                                </div>
+                                               
                                             </div>
-                                          </div>
                                         </div>
                                         
                                     </div>
                                 </div>
                             </div>
                         </div>
-                            {{-- <div class="row mt-3">
-
-                                <p class="d-inline-flex gap-1">
-                                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample_0" aria-expanded="true" aria-controls="collapseExample">
-                                     Quarterly Target
-                                    </button>
-                                  </p>
-                                  <div class="collapse show" id="collapseExample_0">
-                                    <div class="card card-body">
-
-                                        <div class="row">
-                                            <div class="col">
-                                                <div class="form-group" class="">
-                                                    <label for="quarter1_target_0">Quarter 1</label>
-                                                    <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q1_target" id="quarter1_target_0" aria-describedby="" value="{{ $indicator->Q1_target }}" @if(!in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin'])) disabled @endif>
-                                                    <div class="invalid-feedback" id="Q1_targetError_0"></div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col">
-                                                <div class="form-group" class="">
-                                                    <label for="quarter2_target_0">Quarter 2</label>
-                                                    <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q2_target" id="quarter2_target_0" aria-describedby="" value="{{ $indicator->Q2_target }}" @if(!in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin'])) disabled @endif>
-                                                </div>
-                                            </div>
-
-                                            <div class="col">
-                                                <div class="form-group" class="">
-                                                    <label for="quarter3_target_0">Quarter 3</label>
-                                                    <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q3_target" id="quarter3_target_0"aria-describedby="" value="{{ $indicator->Q3_target }}" @if(!in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin'])) disabled @endif>
-                                                </div>
-                                            </div>
-
-                                            <div class="col">
-                                                <div class="form-group" class="">
-                                                    <label for="quarter4_target_0">Quarter 4</label>
-                                                    <input type="text" step="any"  class="form-control capitalize alloted-budget" name="Q4_target" id="quarter4_target_0" aria-describedby="" value="{{ $indicator->Q4_target }}" @if(!in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin'])) disabled @endif>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                  </div>
-                            </div> --}}
                         </div>
                     </div>
                 </div>
@@ -489,13 +443,14 @@ $(document).ready(function() {
         @if(in_array(Auth::user()->role->name, ['SuperAdmin', 'Admin']))
 
         if (!selectedType ) {
+
             selectedDivisions.forEach((divisionId) => {
                 const divisionName = $(`#division_id_${index} option[value="${divisionId}"]`).text();
                 const cleanedDivisionName = divisionName.replace(/\s*PO$/, '');
 
                 if (divisionName.includes("PO")) {
                     const targetValue = @json($division_targets)[divisionId] || '';
-                    const budgetValue = @json($division_budget)[divisionId] || '0';
+                    const budgetValue = @json($division_budget)[divisionId] || '';
 
                     const displayValue = targetValue === 'Actual' ? 'Actual' : targetValue;
                     const targetDisabled = targetValue === 'Actual' ? 'readonly' : '';
@@ -606,7 +561,7 @@ $(document).ready(function() {
 
                 if (divisionName.includes("PO")) {
                     const targetValue = @json($division_targets)[divisionId] || '';
-                    const budgetValue = @json($division_budget)[divisionId] || '0';
+                    const budgetValue = @json($division_budget)[divisionId];
 
                     const displayValue = targetValue === 'Actual' ? 'Actual' : targetValue;
                     const targetDisabled = targetValue === 'Actual' ? 'readonly' : '';
@@ -621,7 +576,7 @@ $(document).ready(function() {
                         <div class= "col mb-3">
                             <div class="form-group">
                                 <label for="budget_${divisionId}_${index}" class="required">${divisionName} Budget</label>
-                                <input type="number" step="any"  class="form-control capitalize alloted-budget" name="${cleanedDivisionName}_budget[]" id="budget_${divisionId}_${index}" value="${budgetValue}">
+                                <input type="number" step="any"  class="form-control capitalize alloted-budget" name="${cleanedDivisionName}_budget[]" id="budget_${divisionId}_${index}" value="${budgetValue}" placeholder="0">
                                 <div class="invalid-feedback" id="budgetError_${divisionId}_${index}"></div>
                             </div>
                         </div>
@@ -1112,8 +1067,8 @@ $(document).ready(function() {
         }
     }
 
-   // Function to apply the target type to new divisions without clearing the input value
-   function applyTargetType(targetInput, selectedType) {
+    // Function to apply the target type to new divisions without clearing the input value
+    function applyTargetType(targetInput, selectedType) {
         let currentValue = targetInput.val().replace('%', ''); // Remove the '%' symbol if present but keep the value
 
         if (currentValue === "Actual") {
@@ -1232,114 +1187,58 @@ $(document).ready(function() {
         }
     });
 
-    // $(document).on('change', 'input[name^="targetType"]', function() {
-    //     const index = $(this).closest('.card').find('input[name^="targetType"]').attr('id').split('_').pop();
-    //     const selectedType = $(this).val();
-
-    //     $(`#targetFields_${index} .target-input`).each(function() {
-    //         const targetInput = $(this);
-    //         // const currentValue = targetInput.val().replace('%', ''); // Remove % if present
-    //         let currentValue = targetInput.val();
-
-    //         if (selectedType === 'percentage') {
-    //             targetInput
-    //                 .attr('type', 'text')
-    //                 .attr('min', '0')
-    //                 .attr('max', '100')
-    //                 .attr('placeholder', '%')
-    //                 .removeAttr('readonly')
-    //                 .val(currentValue.includes('Actual') ? '' : `${currentValue.replace('%', '')}%`)
-    //                 .off('input.percentage')
-    //                 .on('input.percentage', function() {
-    //                     let value = $(this).val().replace(/[^\d%]/g, '');
-    //                     if (value.indexOf('%') !== -1) {
-    //                         value = value.substring(0, value.indexOf('%') + 1); // Keep only one "%"
-    //                     }
-    //                     if ($.isNumeric(value) && value >= 0 && value <= 100) {
-    //                         $(this).val(`${value}%`);
-    //                     } else {
-    //                         $(this).val(value);
-    //                     }
-    //                 });
-
-    //                 // Remove any hidden input if present
-    //             // targetInput.siblings('input[type="hidden"]').remove();
-
-
-    //         } else if (selectedType === 'number') {
-    //             targetInput
-    //                 .attr('type', 'number')
-    //                 .removeAttr('min')
-    //                 .removeAttr('max')
-    //                 .removeAttr('placeholder')
-    //                 .removeAttr('readonly')
-    //                 .val(currentValue.replace('%', '').replace('Actual', ''))
-    //                 .off('input.percentage');
-
-    //             let total = 0;
-    //             $(`#targetFields_${index} .target-input`).each(function() {
-    //                 const value = parseFloat($(this).val().replace('%', ''));
-    //                 if (!isNaN(value)) {
-    //                     total += value;
-    //                 }
-    //             });
-
-    //             $(`#target_${index}`).val(total);
-    //             // Remove any hidden input if present
-    //             // targetInput.siblings('input[type="hidden"]').remove();
-    //         } else if (selectedType === 'actual') {
-    //             targetInput
-    //                 .attr('type', 'text')
-    //                 .attr('readonly', 'readonly')
-    //                 .removeAttr('placeholder')
-    //                 .off('input.percentage')
-    //                 .val('Actual');
-    //             // $(`#target_${index}`).val('Actual');
-
-    //              // Check if the hidden input already exists, if not, create it
-    //             // if (targetInput.siblings('input[type="hidden"]').length === 0) {
-    //             //     // Create a hidden input and set its value
-    //             //     const hiddenInput = $('<input>')
-    //             //         .attr('type', 'hidden')
-    //             //         .attr('name', targetInput.attr('name')) // use the same name as the disabled input
-    //             //         .val(`Actual`);
-
-    //             //     // Append the hidden input right after the disabled input
-    //             //     targetInput.after(hiddenInput);
-    //             // }
-    //         }
-    //     });
-
-    // });
 
     $(document).on('change', 'input[name^="targetType"]', function() {
         const index = $(this).closest('.card').find('input[name^="targetType"]').attr('id').split('_').pop();
         const selectedType = $(this).val();
 
-        // Apply the target type to all current fields in target fields
-        $(`#targetFields_${index} .target-input`).each(function() {
-            const targetInput = $(this);
-            applyTargetType(targetInput, selectedType);
-        });
-        $(`#target_${index}`).each(function() {
-            const targetInput = $(this);
-            applyTargetType(targetInput, selectedType);
-        });
+        if (selectedType) {
+            $('#target-type-warning').hide();
 
-        // Apply the target type to all quarterly target fields
-        for (let q = 1; q <= 4; q++) {
-            $(`#Q${q}targetFields_${index} .target-input`).each(function() {
+            // Apply the target type to all current fields in target fields
+            $(`#targetFields_${index} .target-input`).each(function() {
                 const targetInput = $(this);
                 applyTargetType(targetInput, selectedType);
             });
-        }
-        for (let q = 1; q <= 4; q++) {
-            $(`#quarter${q}_target_${index}`).each(function() {
+            $(`#target_${index}`).each(function() {
                 const targetInput = $(this);
                 applyTargetType(targetInput, selectedType);
             });
+
+            // Apply the target type to all quarterly target fields
+            for (let q = 1; q <= 4; q++) {
+                $(`#Q${q}targetFields_${index} .target-input`).each(function() {
+                    const targetInput = $(this);
+                    applyTargetType(targetInput, selectedType);
+                });
+            }
+            for (let q = 1; q <= 4; q++) {
+                $(`#quarter${q}_target_${index}`).each(function() {
+                    const targetInput = $(this);
+                    applyTargetType(targetInput, selectedType);
+                });
+            }
+        }else{
+            $('#target-type-warning').show(); 
+        } 
+    });
+
+    // Add warning message above target type selection
+    $(document).ready(function() {
+            // Add warning message
+            const warningHtml = `
+                <div class="alert alert-warning mb-2" id="target-type-warning">
+                    Please select a target type to enable target inputs.
+                </div>
+            `;
+            $('input[name="targetType_0"]').closest('.form-group').prepend(warningHtml);
+
+            // Initially hide warning if target type is selected
+            if ($('input[name="targetType_0"]:checked').val()) {
+                $('#target-type-warning').hide();
         }
     });
+
 
     //---------------------------------------------------END JS FOR DIVISION'S INPUTS---------------------------------------------------//
 

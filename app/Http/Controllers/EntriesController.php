@@ -378,16 +378,6 @@ class EntriesController extends Controller
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
-        // Filter by search term
-        // if ($request->has('search') && !empty($request->search)) {
-        //     $searchTerm = $request->search;
-        //     $query->where( function($subQuery) use ($searchTerm) {
-        //         $subQuery->where('target', 'like', "%{$searchTerm}%")
-        //                  ->orWhere('measures', 'like', "%{$searchTerm}%")
-        //                  ->orWhere('status', 'like', "%{$searchTerm}%");
-        //     });
-        // }
-
         // Fetch all indicators
         $indicators = $query->get();
 
@@ -479,26 +469,13 @@ class EntriesController extends Controller
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
-        // if ($request->has('search') && !empty($request->search)) {
-        //     $searchTerm = $request->search;
-
-        //     $query->whereHas('indicator',function($subQuery) use ($searchTerm) {
-        //         $subQuery->where('target', 'like', "%{$searchTerm}%")
-        //                  ->orWhere('measures', 'like', "%{$searchTerm}%")
-        //                  ->orWhere('status', 'like', "%{$searchTerm}%");
-
-        //     });
-        // }
-
         $indicator = $query->get();
 
         return DataTables::of($indicator)
             ->editColumn('id', function($data) {
                 return Crypt::encrypt($data->id);
             })
-            // ->editColumn('org_id', function($data) {
-            //     return $data->indicator->org->organizational_outcome;
-            // })
+           
             ->editColumn('indicator_id', function($data) {
                 return '(' .$data->indicator->target .')' . '  '. $data->indicator->measures;
             })
