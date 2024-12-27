@@ -22,6 +22,16 @@
                                 <input type="text" class="form-control" id="edit_organizational_outcome" name="organizational_outcome">
                                 <div class="invalid-feedback" id="organizational_outcomeError"></div>
                             </div>
+
+                            <div class="form-group  mb-3">
+                                <label for="edit_category" class="required">Category</label>
+                                <select class="form-control capitalize" name="category" id="edit_category" >
+                                    <option value="Core">Core</option>
+                                    <option value="Non Core">Non Core</option>
+                                </select>
+                                <div class="invalid-feedback" id="edit_category"></div>
+                            </div>
+
                             <div class="form-group mb-3">
                                 <label for="edit_status" class="required">Status</label>
                                 <select class="form-select capitalize" id="edit_status" name="status">

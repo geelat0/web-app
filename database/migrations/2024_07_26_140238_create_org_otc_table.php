@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->integer('order')->default('0');
             $table->string('organizational_outcome');
+            $table->string('category');
             $table->string('status')->default('Active');
             $table->string('created_by');
             $table->timestamps();

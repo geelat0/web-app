@@ -136,6 +136,7 @@ class OutcomeController extends Controller
             $organizational = new Organizational();
             $organizational->organizational_outcome = ucfirst($outcome);
             $organizational->order = $request->order[$index];
+            $organizational->category = $request->category[$index];
             $organizational->status = ucfirst($request->status);
             $organizational->created_by = Auth::user()->user_name;
             $organizational->save();
@@ -167,6 +168,7 @@ class OutcomeController extends Controller
         $org->organizational_outcome = ucfirst($request->organizational_outcome);
         $org->order = ucfirst($request->order);
         $org->status = ucfirst($request->status);
+        $org->category = ucfirst($request->category);
         $org->created_by = Auth::user()->user_name;
         $org->save();
 

@@ -22,6 +22,9 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\Shared\Html;
+use Illuminate\Support\Facades\View;
 
 class ReportController extends Controller
 {
@@ -81,6 +84,8 @@ class ReportController extends Controller
 
     public function generatePDF(Request $request)
     {
+
+        DB::statement("SET SQL_MODE=''");
         $orgOutcomes = array();
         $entries = '';
         $divisionIds = '';
@@ -156,8 +161,12 @@ class ReportController extends Controller
             // ->orWhereDoesntHave('successIndicators');
         })
         ->orderBy('order','ASC')
-        ->get();
+        ->get()
+        ->groupBy('category');
 
+        // dd(  $orgOutcomes);
+
+        
         // Fetch entries based on filters
         if (Auth::user()->role->name === 'SuperAdmin' || Auth::user()->role->name === 'Admin') {
             $entry = Entries::whereNull('deleted_at')
@@ -208,8 +217,15 @@ class ReportController extends Controller
 
         $entryCount = $entry->count();
 
+        $groupedOutcomes = [
+            'Core' => $orgOutcomes->get('Core') ?? [],
+            'Non Core' => $orgOutcomes->get('Non Core') ?? []
+        ];
+        // dd( $groupedOutcomes);
+
+
        // Prepare the PDF content
-    $html = view('generate.pdf', compact('orgOutcomes', 'entries', 'divisionIds', 'period'))->render();
+    $html = view('generate.pdf', compact('orgOutcomes', 'entries', 'divisionIds', 'period', 'groupedOutcomes'))->render();
     
     // Create new mPDF instance
     $mpdf = new Mpdf(['mode' => 'utf-8', 'format' => 'A4-L']);
@@ -242,6 +258,112 @@ class ReportController extends Controller
 
         // return $pdf->stream('OPCR-RO5.pdf');
     }
+
+    public function generateWord(Request $request)
+    
+    {
+        DB::statement("SET SQL_MODE=''");
+        $orgOutcomes = array();
+        $entries = '';
+        $divisionIds = '';
+        $year = $request->input('year');
+        $period = $request->input('period');
+        $semiannual = $request->input('semiannual');
+        $divisionIds = $request->input('division_id');
+        $province = $request->input('province');
+        $userIdsArray = '';
+
+        // Fetch all indicators
+        $indicators = SuccessIndicator::whereNull('deleted_at')->where('status', 'Active')->get();
+
+        // Initialize the collection of indicator IDs
+        $indicatorIds = collect();
+
+        if (!empty($divisionIds)) {
+            // Filter indicators based on the divisionIds
+            $filteredIndicators = $indicators->filter(function ($indicator) use ($divisionIds) {
+                $indicatorDivisionIds = json_decode($indicator->division_id, true);
+                return !empty(array_intersect($divisionIds, $indicatorDivisionIds));
+            });
+
+            $userIds = User::where(function ($query) use ($divisionIds) {
+                foreach ($divisionIds as $divisionId) {
+                    $query->orWhereJsonContains('division_id', $divisionId);
+                }
+            })->pluck('id');
+
+            $userIdsArray = $userIds->toArray();
+            $indicatorIds = $filteredIndicators->pluck('id');
+        } else {
+            $indicatorIds = $indicators->pluck('id');
+        }
+
+        // If no matching indicators, do not show organizational outcomes
+        if ($indicatorIds->isEmpty()) {
+            return response()->json(['error' => 'No matching data to generate a Word file'], 404);
+        }
+
+        // Fetch organizational outcomes with their success indicators based on filters
+        $orgOutcomes = Organizational::with(['successIndicators' => function ($query) use ($year, $period, $indicatorIds) {
+            if ($indicatorIds->isNotEmpty()) {
+                $query->whereIn('id', $indicatorIds);
+            }
+            if ($year) {
+                $query->whereYear('created_at', $year);
+            }
+        }])
+            ->whereNull('deleted_at')
+            ->where('status', 'Active')
+            ->orderBy('order', 'ASC')
+            ->get()
+            ->groupBy('category');
+
+        // Fetch entries based on filters
+        $entry = Entries::whereNull('deleted_at')
+            ->where('year', $year)
+            ->where('status', 'Completed')
+            ->when($province, function ($query) use ($province) {
+                $query->whereHas('user', function ($query) use ($province) {
+                    $query->where('province', $province);
+                });
+            })
+            ->when($userIdsArray, function ($query) use ($userIdsArray) {
+                $query->whereIn('user_id', $userIdsArray);
+            });
+
+        $entries = $entry->get()
+            ->groupBy(function ($entry) {
+                return $entry->indicator_id; // Group by each indicator
+            });
+
+        // Prepare the grouped outcomes
+        $groupedOutcomes = [
+            'Core' => $orgOutcomes->get('Core') ?? [],
+            'Non Core' => $orgOutcomes->get('Non Core') ?? [],
+        ];
+
+        // Render the Blade view into HTML
+        $htmlContent = view('generate.word', compact('orgOutcomes', 'entries', 'divisionIds', 'period', 'groupedOutcomes'))->render();
+
+        // Initialize PhpWord
+        $phpWord = new Phpword();
+
+        // Create a new section
+        $section = $phpWord->addSection();
+
+        // Add HTML content to the Word file
+        Html::addHtml($section, $htmlContent, false, false);
+
+        // Save the Word file to output
+        $fileName = 'OPCR-RO5.docx';
+        $tempFile = tempnam(sys_get_temp_dir(), $fileName);
+
+        $phpWord->save($tempFile, 'Word2007');
+
+        return response()->download($tempFile, $fileName)->deleteFileAfterSend(true);
+    }
+
+
 
     private function getMonthsForPeriod($period)
     {
@@ -624,116 +746,116 @@ class ReportController extends Controller
         $row = $headerRowEnd + 1; // Start inserting data below the headers
 
         foreach ($orgOutcomes as $outcome) {
-            // Insert the Organizational Outcome (Yellow row)
-            $sheet->setCellValue('A' . $row, $outcome->order . '.' .$outcome->organizational_outcome );
+                // Insert the Organizational Outcome (Yellow row)
+                $sheet->setCellValue('A' . $row, $outcome->order . '.' .$outcome->organizational_outcome );
 
-            // Style the Organizational Outcome row
-            $sheet->getStyle('A' . $row . ':Q' . $row)->applyFromArray([
-                'font' => ['bold' => true, 'size' => 14], // Thicker weight
-                'fill' => [
-                    'fillType' => Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => 'fcd654'], // Yellow highlight
-                ],
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => Border::BORDER_THIN, // Border style
-                        'color' => ['rgb' => 'FFFFFF'], // White color for the border
-                    ],
-                ],
-            ]);
-
-            // Set row height for organizational outcome
-            $sheet->getRowDimension($row)->setRowHeight(30); // Increase height
-
-            $row++;
-
-            // Fetch success indicators related to the current organizational outcome
-            $successIndicators = DB::table('success_indc')
-                ->whereYear('created_at', $year)
-                ->where('org_id', $outcome->id)
-                ->get();
-
-            foreach ($successIndicators as $indicator) {
-                // Insert Success Indicators (Pink row)
-                $sheet->setCellValue('A' . $row, $indicator->measures); // Measures under INDICATORS
-                $sheet->setCellValue('B' . $row, $indicator->target); // Annual Target
-
-                // Initialize an array to hold the total accomplishments for each month
-                $totalAccomplishmentsByMonth = [];
-                $monthsForPeriod = $this->getMonthsForPeriod($selectedQuarter);
-
-                foreach ($monthsForPeriod as $month) {
-                    $totalAccomplishmentsByMonth[$month] = 0; // Initialize each month with 0
-                }
-
+                // Style the Organizational Outcome row
                 $sheet->getStyle('A' . $row . ':Q' . $row)->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 12], // Thicker weight
+                    'font' => ['bold' => true, 'size' => 14], // Thicker weight
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
-                        'startColor' => ['rgb' => 'FFC0CB'], // Pink highlight
+                        'startColor' => ['rgb' => 'fcd654'], // Yellow highlight
                     ],
                     'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => Border::BORDER_THIN, // Border style
-                        'color' => ['rgb' => 'FFFFFF'], // White color for the border
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN, // Border style
+                            'color' => ['rgb' => 'FFFFFF'], // White color for the border
+                        ],
                     ],
-                ],
                 ]);
 
-                //QTR.TOTAL
-                $sheet->setCellValue('K' . $row, '=SUM(H' . $row . ':J' . $row . ')');
+                // Set row height for organizational outcome
+                $sheet->getRowDimension($row)->setRowHeight(30); // Increase height
 
                 $row++;
 
-                $dvisions = Division::where('division_name', 'like', '%PO%')->get();
-
-                foreach ($dvisions as $division) {
-                    $divisionName = str_replace(' PO', '', $division->division_name);
-
-                    $targetField = str_replace(' ', '_', $divisionName) . '_target'; // Convert to lowercase with underscores
-                    $targetValue = $indicator->$targetField ?? 0; // Get target value, default to 0 if not set
-
-                    // Insert division name and target value in respective columns
-                    $sheet->setCellValue('A' . $row, $divisionName); // Division Name
-                    $sheet->setCellValue('B' . $row, $targetValue); // Corresponding Target
-
-                    $entries = Entries::where('indicator_id', $indicator->id)
+                // Fetch success indicators related to the current organizational outcome
+                $successIndicators = DB::table('success_indc')
                     ->whereYear('created_at', $year)
-                    ->whereIn(DB::raw('MONTH(created_at)'), $this->getMonthsForPeriod($selectedQuarter))
+                    ->where('org_id', $outcome->id)
                     ->get();
 
+                foreach ($successIndicators as $indicator) {
+                    // Insert Success Indicators (Pink row)
+                    $sheet->setCellValue('A' . $row, $indicator->measures); // Measures under INDICATORS
+                    $sheet->setCellValue('B' . $row, $indicator->target); // Annual Target
 
-                   // Initialize month accomplishments for the current division
-                    $accomplishmentsByMonth = [];
+                    // Initialize an array to hold the total accomplishments for each month
+                    $totalAccomplishmentsByMonth = [];
+                    $monthsForPeriod = $this->getMonthsForPeriod($selectedQuarter);
+
                     foreach ($monthsForPeriod as $month) {
-                        $accomplishmentsByMonth[$month] = 0; // Initialize each month with 0
+                        $totalAccomplishmentsByMonth[$month] = 0; // Initialize each month with 0
                     }
 
-                    // Aggregate the accomplishments for the respective months
-                    foreach ($entries as $entry) {
-                        $month = date('n', strtotime($entry->created_at)); // Get month as number (1-12)
-                        $accomField = str_replace(' ', '_', $divisionName) . '_accomplishment';
-                        $accomplishmentsByMonth[$month] += $entry->$accomField ?? 0; // Sum the accomplishments
+                    $sheet->getStyle('A' . $row . ':Q' . $row)->applyFromArray([
+                        'font' => ['bold' => true, 'size' => 12], // Thicker weight
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'startColor' => ['rgb' => 'FFC0CB'], // Pink highlight
+                        ],
+                        'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN, // Border style
+                            'color' => ['rgb' => 'FFFFFF'], // White color for the border
+                        ],
+                    ],
+                    ]);
 
-                        // Sum the accomplishments for the total array
-                        $totalAccomplishmentsByMonth[$month] += $entry->$accomField ?? 0;
-                    }
-
-                    foreach ($monthsForPeriod as $monthIndex => $month) {
-                        $columnLetter = chr(72 + $monthIndex); // Calculate the column letter based on the index
-                        $sheet->setCellValue($columnLetter . $row, $accomplishmentsByMonth[$month]); // Set accomplishment in the correct column
-                    }
-
+                    //QTR.TOTAL
                     $sheet->setCellValue('K' . $row, '=SUM(H' . $row . ':J' . $row . ')');
 
                     $row++;
-                }
 
-                 // Insert total accomplishments for the indicator row
-                foreach ($monthsForPeriod as $monthIndex => $month) {
-                    $columnLetter = chr(72 + $monthIndex);
-                    $sheet->setCellValue($columnLetter . ($row - 7), $totalAccomplishmentsByMonth[$month]);
-                }
+                    $dvisions = Division::where('division_name', 'like', '%PO%')->get();
+
+                    foreach ($dvisions as $division) {
+                        $divisionName = str_replace(' PO', '', $division->division_name);
+
+                        $targetField = str_replace(' ', '_', $divisionName) . '_target'; // Convert to lowercase with underscores
+                        $targetValue = $indicator->$targetField ?? 0; // Get target value, default to 0 if not set
+
+                        // Insert division name and target value in respective columns
+                        $sheet->setCellValue('A' . $row, $divisionName); // Division Name
+                        $sheet->setCellValue('B' . $row, $targetValue); // Corresponding Target
+
+                        $entries = Entries::where('indicator_id', $indicator->id)
+                        ->whereYear('created_at', $year)
+                        ->whereIn(DB::raw('MONTH(created_at)'), $this->getMonthsForPeriod($selectedQuarter))
+                        ->get();
+
+
+                       // Initialize month accomplishments for the current division
+                        $accomplishmentsByMonth = [];
+                        foreach ($monthsForPeriod as $month) {
+                            $accomplishmentsByMonth[$month] = 0; // Initialize each month with 0
+                        }
+
+                        // Aggregate the accomplishments for the respective months
+                        foreach ($entries as $entry) {
+                            $month = date('n', strtotime($entry->created_at)); // Get month as number (1-12)
+                            $accomField = str_replace(' ', '_', $divisionName) . '_accomplishment';
+                            $accomplishmentsByMonth[$month] += $entry->$accomField ?? 0; // Sum the accomplishments
+
+                            // Sum the accomplishments for the total array
+                            $totalAccomplishmentsByMonth[$month] += $entry->$accomField ?? 0;
+                        }
+
+                        foreach ($monthsForPeriod as $monthIndex => $month) {
+                            $columnLetter = chr(72 + $monthIndex); // Calculate the column letter based on the index
+                            $sheet->setCellValue($columnLetter . $row, $accomplishmentsByMonth[$month]); // Set accomplishment in the correct column
+                        }
+
+                        $sheet->setCellValue('K' . $row, '=SUM(H' . $row . ':J' . $row . ')');
+
+                        $row++;
+                    }
+
+                     // Insert total accomplishments for the indicator row
+                    foreach ($monthsForPeriod as $monthIndex => $month) {
+                        $columnLetter = chr(72 + $monthIndex);
+                        $sheet->setCellValue($columnLetter . ($row - 7), $totalAccomplishmentsByMonth[$month]);
+                    }
 
             }
         }
@@ -872,119 +994,66 @@ class ReportController extends Controller
         $row = $headerRowEnd + 1; // Start inserting data below the headers
 
         foreach ($orgOutcomes as $outcome) {
-            // Insert the Organizational Outcome (Yellow row)
-            $sheet->setCellValue('A' . $row, $outcome->order . '.' .$outcome->organizational_outcome );
+                // Insert the Organizational Outcome (Yellow row)
+                $sheet->setCellValue('A' . $row, $outcome->order . '.' .$outcome->organizational_outcome );
 
-            // Style the Organizational Outcome row
-            $sheet->getStyle('A' . $row . ':P' . $row)->applyFromArray([
-                'font' => ['bold' => true, 'size' => 14], // Thicker weight
-                'fill' => [
-                    'fillType' => Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => 'fcd654'], // Yellow highlight
-                ],
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => Border::BORDER_THIN, // Border style
-                        'color' => ['rgb' => 'FFFFFF'], // White color for the border
-                    ],
-                ],
-            ]);
-
-            // Set row height for organizational outcome
-            $sheet->getRowDimension($row)->setRowHeight(30); // Increase height
-
-            $row++;
-
-            // Fetch success indicators related to the current organizational outcome
-            $successIndicators = DB::table('success_indc')
-                ->whereYear('created_at', $year)
-                ->where('org_id', $outcome->id)
-                ->get();
-
-            foreach ($successIndicators as $indicator) {
-                // Insert Success Indicators (Pink row)
-                $sheet->setCellValue('A' . $row, $indicator->measures); // Measures under INDICATORS
-                $sheet->setCellValue('B' . $row, $indicator->target); // Annual Target
-
-                // Initialize an array to hold the total accomplishments for each month
-                $totalAccomplishmentsByMonth = [];
-                $monthsForPeriod = $this->getMonthsForPeriod($selectedQuarter);
-                foreach ($monthsForPeriod as $month) {
-                    $totalAccomplishmentsByMonth[$month] = 0; // Initialize each month with 0
-                }
-
+                // Style the Organizational Outcome row
                 $sheet->getStyle('A' . $row . ':P' . $row)->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 12], // Thicker weight
+                    'font' => ['bold' => true, 'size' => 14], // Thicker weight
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
-                        'startColor' => ['rgb' => 'FFC0CB'], // Pink highlight
+                        'startColor' => ['rgb' => 'fcd654'], // Yellow highlight
                     ],
                     'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => Border::BORDER_THIN, // Border style
-                        'color' => ['rgb' => 'FFFFFF'], // White color for the border
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN, // Border style
+                            'color' => ['rgb' => 'FFFFFF'], // White color for the border
+                        ],
                     ],
-                ],
                 ]);
 
-
-                //QTR.TOTAL
-                $sheet->setCellValue('J' . $row, '=SUM(G' . $row . ':I' . $row . ')');
-
-                //ACCOMPLISHMENT: ANNUAL TOTAL
-                if ($selectedQuarter === 'Q1') {
-                    $sheet->mergeCells('C' . $row . ':D' . $row);
-                    $sheet->setCellValue('C' . $row, '=SUM(G' . $row . ':I' . $row . ')');
-                    $sheet->setCellValue('K' . $row, '=SUM(G' . $row . ':I' . $row . ')');
-                    $sheet->setCellValue('O' . $row, '=FG' . $row . '-K' . $row);
-                }else{
-
-                    $sheet->setCellValue('K' . $row, '=F' . $row . '+J' . $row);
-                }
+                // Set row height for organizational outcome
+                $sheet->getRowDimension($row)->setRowHeight(30); // Increase height
 
                 $row++;
 
-                $dvisions = Division::where('division_name', 'like', '%PO%')->get();
-
-                foreach ($dvisions as $division) {
-                    $divisionName = str_replace(' PO', '', $division->division_name);
-
-                    $targetField = str_replace(' ', '_', $divisionName) . '_target'; // Convert to lowercase with underscores
-                    $targetValue = $indicator->$targetField ?? 0; // Get target value, default to 0 if not set
-
-                    // Insert division name and target value in respective columns
-                    $sheet->setCellValue('A' . $row, $divisionName); // Division Name
-                    $sheet->setCellValue('B' . $row, $targetValue); // Corresponding Target
-
-                    $entries = Entries::where('indicator_id', $indicator->id)
+                // Fetch success indicators related to the current organizational outcome
+                $successIndicators = DB::table('success_indc')
                     ->whereYear('created_at', $year)
-                    ->whereIn(DB::raw('MONTH(created_at)'), $this->getMonthsForPeriod($selectedQuarter))
+                    ->where('org_id', $outcome->id)
                     ->get();
 
-                   // Initialize month accomplishments for the current division
-                    $accomplishmentsByMonth = [];
+                foreach ($successIndicators as $indicator) {
+                    // Insert Success Indicators (Pink row)
+                    $sheet->setCellValue('A' . $row, $indicator->measures); // Measures under INDICATORS
+                    $sheet->setCellValue('B' . $row, $indicator->target); // Annual Target
+
+                    // Initialize an array to hold the total accomplishments for each month
+                    $totalAccomplishmentsByMonth = [];
+                    $monthsForPeriod = $this->getMonthsForPeriod($selectedQuarter);
                     foreach ($monthsForPeriod as $month) {
-                        $accomplishmentsByMonth[$month] = 0; // Initialize each month with 0
+                        $totalAccomplishmentsByMonth[$month] = 0; // Initialize each month with 0
                     }
 
-                    // Aggregate the accomplishments for the respective months
-                    foreach ($entries as $entry) {
-                        $month = date('n', strtotime($entry->created_at)); // Get month as number (1-12)
-                        $accomField = str_replace(' ', '_', $divisionName) . '_accomplishment';
-                        $accomplishmentsByMonth[$month] += $entry->$accomField ?? 0; // Sum the accomplishments
+                    $sheet->getStyle('A' . $row . ':P' . $row)->applyFromArray([
+                        'font' => ['bold' => true, 'size' => 12], // Thicker weight
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'startColor' => ['rgb' => 'FFC0CB'], // Pink highlight
+                        ],
+                        'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN, // Border style
+                            'color' => ['rgb' => 'FFFFFF'], // White color for the border
+                        ],
+                    ],
+                    ]);
 
-                        // Sum the accomplishments for the total array
-                        $totalAccomplishmentsByMonth[$month] += $entry->$accomField ?? 0;
-                    }
 
-                    // Insert accomplishments into respective month columns
-                    foreach ($monthsForPeriod as $monthIndex => $month) {
-                        $columnLetter = chr(71 + $monthIndex); // Calculate the column letter based on the index
-                        $sheet->setCellValue($columnLetter . $row, $accomplishmentsByMonth[$month]); // Set accomplishment in the correct column
-                    }
-
+                    //QTR.TOTAL
                     $sheet->setCellValue('J' . $row, '=SUM(G' . $row . ':I' . $row . ')');
-                    // //ACCOMPLISHMENT: ANNUAL TOTAL
+
+                    //ACCOMPLISHMENT: ANNUAL TOTAL
                     if ($selectedQuarter === 'Q1') {
                         $sheet->mergeCells('C' . $row . ':D' . $row);
                         $sheet->setCellValue('C' . $row, '=SUM(G' . $row . ':I' . $row . ')');
@@ -992,16 +1061,69 @@ class ReportController extends Controller
                         $sheet->setCellValue('O' . $row, '=FG' . $row . '-K' . $row);
                     }else{
 
-                    $sheet->setCellValue('K' . $row, '=F' . $row . '+J' . $row);
+                        $sheet->setCellValue('K' . $row, '=F' . $row . '+J' . $row);
                     }
 
                     $row++;
-                }
 
-                 // Insert total accomplishments for the indicator row
-                foreach ($monthsForPeriod as $monthIndex => $month) {
-                    $columnLetter = chr(71 + $monthIndex);
-                    $sheet->setCellValue($columnLetter . ($row - 7), $totalAccomplishmentsByMonth[$month]);
+                    $dvisions = Division::where('division_name', 'like', '%PO%')->get();
+
+                    foreach ($dvisions as $division) {
+                        $divisionName = str_replace(' PO', '', $division->division_name);
+
+                        $targetField = str_replace(' ', '_', $divisionName) . '_target'; // Convert to lowercase with underscores
+                        $targetValue = $indicator->$targetField ?? 0; // Get target value, default to 0 if not set
+
+                        // Insert division name and target value in respective columns
+                        $sheet->setCellValue('A' . $row, $divisionName); // Division Name
+                        $sheet->setCellValue('B' . $row, $targetValue); // Corresponding Target
+
+                        $entries = Entries::where('indicator_id', $indicator->id)
+                        ->whereYear('created_at', $year)
+                        ->whereIn(DB::raw('MONTH(created_at)'), $this->getMonthsForPeriod($selectedQuarter))
+                        ->get();
+
+                       // Initialize month accomplishments for the current division
+                        $accomplishmentsByMonth = [];
+                        foreach ($monthsForPeriod as $month) {
+                            $accomplishmentsByMonth[$month] = 0; // Initialize each month with 0
+                        }
+
+                        // Aggregate the accomplishments for the respective months
+                        foreach ($entries as $entry) {
+                            $month = date('n', strtotime($entry->created_at)); // Get month as number (1-12)
+                            $accomField = str_replace(' ', '_', $divisionName) . '_accomplishment';
+                            $accomplishmentsByMonth[$month] += $entry->$accomField ?? 0; // Sum the accomplishments
+
+                            // Sum the accomplishments for the total array
+                            $totalAccomplishmentsByMonth[$month] += $entry->$accomField ?? 0;
+                        }
+
+                        // Insert accomplishments into respective month columns
+                        foreach ($monthsForPeriod as $monthIndex => $month) {
+                            $columnLetter = chr(71 + $monthIndex); // Calculate the column letter based on the index
+                            $sheet->setCellValue($columnLetter . $row, $accomplishmentsByMonth[$month]); // Set accomplishment in the correct column
+                        }
+
+                        $sheet->setCellValue('J' . $row, '=SUM(G' . $row . ':I' . $row . ')');
+                        // //ACCOMPLISHMENT: ANNUAL TOTAL
+                        if ($selectedQuarter === 'Q1') {
+                            $sheet->mergeCells('C' . $row . ':D' . $row);
+                            $sheet->setCellValue('C' . $row, '=SUM(G' . $row . ':I' . $row . ')');
+                            $sheet->setCellValue('K' . $row, '=SUM(G' . $row . ':I' . $row . ')');
+                            $sheet->setCellValue('O' . $row, '=FG' . $row . '-K' . $row);
+                        }else{
+
+                        $sheet->setCellValue('K' . $row, '=F' . $row . '+J' . $row);
+                        }
+
+                        $row++;
+                    }
+
+                     // Insert total accomplishments for the indicator row
+                    foreach ($monthsForPeriod as $monthIndex => $month) {
+                        $columnLetter = chr(71 + $monthIndex);
+                        $sheet->setCellValue($columnLetter . ($row - 7), $totalAccomplishmentsByMonth[$month]);
                 }
             }
         }
@@ -1139,119 +1261,66 @@ class ReportController extends Controller
         $row = $headerRowEnd + 1; // Start inserting data below the headers
 
         foreach ($orgOutcomes as $outcome) {
-            // Insert the Organizational Outcome (Yellow row)
-            $sheet->setCellValue('A' . $row, $outcome->order . '.' .$outcome->organizational_outcome );
+                // Insert the Organizational Outcome (Yellow row)
+                $sheet->setCellValue('A' . $row, $outcome->order . '.' .$outcome->organizational_outcome );
 
-            // Style the Organizational Outcome row
-            $sheet->getStyle('A' . $row . ':P' . $row)->applyFromArray([
-                'font' => ['bold' => true, 'size' => 14], // Thicker weight
-                'fill' => [
-                    'fillType' => Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => 'fcd654'], // Yellow highlight
-                ],
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => Border::BORDER_THIN, // Border style
-                        'color' => ['rgb' => 'FFFFFF'], // White color for the border
-                    ],
-                ],
-            ]);
-
-            // Set row height for organizational outcome
-            $sheet->getRowDimension($row)->setRowHeight(30); // Increase height
-
-            $row++;
-
-            // Fetch success indicators related to the current organizational outcome
-            $successIndicators = DB::table('success_indc')
-                ->whereYear('created_at', $year)
-                ->where('org_id', $outcome->id)
-                ->get();
-
-            foreach ($successIndicators as $indicator) {
-                // Insert Success Indicators (Pink row)
-                $sheet->setCellValue('A' . $row, $indicator->measures); // Measures under INDICATORS
-                $sheet->setCellValue('B' . $row, $indicator->target); // Annual Target
-
-                // Initialize an array to hold the total accomplishments for each month
-                $totalAccomplishmentsByMonth = [];
-                $monthsForPeriod = $this->getMonthsForPeriod($selectedQuarter);
-                foreach ($monthsForPeriod as $month) {
-                    $totalAccomplishmentsByMonth[$month] = 0; // Initialize each month with 0
-                }
-
+                // Style the Organizational Outcome row
                 $sheet->getStyle('A' . $row . ':P' . $row)->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 12], // Thicker weight
+                    'font' => ['bold' => true, 'size' => 14], // Thicker weight
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
-                        'startColor' => ['rgb' => 'FFC0CB'], // Pink highlight
+                        'startColor' => ['rgb' => 'fcd654'], // Yellow highlight
                     ],
                     'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => Border::BORDER_THIN, // Border style
-                        'color' => ['rgb' => 'FFFFFF'], // White color for the border
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN, // Border style
+                            'color' => ['rgb' => 'FFFFFF'], // White color for the border
+                        ],
                     ],
-                ],
                 ]);
 
-
-                //QTR.TOTAL
-                $sheet->setCellValue('J' . $row, '=SUM(G' . $row . ':I' . $row . ')');
-
-                //ACCOMPLISHMENT: ANNUAL TOTAL
-                if ($selectedQuarter === 'Q1') {
-                    $sheet->mergeCells('C' . $row . ':D' . $row);
-                    $sheet->setCellValue('C' . $row, '=SUM(G' . $row . ':I' . $row . ')');
-                    $sheet->setCellValue('K' . $row, '=SUM(G' . $row . ':I' . $row . ')');
-                    $sheet->setCellValue('O' . $row, '=FG' . $row . '-K' . $row);
-                }else{
-
-                    $sheet->setCellValue('K' . $row, '=F' . $row . '+J' . $row);
-                }
+                // Set row height for organizational outcome
+                $sheet->getRowDimension($row)->setRowHeight(30); // Increase height
 
                 $row++;
 
-                $dvisions = Division::where('division_name', 'like', '%PO%')->get();
-
-                foreach ($dvisions as $division) {
-                    $divisionName = str_replace(' PO', '', $division->division_name);
-
-                    $targetField = str_replace(' ', '_', $divisionName) . '_target'; // Convert to lowercase with underscores
-                    $targetValue = $indicator->$targetField ?? 0; // Get target value, default to 0 if not set
-
-                    // Insert division name and target value in respective columns
-                    $sheet->setCellValue('A' . $row, $divisionName); // Division Name
-                    $sheet->setCellValue('B' . $row, $targetValue); // Corresponding Target
-
-                    $entries = Entries::where('indicator_id', $indicator->id)
+                // Fetch success indicators related to the current organizational outcome
+                $successIndicators = DB::table('success_indc')
                     ->whereYear('created_at', $year)
-                    ->whereIn(DB::raw('MONTH(created_at)'), $this->getMonthsForPeriod($selectedQuarter))
+                    ->where('org_id', $outcome->id)
                     ->get();
 
-                   // Initialize month accomplishments for the current division
-                    $accomplishmentsByMonth = [];
+                foreach ($successIndicators as $indicator) {
+                    // Insert Success Indicators (Pink row)
+                    $sheet->setCellValue('A' . $row, $indicator->measures); // Measures under INDICATORS
+                    $sheet->setCellValue('B' . $row, $indicator->target); // Annual Target
+
+                    // Initialize an array to hold the total accomplishments for each month
+                    $totalAccomplishmentsByMonth = [];
+                    $monthsForPeriod = $this->getMonthsForPeriod($selectedQuarter);
                     foreach ($monthsForPeriod as $month) {
-                        $accomplishmentsByMonth[$month] = 0; // Initialize each month with 0
+                        $totalAccomplishmentsByMonth[$month] = 0; // Initialize each month with 0
                     }
 
-                    // Aggregate the accomplishments for the respective months
-                    foreach ($entries as $entry) {
-                        $month = date('n', strtotime($entry->created_at)); // Get month as number (1-12)
-                        $accomField = str_replace(' ', '_', $divisionName) . '_accomplishment';
-                        $accomplishmentsByMonth[$month] += $entry->$accomField ?? 0; // Sum the accomplishments
+                    $sheet->getStyle('A' . $row . ':P' . $row)->applyFromArray([
+                        'font' => ['bold' => true, 'size' => 12], // Thicker weight
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'startColor' => ['rgb' => 'FFC0CB'], // Pink highlight
+                        ],
+                        'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN, // Border style
+                            'color' => ['rgb' => 'FFFFFF'], // White color for the border
+                        ],
+                    ],
+                    ]);
 
-                        // Sum the accomplishments for the total array
-                        $totalAccomplishmentsByMonth[$month] += $entry->$accomField ?? 0;
-                    }
 
-                    // Insert accomplishments into respective month columns
-                    foreach ($monthsForPeriod as $monthIndex => $month) {
-                        $columnLetter = chr(71 + $monthIndex); // Calculate the column letter based on the index
-                        $sheet->setCellValue($columnLetter . $row, $accomplishmentsByMonth[$month]); // Set accomplishment in the correct column
-                    }
-
+                    //QTR.TOTAL
                     $sheet->setCellValue('J' . $row, '=SUM(G' . $row . ':I' . $row . ')');
-                    // //ACCOMPLISHMENT: ANNUAL TOTAL
+
+                    //ACCOMPLISHMENT: ANNUAL TOTAL
                     if ($selectedQuarter === 'Q1') {
                         $sheet->mergeCells('C' . $row . ':D' . $row);
                         $sheet->setCellValue('C' . $row, '=SUM(G' . $row . ':I' . $row . ')');
@@ -1259,16 +1328,69 @@ class ReportController extends Controller
                         $sheet->setCellValue('O' . $row, '=FG' . $row . '-K' . $row);
                     }else{
 
-                    $sheet->setCellValue('K' . $row, '=F' . $row . '+J' . $row);
+                        $sheet->setCellValue('K' . $row, '=F' . $row . '+J' . $row);
                     }
 
                     $row++;
-                }
 
-                 // Insert total accomplishments for the indicator row
-                foreach ($monthsForPeriod as $monthIndex => $month) {
-                    $columnLetter = chr(71 + $monthIndex);
-                    $sheet->setCellValue($columnLetter . ($row - 7), $totalAccomplishmentsByMonth[$month]);
+                    $dvisions = Division::where('division_name', 'like', '%PO%')->get();
+
+                    foreach ($dvisions as $division) {
+                        $divisionName = str_replace(' PO', '', $division->division_name);
+
+                        $targetField = str_replace(' ', '_', $divisionName) . '_target'; // Convert to lowercase with underscores
+                        $targetValue = $indicator->$targetField ?? 0; // Get target value, default to 0 if not set
+
+                        // Insert division name and target value in respective columns
+                        $sheet->setCellValue('A' . $row, $divisionName); // Division Name
+                        $sheet->setCellValue('B' . $row, $targetValue); // Corresponding Target
+
+                        $entries = Entries::where('indicator_id', $indicator->id)
+                        ->whereYear('created_at', $year)
+                        ->whereIn(DB::raw('MONTH(created_at)'), $this->getMonthsForPeriod($selectedQuarter))
+                        ->get();
+
+                       // Initialize month accomplishments for the current division
+                        $accomplishmentsByMonth = [];
+                        foreach ($monthsForPeriod as $month) {
+                            $accomplishmentsByMonth[$month] = 0; // Initialize each month with 0
+                        }
+
+                        // Aggregate the accomplishments for the respective months
+                        foreach ($entries as $entry) {
+                            $month = date('n', strtotime($entry->created_at)); // Get month as number (1-12)
+                            $accomField = str_replace(' ', '_', $divisionName) . '_accomplishment';
+                            $accomplishmentsByMonth[$month] += $entry->$accomField ?? 0; // Sum the accomplishments
+
+                            // Sum the accomplishments for the total array
+                            $totalAccomplishmentsByMonth[$month] += $entry->$accomField ?? 0;
+                        }
+
+                        // Insert accomplishments into respective month columns
+                        foreach ($monthsForPeriod as $monthIndex => $month) {
+                            $columnLetter = chr(71 + $monthIndex); // Calculate the column letter based on the index
+                            $sheet->setCellValue($columnLetter . $row, $accomplishmentsByMonth[$month]); // Set accomplishment in the correct column
+                        }
+
+                        $sheet->setCellValue('J' . $row, '=SUM(G' . $row . ':I' . $row . ')');
+                        // //ACCOMPLISHMENT: ANNUAL TOTAL
+                        if ($selectedQuarter === 'Q1') {
+                            $sheet->mergeCells('C' . $row . ':D' . $row);
+                            $sheet->setCellValue('C' . $row, '=SUM(G' . $row . ':I' . $row . ')');
+                            $sheet->setCellValue('K' . $row, '=SUM(G' . $row . ':I' . $row . ')');
+                            $sheet->setCellValue('O' . $row, '=FG' . $row . '-K' . $row);
+                        }else{
+
+                        $sheet->setCellValue('K' . $row, '=F' . $row . '+J' . $row);
+                        }
+
+                        $row++;
+                    }
+
+                     // Insert total accomplishments for the indicator row
+                    foreach ($monthsForPeriod as $monthIndex => $month) {
+                        $columnLetter = chr(71 + $monthIndex);
+                        $sheet->setCellValue($columnLetter . ($row - 7), $totalAccomplishmentsByMonth[$month]);
                 }
             }
         }
@@ -1394,6 +1516,7 @@ class ReportController extends Controller
             //DATA
             $orgOutcomes = DB::table('org_otc')
             ->whereNull('deleted_at')
+            ->where('category', 'Core')
             ->where('status', 'Active')
             ->whereYear('created_at', $year)
             ->orderBy('order','ASC')
@@ -1644,8 +1767,8 @@ class ReportController extends Controller
                         //     $columnLetter = chr(68 + $monthIndex);
                         //     $sheet1->setCellValue($columnLetter . ($row - 7), $totalAccomplishmentsByMonth[$month]);
                         // }
-                    }
                 }
+            }
 
         //END 1st QUARTER
 
@@ -1740,6 +1863,7 @@ class ReportController extends Controller
             //DATA
             $orgOutcomes = DB::table('org_otc')
             ->whereNull('deleted_at')
+            ->where('category', 'Core')
             ->where('status', 'Active')
             ->whereYear('created_at', $year)
             ->orderBy('order','ASC')
@@ -1748,246 +1872,246 @@ class ReportController extends Controller
             $row = $headerRowEnd + 1; // Start inserting data below the headers
 
             foreach ($orgOutcomes as $outcome) {
-                // Insert the Organizational Outcome (Yellow row)
-                $sheet2->setCellValue('A' . $row, $outcome->order . '.' .$outcome->organizational_outcome );
+                    // Insert the Organizational Outcome (Yellow row)
+                    $sheet2->setCellValue('A' . $row, $outcome->order . '.' .$outcome->organizational_outcome );
 
-                // Style the Organizational Outcome row
-                $sheet2->getStyle('A' . $row . ':Q' . $row)->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 14], // Thicker weight
-                    'fill' => [
-                        'fillType' => Fill::FILL_SOLID,
-                        'startColor' => ['rgb' => 'fcd654'], // Yellow highlight
-                    ],
-                    'borders' => [
-                        'allBorders' => [
-                            'borderStyle' => Border::BORDER_THIN, // Border style
-                            'color' => ['rgb' => 'FFFFFF'], // White color for the border
-                        ],
-                    ],
-                ]);
-
-                // Set row height for organizational outcome
-                $sheet2->getRowDimension($row)->setRowHeight(30); // Increase height
-
-                $row++;
-
-                // Fetch success indicators related to the current organizational outcome
-                $successIndicators = DB::table('success_indc')
-                ->whereNull('deleted_at')
-                ->where('status', 'Active')
-                ->whereYear('created_at', $year)
-                ->where('org_id', $outcome->id)
-                ->get();
-
-                foreach ($successIndicators as $indicator) {
-
-                    $cleanString = $indicator->division_id;
-                    $cleanString = stripslashes($cleanString);
-                    $cleanString = str_replace(['[', ']', '"'], '', $cleanString);
-                    $divisionArray = explode(',', $cleanString);
-                    $divisionArray = array_map('trim', $divisionArray);
-
-                    $q2_indicator = $indicator->Q2_target ? $indicator->Q2_target : 0;
-                    
-                    // Insert Success Indicators (Pink row)
-                    $sheet2->setCellValue('A' . $row, $indicator->measures); // Measures under INDICATORS
-                    $sheet2->setCellValue('B' . $row, $indicator->target); // Annual Target
-                    $sheet2->setCellValue('D' . $row, "='Q1'!C" . $row); // 1st Quarter
-                    $sheet2->setCellValue('E' . $row, $q2_indicator); // 2nd Quarter                  
-
-                    // Initialize an array to hold the total accomplishments for each month
-                    $totalAccomplishmentsByMonth = [];
-                    $monthsForPeriod = $this->getMonthsForPeriod($QuarterTwo);
-
-                    foreach ($monthsForPeriod as $month) {
-                        $totalAccomplishmentsByMonth[$month] = 0; // Initialize each month with 0
-                    }
-
-                    $entries = Entries::whereNull('deleted_at')
-                    ->where('status', 'Completed')
-                    ->where('year', $year)
-                    ->whereIn('months', $this->getMonthsForPeriod($QuarterTwo))
-                    ->where('indicator_id', $indicator->id)
-                    ->get();
-
-                    foreach ($entries as $entry) {
-                        $month = $entry->months; // Get month as number (1-12)
-
-                        // Sum the accomplishments for the total array
-                        $totalAccomplishmentsByMonth[$month] +=$entry->total_accomplishment ?? 0;
-                    }
-
-                    foreach ($monthsForPeriod as $monthIndex => $month) {
-                        $columnLetter = chr(71 + $monthIndex); // Calculate the column letter based on the index
-                        $sheet2->setCellValue($columnLetter . $row, $totalAccomplishmentsByMonth[$month]); // Set accomplishment in the correct column
-                    }
-
+                    // Style the Organizational Outcome row
                     $sheet2->getStyle('A' . $row . ':Q' . $row)->applyFromArray([
-                        'font' => ['bold' => true, 'size' => 12], // Thicker weight
+                        'font' => ['bold' => true, 'size' => 14], // Thicker weight
                         'fill' => [
                             'fillType' => Fill::FILL_SOLID,
-                            'startColor' => ['rgb' => 'FFC0CB'], // Pink highlight
+                            'startColor' => ['rgb' => 'fcd654'], // Yellow highlight
                         ],
                         'borders' => [
-                        'allBorders' => [
-                            'borderStyle' => Border::BORDER_THIN, // Border style
-                            'color' => ['rgb' => 'FFFFFF'], // White color for the border
+                            'allBorders' => [
+                                'borderStyle' => Border::BORDER_THIN, // Border style
+                                'color' => ['rgb' => 'FFFFFF'], // White color for the border
+                            ],
                         ],
-                    ],
                     ]);
 
-
-                    $sheet2->setCellValue('K' . $row, '=SUM(H' . $row . ':J' . $row . ')'); //QTR.TOTAL
-                    $sheet2->setCellValue('C' . $row, "='Q1'!L" . $row); //TARGET: ANNUAL BALANCE
-
-                    $sheet2->setCellValue('F' . $row, '=(D' . $row . '+E' . $row . ')'); //2ND TOTAL
-
-                    if (is_string($sheet2->getCell('E' . $row)->getValue()) && is_string($sheet2->getCell('D' . $row)->getValue())) {
-                        $sheet2->getStyle('F' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
-                    }
-
-                    $sheet2->setCellValue('G' . $row, "='Q1'!G" . $row); //ACCOMPLISHMENT: TOTAL ACCOMP
-                    $sheet2->setCellValue('L' . $row, '=(G' . $row . '+K' . $row . ')'); //ANNUAL TOTAL
-
-                    if (!is_string($sheet2->getCell('F' . $row)->getValue())) {
-                        $sheet2->setCellValue('M' . $row, '=(K' . $row . '/F' . $row . ')'); //PERCENTAGE QTR
-                        $sheet2->getStyle('M' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
-
-                    } else {
-                        $sheet2->setCellValue('M' . $row, '0'); // Return 0 if the value is a string
-                    }
-                    if (!is_string($sheet2->getCell('E' . $row)->getValue()) && is_string($sheet2->getCell('D' . $row)->getValue())) {
-                        $sheet2->setCellValue('N' . $row, '=(L' . $row . '/B' . $row . ')'); //PERCENTAGE ANNUAL
-                        $sheet2->getStyle('N' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
-
-                    } else {
-                        $sheet2->setCellValue('N' . $row, '0'); // Return 0 if the value is a string
-                    }
-
-
-                    if (!is_string($sheet2->getCell('E' . $row)->getValue()) && is_string($sheet2->getCell('D' . $row)->getValue())) {
-                        $sheet2->setCellValue('O' . $row, '=(F' . $row . '-K' . $row . ')'); //QUARTER BALANCE
-
-                    } else {
-                        $sheet2->setCellValue('O' . $row, '0'); // Return 0 if the value is a string
-                    }
-                    if (!is_string($sheet1->getCell('B' . $row)->getValue())) {
-                        $sheet2->setCellValue('P' . $row, '=(B' . $row . '-L' . $row . ')'); //ANNUAL BALANCE
-
-                    } else {
-                        $sheet2->setCellValue('P' . $row, '0'); // Return 0 if the value is a string
-                    }
-
+                    // Set row height for organizational outcome
+                    $sheet2->getRowDimension($row)->setRowHeight(30); // Increase height
 
                     $row++;
 
-                    $dvisions = Division::WhereIn('id', $divisionArray)->get();
-                    // where('division_name', 'like', '%PO%')->get();
+                    // Fetch success indicators related to the current organizational outcome
+                    $successIndicators = DB::table('success_indc')
+                    ->whereNull('deleted_at')
+                    ->where('status', 'Active')
+                    ->whereYear('created_at', $year)
+                    ->where('org_id', $outcome->id)
+                    ->get();
 
-                    foreach ($dvisions as $division) {
-                        $divisionName = str_replace(' PO', '', $division->division_name);
+                    foreach ($successIndicators as $indicator) {
 
-                        $targetField = str_replace(' ', '_', $divisionName) . '_target'; // Convert to lowercase with underscores
-                        $targetValue = $indicator->$targetField ?? 0; // Get target value, default to 0 if not set
+                        $cleanString = $indicator->division_id;
+                        $cleanString = stripslashes($cleanString);
+                        $cleanString = str_replace(['[', ']', '"'], '', $cleanString);
+                        $divisionArray = explode(',', $cleanString);
+                        $divisionArray = array_map('trim', $divisionArray);
 
-                        // Insert division name and target value in respective columns
-                        $sheet2->setCellValue('A' . $row, $divisionName); // Division Name
-                        $sheet2->setCellValue('B' . $row, $targetValue); // Corresponding Target
+                        $q2_indicator = $indicator->Q2_target ? $indicator->Q2_target : 0;
+                        
+                        // Insert Success Indicators (Pink row)
+                        $sheet2->setCellValue('A' . $row, $indicator->measures); // Measures under INDICATORS
+                        $sheet2->setCellValue('B' . $row, $indicator->target); // Annual Target
                         $sheet2->setCellValue('D' . $row, "='Q1'!C" . $row); // 1st Quarter
+                        $sheet2->setCellValue('E' . $row, $q2_indicator); // 2nd Quarter                  
 
-                        $quarter = Quarter_logs::where('indicator_id', $indicator->id)
-                        ->orderBy('created_at', 'desc')
-                        ->first(); 
+                        // Initialize an array to hold the total accomplishments for each month
+                        $totalAccomplishmentsByMonth = [];
+                        $monthsForPeriod = $this->getMonthsForPeriod($QuarterTwo);
 
-                        foreach ($quarter as $q) {
-                            $target_column = "{$divisionName}_target_{$QuarterTwo}";
-                            $region_targets[$divisionName][$quarterOne] = $quarter->$target_column ?? '0'; // Default to 0 if no value
-
-                            $targetQuarter = str_replace(' ', '_', $target_column); 
-                            $quarteValue =  $quarter->$targetQuarter ?? 0;
-                            
-                            $sheet2->setCellValue('E' . $row, $quarteValue); 
+                        foreach ($monthsForPeriod as $month) {
+                            $totalAccomplishmentsByMonth[$month] = 0; // Initialize each month with 0
                         }
 
                         $entries = Entries::whereNull('deleted_at')
-                            ->where('status', 'Completed')
-                            ->where('year', $year)
-                            ->whereIn('months', $this->getMonthsForPeriod($QuarterTwo))
-                            ->where('indicator_id', $indicator->id)
-                            ->get();
+                        ->where('status', 'Completed')
+                        ->where('year', $year)
+                        ->whereIn('months', $this->getMonthsForPeriod($QuarterTwo))
+                        ->where('indicator_id', $indicator->id)
+                        ->get();
 
-
-                    // Initialize month accomplishments for the current division
-                        $accomplishmentsByMonth = [];
-                        foreach ($monthsForPeriod as $month) {
-                            $accomplishmentsByMonth[$month] = 0; // Initialize each month with 0
-                        }
-
-                        // Aggregate the accomplishments for the respective months
                         foreach ($entries as $entry) {
                             $month = $entry->months; // Get month as number (1-12)
-                            $accomField = str_replace(' ', '_', $divisionName) . '_accomplishment';
-                            $accomplishmentsByMonth[$month] += $entry->$accomField ?? 0; // Sum the accomplishments
 
                             // Sum the accomplishments for the total array
-                            $totalAccomplishmentsByMonth[$month] += $entry->$accomField ?? 0;
+                            $totalAccomplishmentsByMonth[$month] +=$entry->total_accomplishment ?? 0;
                         }
 
                         foreach ($monthsForPeriod as $monthIndex => $month) {
-                            $columnLetter = chr(72 + $monthIndex); // Calculate the column letter based on the index
-                            $sheet2->setCellValue($columnLetter . $row, $accomplishmentsByMonth[$month]); // Set accomplishment in the correct column
+                        $columnLetter = chr(71 + $monthIndex); // Calculate the column letter based on the index
+                            $sheet2->setCellValue($columnLetter . $row, $totalAccomplishmentsByMonth[$month]); // Set accomplishment in the correct column
                         }
+
+                        $sheet2->getStyle('A' . $row . ':Q' . $row)->applyFromArray([
+                            'font' => ['bold' => true, 'size' => 12], // Thicker weight
+                            'fill' => [
+                                'fillType' => Fill::FILL_SOLID,
+                                'startColor' => ['rgb' => 'FFC0CB'], // Pink highlight
+                            ],
+                            'borders' => [
+                            'allBorders' => [
+                                'borderStyle' => Border::BORDER_THIN, // Border style
+                                'color' => ['rgb' => 'FFFFFF'], // White color for the border
+                            ],
+                        ],
+                        ]);
+
 
                         $sheet2->setCellValue('K' . $row, '=SUM(H' . $row . ':J' . $row . ')'); //QTR.TOTAL
                         $sheet2->setCellValue('C' . $row, "='Q1'!L" . $row); //TARGET: ANNUAL BALANCE
-    
+
                         $sheet2->setCellValue('F' . $row, '=(D' . $row . '+E' . $row . ')'); //2ND TOTAL
 
                         if (is_string($sheet2->getCell('E' . $row)->getValue()) && is_string($sheet2->getCell('D' . $row)->getValue())) {
                             $sheet2->getStyle('F' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
                         }
 
-
                         $sheet2->setCellValue('G' . $row, "='Q1'!G" . $row); //ACCOMPLISHMENT: TOTAL ACCOMP
                         $sheet2->setCellValue('L' . $row, '=(G' . $row . '+K' . $row . ')'); //ANNUAL TOTAL
 
-                      if (!is_string($sheet2->getCell('E' . $row)->getValue()) && is_string($sheet2->getCell('D' . $row)->getValue())) {
-                        $sheet2->setCellValue('M' . $row, '=(K' . $row . '/F' . $row . ')'); //PERCENTAGE QTR
-                        $sheet2->getStyle('M' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+                        if (!is_string($sheet2->getCell('F' . $row)->getValue())) {
+                            $sheet2->setCellValue('M' . $row, '=(K' . $row . '/F' . $row . ')'); //PERCENTAGE QTR
+                            $sheet2->getStyle('M' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
 
-                    } else {
-                        $sheet2->setCellValue('M' . $row, '0'); // Return 0 if the value is a string
-                    }
-                    if (!is_string($sheet2->getCell('B' . $row)->getValue())) {
-                        $sheet2->setCellValue('N' . $row, '=(L' . $row . '/B' . $row . ')'); //PERCENTAGE ANNUAL
-                        $sheet2->getStyle('N' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+                        } else {
+                            $sheet2->setCellValue('M' . $row, '0'); // Return 0 if the value is a string
+                        }
+                        if (!is_string($sheet2->getCell('E' . $row)->getValue()) && is_string($sheet2->getCell('D' . $row)->getValue())) {
+                            $sheet2->setCellValue('N' . $row, '=(L' . $row . '/B' . $row . ')'); //PERCENTAGE ANNUAL
+                            $sheet2->getStyle('N' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
 
-                    } else {
-                        $sheet2->setCellValue('N' . $row, '0'); // Return 0 if the value is a string
-                    }
+                        } else {
+                            $sheet2->setCellValue('N' . $row, '0'); // Return 0 if the value is a string
+                        }
 
 
-                    if (!is_string($sheet2->getCell('E' . $row)->getValue()) && is_string($sheet2->getCell('D' . $row)->getValue())) {
-                        $sheet2->setCellValue('O' . $row, '=(F' . $row . '-K' . $row . ')'); //QUARTER BALANCE
+                        if (!is_string($sheet2->getCell('E' . $row)->getValue()) && is_string($sheet2->getCell('D' . $row)->getValue())) {
+                            $sheet2->setCellValue('O' . $row, '=(F' . $row . '-K' . $row . ')'); //QUARTER BALANCE
 
-                    } else {
-                        $sheet2->setCellValue('O' . $row, '0'); // Return 0 if the value is a string
-                    }
-                    if (!is_string($sheet1->getCell('B' . $row)->getValue())) {
-                        $sheet2->setCellValue('P' . $row, '=(B' . $row . '-L' . $row . ')'); //ANNUAL BALANCE
+                        } else {
+                            $sheet2->setCellValue('O' . $row, '0'); // Return 0 if the value is a string
+                        }
+                        if (!is_string($sheet1->getCell('B' . $row)->getValue())) {
+                            $sheet2->setCellValue('P' . $row, '=(B' . $row . '-L' . $row . ')'); //ANNUAL BALANCE
 
-                    } else {
-                        $sheet2->setCellValue('P' . $row, '0'); // Return 0 if the value is a string
-                    }
+                        } else {
+                            $sheet2->setCellValue('P' . $row, '0'); // Return 0 if the value is a string
+                        }
+
 
                         $row++;
-                    }
 
-                    // Insert total accomplishments for the indicator row
-                    // foreach ($monthsForPeriod as $monthIndex => $month) {
-                    //     $columnLetter = chr(72 + $monthIndex);
-                    //     $sheet2->setCellValue($columnLetter . ($row - 7), $totalAccomplishmentsByMonth[$month]);
-                    // }
+                        $dvisions = Division::WhereIn('id', $divisionArray)->get();
+                        // where('division_name', 'like', '%PO%')->get();
+
+                        foreach ($dvisions as $division) {
+                            $divisionName = str_replace(' PO', '', $division->division_name);
+
+                            $targetField = str_replace(' ', '_', $divisionName) . '_target'; // Convert to lowercase with underscores
+                            $targetValue = $indicator->$targetField ?? 0; // Get target value, default to 0 if not set
+
+                            // Insert division name and target value in respective columns
+                            $sheet2->setCellValue('A' . $row, $divisionName); // Division Name
+                            $sheet2->setCellValue('B' . $row, $targetValue); // Corresponding Target
+                            $sheet2->setCellValue('D' . $row, "='Q1'!C" . $row); // 1st Quarter
+
+                            $quarter = Quarter_logs::where('indicator_id', $indicator->id)
+                            ->orderBy('created_at', 'desc')
+                            ->first(); 
+
+                            foreach ($quarter as $q) {
+                                $target_column = "{$divisionName}_target_{$QuarterTwo}";
+                                $region_targets[$divisionName][$quarterOne] = $quarter->$target_column ?? '0'; // Default to 0 if no value
+
+                                $targetQuarter = str_replace(' ', '_', $target_column); 
+                                $quarteValue =  $quarter->$targetQuarter ?? 0;
+                                
+                                $sheet2->setCellValue('E' . $row, $quarteValue); 
+                            }
+
+                            $entries = Entries::whereNull('deleted_at')
+                                ->where('status', 'Completed')
+                                ->where('year', $year)
+                                ->whereIn('months', $this->getMonthsForPeriod($QuarterTwo))
+                                ->where('indicator_id', $indicator->id)
+                                ->get();
+
+
+                        // Initialize month accomplishments for the current division
+                            $accomplishmentsByMonth = [];
+                            foreach ($monthsForPeriod as $month) {
+                                $accomplishmentsByMonth[$month] = 0; // Initialize each month with 0
+                            }
+
+                            // Aggregate the accomplishments for the respective months
+                            foreach ($entries as $entry) {
+                                $month = $entry->months; // Get month as number (1-12)
+                                $accomField = str_replace(' ', '_', $divisionName) . '_accomplishment';
+                                $accomplishmentsByMonth[$month] += $entry->$accomField ?? 0; // Sum the accomplishments
+
+                                // Sum the accomplishments for the total array
+                                $totalAccomplishmentsByMonth[$month] += $entry->$accomField ?? 0;
+                            }
+
+                            foreach ($monthsForPeriod as $monthIndex => $month) {
+                                $columnLetter = chr(72 + $monthIndex); // Calculate the column letter based on the index
+                                $sheet2->setCellValue($columnLetter . $row, $accomplishmentsByMonth[$month]); // Set accomplishment in the correct column
+                            }
+
+                            $sheet2->setCellValue('K' . $row, '=SUM(H' . $row . ':J' . $row . ')'); //QTR.TOTAL
+                            $sheet2->setCellValue('C' . $row, "='Q1'!L" . $row); //TARGET: ANNUAL BALANCE
+        
+                            $sheet2->setCellValue('F' . $row, '=(D' . $row . '+E' . $row . ')'); //2ND TOTAL
+
+                            if (is_string($sheet2->getCell('E' . $row)->getValue()) && is_string($sheet2->getCell('D' . $row)->getValue())) {
+                                $sheet2->getStyle('F' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+                            }
+
+
+                            $sheet2->setCellValue('G' . $row, "='Q1'!G" . $row); //ACCOMPLISHMENT: TOTAL ACCOMP
+                            $sheet2->setCellValue('L' . $row, '=(G' . $row . '+K' . $row . ')'); //ANNUAL TOTAL
+
+                          if (!is_string($sheet2->getCell('E' . $row)->getValue()) && is_string($sheet2->getCell('D' . $row)->getValue())) {
+                            $sheet2->setCellValue('M' . $row, '=(K' . $row . '/F' . $row . ')'); //PERCENTAGE QTR
+                            $sheet2->getStyle('M' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+
+                        } else {
+                            $sheet2->setCellValue('M' . $row, '0'); // Return 0 if the value is a string
+                        }
+                        if (!is_string($sheet2->getCell('B' . $row)->getValue())) {
+                            $sheet2->setCellValue('N' . $row, '=(L' . $row . '/B' . $row . ')'); //PERCENTAGE ANNUAL
+                            $sheet2->getStyle('N' . $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE);
+
+                        } else {
+                            $sheet2->setCellValue('N' . $row, '0'); // Return 0 if the value is a string
+                        }
+
+
+                        if (!is_string($sheet2->getCell('E' . $row)->getValue()) && is_string($sheet2->getCell('D' . $row)->getValue())) {
+                            $sheet2->setCellValue('O' . $row, '=(F' . $row . '-K' . $row . ')'); //QUARTER BALANCE
+
+                        } else {
+                            $sheet2->setCellValue('O' . $row, '0'); // Return 0 if the value is a string
+                        }
+                        if (!is_string($sheet1->getCell('B' . $row)->getValue())) {
+                            $sheet2->setCellValue('P' . $row, '=(B' . $row . '-L' . $row . ')'); //ANNUAL BALANCE
+
+                        } else {
+                            $sheet2->setCellValue('P' . $row, '0'); // Return 0 if the value is a string
+                        }
+
+                            $row++;
+                        }
+
+                        // Insert total accomplishments for the indicator row
+                        // foreach ($monthsForPeriod as $monthIndex => $month) {
+                        //     $columnLetter = chr(72 + $monthIndex);
+                        //     $sheet2->setCellValue($columnLetter . ($row - 7), $totalAccomplishmentsByMonth[$month]);
+                        // }
 
                 }
             }
@@ -2086,6 +2210,7 @@ class ReportController extends Controller
             //DATA
             $orgOutcomes = DB::table('org_otc')
             ->whereNull('deleted_at')
+            ->where('category', 'Core')
             ->where('status', 'Active')
             ->whereYear('created_at', $year)
             ->orderBy('order','ASC')
@@ -2424,6 +2549,7 @@ class ReportController extends Controller
             //DATA
             $orgOutcomes = DB::table('org_otc')
             ->whereNull('deleted_at')
+            ->where('category', 'Core')
             ->where('status', 'Active')
             ->whereYear('created_at', $year)
             ->orderBy('order','ASC')
@@ -2735,6 +2861,7 @@ class ReportController extends Controller
             //DATA
             $orgOutcomes = DB::table('org_otc')
             ->whereNull('deleted_at')
+            ->where('category', 'Core')
             ->where('status', 'Active')
             ->whereYear('created_at', $year)
             ->orderBy('order','ASC')

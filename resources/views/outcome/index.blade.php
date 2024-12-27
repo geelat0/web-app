@@ -81,6 +81,14 @@
                     <input type="text" class="form-control capitalize" name="organizational_outcome[]" id="organizational_outcome_${outcomeIndex}" aria-describedby="">
                     <div class="invalid-feedback" id="organizational_outcomeError_${outcomeIndex}"></div>
                 </div>
+                <div class="form-group mt-3">
+                    <label for="category_${outcomeIndex}" class="required">Category</label>
+                    <select class="form-control capitalize" name="category[]" id="category_${outcomeIndex}" >
+                        <option value="Core">Core</option>
+                        <option value="Non Core">Non Core</option>
+                    </select>
+                    <div class="invalid-feedback" id="category_${outcomeIndex}"></div>
+                </div>
                 <button type="button" class="btn btn-danger btn-sm mt-2 removeOutcomeBtn" data-index="${outcomeIndex}"><i class='bx bx-trash'></i></button>
             </div>
             `;
@@ -258,6 +266,7 @@
                         $('#edit_organizational_outcome').val(selectedData.organizational_outcome);
                         $('#edit_status').val(selectedData.status);
                         $('#edit_order').val(selectedData.order);
+                        $('#edit_category').val(selectedData.category);
 
                         $('#editOrgForm').off('submit').on('submit', function(e) {
                                 e.preventDefault();
@@ -331,6 +340,7 @@
                         $('#view_status').val(selectedData.status);
                         $('#viewOrgModal').modal('show');
                         $('#view_order').val(selectedData.order);
+                        $('#view_category').val(selectedData.category);
 
 
                     }
@@ -401,6 +411,7 @@
                 { data: 'id', name: 'id', title: 'ID', visible: false },
                 { data: 'order', name: 'order', title: 'Order' },
                 { data: 'organizational_outcome', name: 'organizational_outcome', title: 'Organizational Outcome' },
+                { data: 'category', name: 'category', title: 'Category' },
                 { data: 'status', name: 'status', title: 'Status' },
                 { data: 'created_by', name: 'created_by', title: 'Created By' },
                 { data: 'created_at', name: 'created_at', title: 'Created At' },

@@ -29,6 +29,10 @@
                                     <input class="form-check-input" type="radio" name="fileType" id="pdf" value="pdf">
                                     <label class="form-check-label" for="pdf">pdf</label>
                                   </div>
+                                  <div class="form-check form-check-inline word">
+                                    <input class="form-check-input" type="radio" name="fileType" id="word" value="word">
+                                    <label class="form-check-label" for="word">doc</label>
+                                  </div>
                             </div>
 
                             @csrf
@@ -73,6 +77,7 @@
 
                             <div class="d-flex justify-content-end">
                                 <button type="submit" class="btn btn-primary pdf-button" style="display: none;">Generate PDF</button>
+                                <button type="submit" class="btn btn-primary doc-button" style="display: none;">Generate Doc</button>
                                 <button type="submit" class="btn btn-primary excel-button" style="display: none;">Generate Excel</button>
                             </div>
                         </form>
@@ -129,6 +134,62 @@
                     hideLoader();
 
                     var filename = year + '-OPCR-RO5.pdf';
+                    var link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = filename;
+                    link.click();
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'The report has been generated and downloaded.',
+                        showConfirmButton: true,
+                        confirmButtonText: 'OK'
+                    });
+                },
+                error: function(xhr) {
+                    hideLoader();
+                    console.log(xhr);
+                }
+            });
+        });
+
+        $('.doc-button').on('click', function(e) {
+            e.preventDefault();
+            showLoader();
+
+            var year = $('#year').val();
+            var divisions = $('#division_id').val();
+            var period = $('#period').val();
+
+            if (year === "") {
+                hideLoader();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Year Required',
+                    text: 'Please select a year before generating the report.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            $.ajax({
+                url: '{{ route('generate.word') }}',
+                type: 'POST',
+                data: {
+                    year: year,
+                    division_id: divisions,
+                    period: period,
+                    _token: '{{ csrf_token() }}'
+                },
+                xhrFields: {
+                    responseType: 'blob'
+                },
+                success: function(blob) {
+                    hideLoader();
+
+                    var filename = year + '-OPCR-RO5.docx'; // Changed from .pdf to .docx as per the controller logic
                     var link = document.createElement('a');
                     link.href = window.URL.createObjectURL(blob);
                     link.download = filename;
@@ -252,6 +313,8 @@
             if (selectedType === 'excel') {
                 $('.excel-button').show();
                 $('.pdf-button').hide();
+                $('.doc-button').hide();
+
                 // $('#semestral-optgroup').remove();
 
                 $('#division').addClass('d-none');
@@ -259,6 +322,19 @@
 
             } else if (selectedType === 'pdf') {
                 $('.pdf-button').show();
+                $('.excel-button').hide();
+                $('.doc-button').hide();
+
+
+                // if (!$('#semestral-optgroup').length) {
+                //     $('#period').append(semestralOptgroup);
+                // }
+                $('#division').removeClass('d-none');
+                $('#period').removeClass('d-none');
+
+            }else if (selectedType === 'word') {
+                $('.pdf-button').hide();
+                $('.doc-button').show();
                 $('.excel-button').hide();
 
                 // if (!$('#semestral-optgroup').length) {

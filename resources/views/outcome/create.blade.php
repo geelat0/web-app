@@ -16,10 +16,18 @@
                                     <input type="number" class="form-control capitalize" name="order[]" id="order_0" aria-describedby="" placeholder="0" min="0">
                                     <div class="invalid-feedback" id="orderError_0"></div>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group mb-3">
                                     <label for="organizational_outcome_0" class="required">Organization Outcome</label>
                                     <input type="text" class="form-control capitalize" name="organizational_outcome[]" id="organizational_outcome_0" aria-describedby="">
                                     <div class="invalid-feedback" id="organizational_outcomeError_0"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="category_0" class="required">Category</label>
+                                    <select class="form-control capitalize" name="category[]" id="category_0" >
+                                        <option value="Core">Core</option>
+                                        <option value="Non Core">Non Core</option>
+                                    </select>
+                                    <div class="invalid-feedback" id="category_0"></div>
                                 </div>
                                 
                             </div>
