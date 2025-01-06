@@ -110,6 +110,11 @@ class EntriesController extends Controller
             $targetMonth = $currentDate->subMonth()->month;
         }
 
+        if ($currentDate->month == 1 && $currentDate->day <= 5) {
+            $targetMonth = $currentDate->subMonth()->month;
+            $current_Year = $currentDate->subYear()->format('Y');
+        }
+
         $filteredIndicators = $filteredIndicators->filter(function($indicator) use ($targetMonth, $current_Year) {
             $completedEntries = Entries::where('indicator_id', $indicator->id)
                                     ->where('months', $targetMonth)
@@ -436,7 +441,16 @@ class EntriesController extends Controller
                 return $data->created_at->format('m/d/Y');
             })
             ->editColumn('year', function($data) {
-                return $data->created_at->format('Y');
+                $currentDate = Carbon::now();
+                // return $data->created_at->format('Y');
+                if ($currentDate->month == 1 && $currentDate->day <= 5) {
+                    $current_Year = $currentDate->subYear()->format('Y');
+                    // dd($targetMonth, $current_Year);
+    
+                }else{
+                    $current_Year = Carbon::now()->format('Y');
+                }
+                return $current_Year;
             })
             ->editColumn('months', function($data) {
                 $currentDate = Carbon::now();
@@ -486,7 +500,7 @@ class EntriesController extends Controller
                 return $data->created_at->format('m/d/Y');
             })
             ->editColumn('year', function($data) {
-                return $data->created_at->format('Y');
+                return $data->year ?? '';
             })
             ->editColumn('months', function($data) {
                 return $data->months ? date('F', mktime(0, 0, 0, $data->months, 10)): '';
@@ -530,6 +544,11 @@ class EntriesController extends Controller
             $targetMonth = $currentDate->addMonth()->month;
         } else {
             $targetMonth = $currentDate->subMonth()->month;
+        }
+
+        if ($currentDate->month == 1 && $currentDate->day <= 5) {
+            $targetMonth = $currentDate->subMonth()->month;
+            $current_Year = $currentDate->subYear()->format('Y');
         }
 
         $entry->accomplishment = $request->input('accomplishment');
@@ -589,13 +608,19 @@ class EntriesController extends Controller
         $currentDate = Carbon::now();
 
         if ($currentDate->day > 5) {
+            $current_Year = Carbon::now()->format('Y');
             $targetMonth = $currentDate->month;
-            // $targetMonth = $currentDate->addMonth()->month;
         } else {
-            $targetMonth = $currentDate->subMonth()->month;
-        }
 
-        $current_Year = Carbon::now()->format('Y');
+            if ($currentDate->month == 1 && $currentDate->day <= 6) {
+                $current_Year = $currentDate->subYear()->format('Y');
+                $targetMonth = $currentDate->subMonth()->month;
+
+            }else{
+                $current_Year = Carbon::now()->format('Y');
+                $targetMonth = $currentDate->subMonth()->month;
+            }
+        }
 
         $entry = Entries::create([
             'indicator_id' => $request->input('indicator_id'),

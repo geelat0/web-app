@@ -276,7 +276,7 @@
                                     <td></td>
                                     <td></td>
                                     <td></td>
-                                    <td></td>
+                                    <td>{{$entriesForIndicator->pluck('accomplishment_text')->implode(', ')}}</td>
 
                                 </tr>
                             @endforeach
@@ -464,7 +464,7 @@
                                     <td></td>
                                     <td></td>
                                     <td></td>
-                                    <td></td>
+                                    <td>{{$entriesForIndicator->pluck('accomplishment_text')->implode(', ')}}</td>
 
                                 </tr>
                             @endforeach

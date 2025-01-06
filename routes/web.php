@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 // Route::get('/', function () {
 //     return view('welcome');
 // });
-Route::middleware(['auth_check', '419'])->group(function () {
+Route::middleware(['auth_check'])->group(function () {
     Route::middleware(['2fa'])->group(function () {
 
             Route::get('/permissions', [PermissionController::class, 'editPermissions'])->name('roles.permissions.edit')->middleware('permission:manage_permissions');
@@ -120,7 +120,7 @@ Route::middleware(['auth_check', '419'])->group(function () {
 
 
 
-Route::middleware(['guest', '419'])->group(function () {
+Route::middleware(['guest'])->group(function () {
 
     Route::get('/', [AuthController::class, 'index']);
     Route::post('login', [AuthController::class, 'login'])->name('login');

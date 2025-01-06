@@ -23,8 +23,8 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use PhpOffice\PhpWord\PhpWord;
-use PhpOffice\PhpWord\Shared\Html;
-use Illuminate\Support\Facades\View;
+use PhpOffice\PhpWord\SimpleType\Jc;
+
 
 class ReportController extends Controller
 {
@@ -224,69 +224,74 @@ class ReportController extends Controller
         // dd( $groupedOutcomes);
 
 
-       // Prepare the PDF content
-    $html = view('generate.pdf', compact('orgOutcomes', 'entries', 'divisionIds', 'period', 'groupedOutcomes'))->render();
+        // Prepare the PDF content
+        $html = view('generate.pdf', compact('orgOutcomes', 'entries', 'divisionIds', 'period', 'groupedOutcomes'))->render();
+        
+        // Create new mPDF instance
+        $mpdf = new Mpdf(['mode' => 'utf-8', 'format' => 'A4-L']);
+
+        // Add header
+        $header = '
+            <div class="header" style="text-align: center; margin-bottom: 20px;">
+                <div class="header_page" style="font-size: 10.8px;">Republic of the Philippines</div>
+                <div class="subheader" style="font-weight: bold; font-size: 13px;">Department of Labor and Employment</div>
+                <div class="header_page" style="font-size: 10.8px; margin-top: 2px;">Doña Aurora St., Old Albay, Legaspi City, Albay</div>
+            </div>
+        ';
+
+        $footer = '<div style="text-align: right; font-size: 10.8px;"><span class="page-number">{PAGENO}</span></div>';
+
+        // Write the header
+        $mpdf->WriteHTML($header);
+        $mpdf->SetHTMLFooter($footer);
     
-    // Create new mPDF instance
-    $mpdf = new Mpdf(['mode' => 'utf-8', 'format' => 'A4-L']);
-
-    // Add header
-    $header = '
-        <div class="header" style="text-align: center; margin-bottom: 20px;">
-            <div class="header_page" style="font-size: 10.8px;">Republic of the Philippines</div>
-            <div class="subheader" style="font-weight: bold; font-size: 13px;">Department of Labor and Employment</div>
-            <div class="header_page" style="font-size: 10.8px; margin-top: 2px;">Doña Aurora St., Old Albay, Legaspi City, Albay</div>
-        </div>
-    ';
-
-    $footer = '<div style="text-align: right; font-size: 10.8px;"><span class="page-number">{PAGENO}</span></div>';
-
-    // Write the header
-    $mpdf->WriteHTML($header);
-    $mpdf->SetHTMLFooter($footer);
-   
-    // Write the main content
-    $mpdf->WriteHTML($html);
+        // Write the main content
+        $mpdf->WriteHTML($html);
 
     
 
-    // Output the PDF
-    return $mpdf->Output('OPCR-RO5.pdf', 'D'); // Download the PDF
+        // Output the PDF
+        return $mpdf->Output('OPCR-RO5.pdf', 'D'); // Download the PDF
 
         // $pdf = PDF::loadView('generate.pdf', compact( 'orgOutcomes', 'entries', 'divisionIds', 'entryCount', 'entry'))
         //         ->setPaper('a4', 'landscape');
 
         // return $pdf->stream('OPCR-RO5.pdf');
     }
-
-    public function generateWord(Request $request)
     
+    public function generateWord(Request $request)
     {
+        // Fetch the necessary data similar to the PDF generation
         DB::statement("SET SQL_MODE=''");
         $orgOutcomes = array();
         $entries = '';
-        $divisionIds = '';
+        $divisionIds = [];
         $year = $request->input('year');
         $period = $request->input('period');
         $semiannual = $request->input('semiannual');
-        $divisionIds = $request->input('division_id');
+        $divisionIds = [$request->input('division_id')];
         $province = $request->input('province');
         $userIdsArray = '';
+        
 
+        $divisionName = implode(',', Division::whereIn('id',  $divisionIds)->pluck('division_name')->toArray());
+
+        
         // Fetch all indicators
         $indicators = SuccessIndicator::whereNull('deleted_at')->where('status', 'Active')->get();
-
+        
         // Initialize the collection of indicator IDs
         $indicatorIds = collect();
-
+        
         if (!empty($divisionIds)) {
+
             // Filter indicators based on the divisionIds
             $filteredIndicators = $indicators->filter(function ($indicator) use ($divisionIds) {
                 $indicatorDivisionIds = json_decode($indicator->division_id, true);
                 return !empty(array_intersect($divisionIds, $indicatorDivisionIds));
             });
 
-            $userIds = User::where(function ($query) use ($divisionIds) {
+            $userIds = User::where(function($query) use ($divisionIds) {
                 foreach ($divisionIds as $divisionId) {
                     $query->orWhereJsonContains('division_id', $divisionId);
                 }
@@ -294,17 +299,13 @@ class ReportController extends Controller
 
             $userIdsArray = $userIds->toArray();
             $indicatorIds = $filteredIndicators->pluck('id');
+
         } else {
             $indicatorIds = $indicators->pluck('id');
         }
 
-        // If no matching indicators, do not show organizational outcomes
-        if ($indicatorIds->isEmpty()) {
-            return response()->json(['error' => 'No matching data to generate a Word file'], 404);
-        }
-
         // Fetch organizational outcomes with their success indicators based on filters
-        $orgOutcomes = Organizational::with(['successIndicators' => function ($query) use ($year, $period, $indicatorIds) {
+        $orgOutcomes = Organizational::with(['successIndicators' => function($query) use ($year, $indicatorIds) {
             if ($indicatorIds->isNotEmpty()) {
                 $query->whereIn('id', $indicatorIds);
             }
@@ -312,55 +313,262 @@ class ReportController extends Controller
                 $query->whereYear('created_at', $year);
             }
         }])
-            ->whereNull('deleted_at')
-            ->where('status', 'Active')
-            ->orderBy('order', 'ASC')
-            ->get()
-            ->groupBy('category');
+        ->whereNull('deleted_at')
+        ->where('status', 'Active')
+        ->get()
+        ->groupBy('category');
+
+        // Check if there is no data found
+        if ($orgOutcomes->isEmpty()) {
+            return response()->json(['message' => 'No data found'], 404);
+        }
 
         // Fetch entries based on filters
-        $entry = Entries::whereNull('deleted_at')
+        if (Auth::user()->role->name === 'SuperAdmin' || Auth::user()->role->name === 'Admin') {
+            $entry = Entries::whereNull('deleted_at')
+                        ->where('year', $year)
+                        ->where('status','Completed')
+                        ->when($period, function($query) use ($period) {
+                            $months = $this->getMonthsForPeriod($period);
+                            $query->whereIn(DB::raw('MONTH(created_at)'), $months);
+                        })
+                        ->when($province, function($query) use ($province) {
+                            $query->whereHas('user', function($query) use ($province) {
+                                $query->where('province', $province);
+                            });
+                        })
+                        ->when($userIdsArray, function($query) use ($userIdsArray) {
+                            $query->whereIn('user_id', $userIdsArray);
+                        });
+
+            $entries = $entry->get()
+            ->groupBy(function ($entry) {
+                return $entry->indicator_id;
+            });
+
+        }else{
+            $entry = Entries::whereNull('deleted_at')
             ->where('year', $year)
-            ->where('status', 'Completed')
-            ->when($province, function ($query) use ($province) {
-                $query->whereHas('user', function ($query) use ($province) {
+            ->where('status','Completed')
+            ->where('created_by', Auth::user()->user_name)
+            ->when($period, function($query) use ($period) {
+                $months = $this->getMonthsForPeriod($period);
+                $query->whereIn(DB::raw('MONTH(created_at)'), $months);
+            })
+            ->when($province, function($query) use ($province) {
+                $query->whereHas('user', function($query) use ($province) {
                     $query->where('province', $province);
                 });
             })
-            ->when($userIdsArray, function ($query) use ($userIdsArray) {
+            ->when($userIdsArray, function($query) use ($userIdsArray) {
                 $query->whereIn('user_id', $userIdsArray);
             });
 
-        $entries = $entry->get()
+            $entries = $entry->get()
             ->groupBy(function ($entry) {
                 return $entry->indicator_id; // Group by each indicator
             });
 
-        // Prepare the grouped outcomes
-        $groupedOutcomes = [
-            'Core' => $orgOutcomes->get('Core') ?? [],
-            'Non Core' => $orgOutcomes->get('Non Core') ?? [],
-        ];
+        }
 
-        // Render the Blade view into HTML
-        $htmlContent = view('generate.word', compact('orgOutcomes', 'entries', 'divisionIds', 'period', 'groupedOutcomes'))->render();
+        $entryCount = $entry->count();
 
-        // Initialize PhpWord
-        $phpWord = new Phpword();
+        // Prepare the Word document
+        $phpWord = new PhpWord();
+        $section = $phpWord->addSection(['orientation' => 'landscape', 'style' => ['fontSize' => 10]]);
 
-        // Create a new section
-        $section = $phpWord->addSection();
+        // Add header
+        $header = $section->addHeader();
+        // Add formatted header text in a compact manner
+        $header->addText(
+            'Republic of the Philippines',
+            ['size' => 9, 'bold' => true],
+            ['alignment' => Jc::CENTER]
+        );
+        $header->addText(
+            'Department of Labor and Employment',
+            ['size' => 9, 'bold' => true],
+            ['alignment' => Jc::CENTER]
+        );
+        $header->addText(
+            'Doña Aurora St., Old Albay, Legaspi City, Albay',
+            ['size' => 9],
+            ['alignment' => Jc::CENTER]
+        );
 
-        // Add HTML content to the Word file
-        Html::addHtml($section, $htmlContent, false, false);
+        
+        // Add table
+        $table = $section->addTable(['borderSize' => 6, 'cellMargin' => 80]);
 
-        // Save the Word file to output
-        $fileName = 'OPCR-RO5.docx';
-        $tempFile = tempnam(sys_get_temp_dir(), $fileName);
+        // Add header row
+        $table->addRow();
+        $table->addCell(3000)->addText('Organizational Outcome/PAP', ['bold' => true]);
+        $table->addCell(3000)->addText('Success Indicator', ['bold' => true]);
+        $table->addCell(2000)->addText('Allotted Budget', ['bold' => true]);
+        $table->addCell(3000)->addText('Division/Individuals Accountable', ['bold' => true]);
+        $table->addCell(3000)->addText('Actual Accomplishment', ['bold' => true]);
+        $table->addCell(80)->addText('Q1', ['bold' => true]);
+        $table->addCell(80)->addText('Q2', ['bold' => true]);
+        $table->addCell(80)->addText('T3', ['bold' => true]);
+        $table->addCell(80)->addText('A4', ['bold' => true]);
+        $table->addCell(3000)->addText('Remarks', ['bold' => true]);
 
-        $phpWord->save($tempFile, 'Word2007');
+        // Populate the table with data
+        foreach ($orgOutcomes as $category => $outcomes) {
+            $table->addRow();
+            $table->addCell(3000)->addText($category, ['bold' => true, 'color' => '0070C0']);
+            $table->addCell(3000)->addText('');
+            $table->addCell(2000)->addText('');
+            $table->addCell(3000)->addText('');
+            $table->addCell(3000)->addText('');
+            $table->addCell(80)->addText('');
+            $table->addCell(80)->addText('');
+            $table->addCell(80)->addText('');
+            $table->addCell(80)->addText('');
+            $table->addCell(3000)->addText('');
 
-        return response()->download($tempFile, $fileName)->deleteFileAfterSend(true);
+            foreach ($outcomes as $outcome) {
+                $successIndicators = $outcome->successIndicators;
+                $indicatorCount = $successIndicators->count(); // Count the success indicators
+        
+                $rowSpanStart = true; // Flag to handle rowspan for the first cell
+
+                foreach ($successIndicators as $indicator) {
+                    $divisionNames = Division::whereIn('id', json_decode($indicator->division_id))->pluck('division_name')->toArray();
+                    $entriesForIndicator = $entries[$indicator->id] ?? collect();
+
+                    $table->addRow();
+
+                    // Add Organizational Outcome with rowspan
+                    if ($rowSpanStart) {
+                        $cell = $table->addCell(3000, ['vMerge' => 'restart']);
+                        $cell->addText($outcome->organizational_outcome);
+                        $rowSpanStart = false;
+                    } else {
+                        $table->addCell(3000, ['vMerge' => 'continue']); // Merged cell
+                    }
+
+                    //SUCCESS INDICATOR
+                        if (in_array(null, $divisionIds, true)) {
+
+                        $table->addCell(3000)->addText('(' . ($indicator->target == 0 ? 'Actual' : $indicator->target) . ') ' . $indicator->measures);
+
+                        }else{
+                            if($divisionName === 'Albay PO'){
+                                $table->addCell(3000)->addText( '(' . ($indicator->Albay_target  == 0 ? 'Actual' : $indicator->Albay_target ) . ') ' . $indicator->measures);
+
+                            }elseif($divisionName === 'Camarines Norte PO'){
+                                $table->addCell(3000)->addText( '(' . ($indicator->Camarines_Norte_target  == 0 ? 'Actual' : $indicator->Camarines_Norte_target ) . ') ' . $indicator->measures);
+
+                            }elseif($divisionName === 'Camarines Sur PO'){
+                                $table->addCell(3000)->addText( '(' . ($indicator->Camarines_Sur_target  == 0 ? 'Actual' : $indicator->Camarines_Sur_target ) . ') ' . $indicator->measures);
+
+                            }elseif($divisionName === 'Catanduanes PO'){
+                                $table->addCell(3000)->addText( '(' . ($indicator->Catanduanes_target  == 0 ? 'Actual' : $indicator->Catanduanes_target ) . ') ' . $indicator->measures);
+
+                            }elseif($divisionName === 'Masbate PO'){
+                                $table->addCell(3000)->addText( '(' . ($indicator->Masbate_target  == 0 ? 'Actual' : $indicator->Masbate_target ) . ') ' . $indicator->measures);
+
+                            }elseif($divisionName === 'Sorsogon PO'){
+                                $table->addCell(3000)->addText( '(' . ($indicator->Sorsogon_target  == 0 ? 'Actual' : $indicator->Sorsogon_target ) . ') ' . $indicator->measures);
+
+                            }else{
+                                $table->addCell(3000)->addText('(' . ($indicator->target == 0 ? 'Actual' : $indicator->target) . ') ' . $indicator->measures);
+
+                            }
+                            
+                        }
+                    //END SUCCESS INDICATOR
+
+                    //ALLOTED BUDGET
+
+                        if (in_array(null, $divisionIds, true)) {
+                            $table->addCell(2000)->addText(number_format($indicator->alloted_budget, 2));
+
+                        }else{
+                            if($divisionName === 'Albay PO'){
+                                $table->addCell(2000)->addText(number_format($indicator->Albay_budget, 2));
+
+                            }elseif($divisionName === 'Camarines Norte PO'){
+                                $table->addCell(2000)->addText(number_format($indicator->Camarines_Norte_budget, 2));
+
+                            }elseif($divisionName === 'Camarines Sur PO'){
+                                $table->addCell(2000)->addText(number_format($indicator->Camarines_Sur_budget, 2));
+
+                            }elseif($divisionName === 'Catanduanes PO'){
+                                $table->addCell(2000)->addText(number_format($indicator->Catanduanes_budget, 2));
+
+                            }elseif($divisionName === 'Masbate PO'){
+                                $table->addCell(2000)->addText(number_format($indicator->Masbate_budget, 2));
+
+                            }elseif($divisionName === 'Sorsogon PO'){
+                                $table->addCell(2000)->addText(number_format($indicator->Sorsogon_budget, 2));
+
+                            }else{
+                                $table->addCell(2000)->addText(number_format($indicator->alloted_budget, 2));
+
+                            } 
+                        }
+
+                    //END ALLOTTED BUDGET
+
+                    //DIVISION
+                        if (in_array(null, $divisionIds, true)) {
+                            $table->addCell(2000)->addText(implode(', ',  $divisionNames));
+                        }else{
+                            $table->addCell(2000)->addText($divisionName);
+                        }
+                    //END DIVISION
+
+
+                    //ACTUAL ACCOMPLISHMENT
+
+                    if (in_array(null, $divisionIds, true)) {
+                        $table->addCell(3000)->addText('(' .($entriesForIndicator->sum('total_accomplishment')) . ')' . ' ' . $indicator->measures ); // Actual Accomplishment placeholder
+
+                    }else{
+                        if($divisionName === 'Albay PO'){
+                            $table->addCell(3000)->addText('(' .($entriesForIndicator->sum('Albay_accomplishment')) . ')' . ' ' . $indicator->measures);
+
+                        }elseif($divisionName === 'Camarines Norte PO'){
+                            $table->addCell(3000)->addText('(' . ($entriesForIndicator->sum('Camarines_Norte_accomplishment'))  . ')' . ' ' . $indicator->measures);
+
+                        }elseif($divisionName === 'Camarines Sur PO'){
+                            $table->addCell(3000)->addText('(' . ($entriesForIndicator->sum('Camarines_Sur_accomplishment')) . ')' . ' ' . $indicator->measures);
+
+                        }elseif($divisionName === 'Catanduanes PO'){
+                            $table->addCell(3000)->addText('(' . ($entriesForIndicator->sum('Catanduanes_accomplishment'))   . ')' . ' ' . $indicator->measures);
+
+                        }elseif($divisionName === 'Masbate PO'){
+                            $table->addCell(3000)->addText('(' . ($entriesForIndicator->sum('Masbate_accomplishment') ) . ')' . ' ' . $indicator->measures);
+
+                        }elseif($divisionName === 'Sorsogon PO'){
+                            $table->addCell(3000)->addText('(' . ($entriesForIndicator->sum('Sorsogon_accomplishment'))   . ')' . ' ' . $indicator->measures);
+
+                        }else{
+                            $table->addCell(3000)->addText(number_format($entriesForIndicator->sum('total_accomplishment')) . ' ' . $indicator->measures);
+
+                        } 
+                    }
+                    
+                    //END ACTUAL ACCOMPLISHMENT
+
+
+                    $table->addCell(80)->addText(''); // Q1 placeholder
+                    $table->addCell(80)->addText(''); // Q2 placeholder
+                    $table->addCell(80)->addText(''); // T3 placeholder
+                    $table->addCell(80)->addText(''); // A4 placeholder
+                    $table->addCell(3000)->addText($entriesForIndicator->pluck('accomplishment_text')->implode(', ')); // Remarks placeholder
+                }
+            }
+        }
+
+        // Save the file to a temporary location
+        $filePath = tempnam(sys_get_temp_dir(), 'report') . '.docx';
+        $phpWord->save($filePath, 'Word2007');
+
+        // Return the file as a response
+        return response()->download($filePath)->deleteFileAfterSend(true);
     }
 
 
@@ -1031,6 +1239,7 @@ class ReportController extends Controller
                     // Initialize an array to hold the total accomplishments for each month
                     $totalAccomplishmentsByMonth = [];
                     $monthsForPeriod = $this->getMonthsForPeriod($selectedQuarter);
+
                     foreach ($monthsForPeriod as $month) {
                         $totalAccomplishmentsByMonth[$month] = 0; // Initialize each month with 0
                     }
@@ -1125,6 +1334,7 @@ class ReportController extends Controller
                         $columnLetter = chr(71 + $monthIndex);
                         $sheet->setCellValue($columnLetter . ($row - 7), $totalAccomplishmentsByMonth[$month]);
                 }
+
             }
         }
 
@@ -1298,6 +1508,7 @@ class ReportController extends Controller
                     // Initialize an array to hold the total accomplishments for each month
                     $totalAccomplishmentsByMonth = [];
                     $monthsForPeriod = $this->getMonthsForPeriod($selectedQuarter);
+
                     foreach ($monthsForPeriod as $month) {
                         $totalAccomplishmentsByMonth[$month] = 0; // Initialize each month with 0
                     }
@@ -1350,6 +1561,7 @@ class ReportController extends Controller
                         ->whereIn(DB::raw('MONTH(created_at)'), $this->getMonthsForPeriod($selectedQuarter))
                         ->get();
 
+
                        // Initialize month accomplishments for the current division
                         $accomplishmentsByMonth = [];
                         foreach ($monthsForPeriod as $month) {
@@ -1366,7 +1578,6 @@ class ReportController extends Controller
                             $totalAccomplishmentsByMonth[$month] += $entry->$accomField ?? 0;
                         }
 
-                        // Insert accomplishments into respective month columns
                         foreach ($monthsForPeriod as $monthIndex => $month) {
                             $columnLetter = chr(71 + $monthIndex); // Calculate the column letter based on the index
                             $sheet->setCellValue($columnLetter . $row, $accomplishmentsByMonth[$month]); // Set accomplishment in the correct column
@@ -1392,6 +1603,7 @@ class ReportController extends Controller
                         $columnLetter = chr(71 + $monthIndex);
                         $sheet->setCellValue($columnLetter . ($row - 7), $totalAccomplishmentsByMonth[$month]);
                 }
+
             }
         }
 

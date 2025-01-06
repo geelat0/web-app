@@ -115,9 +115,7 @@
                                     <div class="mb-3">
                                         <div class="form-group">
                                             <label for="accomplishment_text" class="required">Accomplishment Remark</label>
-                                            <textArea type="text" id="accomplishment_text" class="form-control" name="accomplishment_text">
-                                                {{ trim($entries->measures) }}
-                                            </textArea>
+                                            <textArea type="text" id="accomplishment_text" class="form-control" name="accomplishment_text">{{ trim($entries->measures) }}</textArea>
                                             <div class="invalid-feedback" id="accomplishment_textError"></div>
                                         </div>
                                     </div>
