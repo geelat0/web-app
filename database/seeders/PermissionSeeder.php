@@ -21,8 +21,11 @@ class PermissionSeeder extends Seeder
             'manage_organizational_outcome',
             'manage_indicator',
             'manage_history',
-            'manage_entries',
+            'manage_accomplishments',
             'generate_report',
+            'generate_report_excel',
+            'generate_report_pdf',
+            'generate_report_doc',
 
             // Add all other necessary permissions
         ];

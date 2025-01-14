@@ -70,44 +70,33 @@
 
         $('#addOutcomeBtn').click(function () {
             const newOutcomeHtml = `
-            <div id="organizational_outcome_group_${outcomeIndex}">
-                <div class="form-group mt-3" >
-                    <label for="order_${outcomeIndex}" class="required">Order</label>
-                    <input type="text" class="form-control capitalize" name="order[]" id="order_${outcomeIndex}" aria-describedby="">
-                    <div class="invalid-feedback" id="orderError_${outcomeIndex}"></div>
+                <div id="organizational_outcome_group_${outcomeIndex}">
+                    <div class="form-group mt-3" >
+                        <label for="order_${outcomeIndex}" class="required">Order</label>
+                        <input type="text" class="form-control capitalize" name="order[]" id="order_${outcomeIndex}" aria-describedby="">
+                        <div class="invalid-feedback" id="orderError_${outcomeIndex}"></div>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="organizational_outcome_${outcomeIndex}" class="required">Organization Outcome</label>
+                        <input type="text" class="form-control capitalize" name="organizational_outcome[]" id="organizational_outcome_${outcomeIndex}" aria-describedby="">
+                        <div class="invalid-feedback" id="organizational_outcomeError_${outcomeIndex}"></div>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="category_${outcomeIndex}" class="required">Category</label>
+                        <select class="form-control capitalize" name="category[]" id="category_${outcomeIndex}" >
+                            <option value="Core">Core</option>
+                            <option value="Non Core">Non Core</option>
+                        </select>
+                        <div class="invalid-feedback" id="category_${outcomeIndex}"></div>
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm mt-2 removeOutcomeBtn" data-index="${outcomeIndex}"><i class='bx bx-trash'></i></button>
                 </div>
-                <div class="form-group mt-3">
-                    <label for="organizational_outcome_${outcomeIndex}" class="required">Organization Outcome</label>
-                    <input type="text" class="form-control capitalize" name="organizational_outcome[]" id="organizational_outcome_${outcomeIndex}" aria-describedby="">
-                    <div class="invalid-feedback" id="organizational_outcomeError_${outcomeIndex}"></div>
-                </div>
-                <div class="form-group mt-3">
-                    <label for="category_${outcomeIndex}" class="required">Category</label>
-                    <select class="form-control capitalize" name="category[]" id="category_${outcomeIndex}" >
-                        <option value="Core">Core</option>
-                        <option value="Non Core">Non Core</option>
-                    </select>
-                    <div class="invalid-feedback" id="category_${outcomeIndex}"></div>
-                </div>
-                <button type="button" class="btn btn-danger btn-sm mt-2 removeOutcomeBtn" data-index="${outcomeIndex}"><i class='bx bx-trash'></i></button>
-            </div>
             `;
             $('#organizational_outcomes').append(newOutcomeHtml);
             outcomeIndex++;
         });
 
         var table;
-
-        // flatpickr("#date-range-picker", {
-        //     mode: "range",
-        //     dateFormat: "m/d/Y",
-        //     onChange: function(selectedDates, dateStr, instance) {
-        //         // Check if both start and end dates are selected
-        //         if (selectedDates.length === 2) {
-        //             table.ajax.reload(null, false);
-        //         }
-        //     }
-        // });
 
         flatpickr("#date-range-picker", {
             mode: "range",
@@ -168,12 +157,7 @@
                     d.date_range = $('#date-range-picker').val();
                     // d.search = $('#search-input').val();
                 },
-                // beforeSend: function() {
-                //     showLoader(); // Show loader before starting the AJAX request
-                // },
-                // complete: function() {
-                //     hideLoader(); // Hide loader after AJAX request completes
-                // }
+               
             },
             buttons: [
                 // {
@@ -209,6 +193,11 @@
                                                 showConfirmButton: true,
                                             })
                                             table.ajax.reload();
+
+                                             // Reset the form and remove repeated inputs
+                                            $('#createOrgForm')[0].reset(); // Reset form fields
+                                            $('#organizational_outcomes').empty(); // Clear repeated inputs
+                                            outcomeIndex = 1; // Reset outcome index
                                         }
                                         else{
                                             hideLoader();
@@ -217,11 +206,9 @@
                                             $('.is-invalid').removeClass('is-invalid');
                                             for (let key in errors) {
                                                 const keyParts = key.split('.');
-                                                console.log(keyParts);
                                                 if (keyParts.length > 1) {
                                                     const index = keyParts[1];
                                                     const errorKey = keyParts[0];
-                                                    console.log(errorKey);
                                                     $(`#${errorKey}_${index}`).addClass('is-invalid');
                                                     $(`#${errorKey}Error_${index}`).html(errors[key][0]).show();
                                                 } else {
@@ -229,10 +216,6 @@
                                                     $(`#${key}Error`).html(errors[key][0]).show();
                                                 }
                                             }
-                                            // var errorMessage = '';
-                                            // $.each(response.errors, function(index, value) {
-                                            //     errorMessage += value + '<br>';
-                                            // });
                                             Swal.fire({
                                                 icon: 'error',
                                                 title: 'Validation Error',
@@ -296,11 +279,9 @@
                                             $('.is-invalid').removeClass('is-invalid');
                                             for (let key in errors) {
                                                 const keyParts = key.split('.');
-                                                console.log(keyParts);
                                                 if (keyParts.length > 1) {
                                                     const index = keyParts[1];
                                                     const errorKey = keyParts[0];
-                                                    console.log(errorKey);
                                                     $(`#edit_${errorKey}`).addClass('is-invalid');
                                                     $(`#${errorKey}Error`).html(errors[key][0]).show();
                                                 } else {
@@ -447,22 +428,22 @@
             table.buttons(['.btn-warning', '.btn-info', '.btn-danger']).enable(selectedRows > 0);
         });
 
-        $('#createOrgModal, #editOrgModal').on('hidden.bs.modal', function() {
-            $(this).find('form')[0].reset(); // Reset form fields
-            $(this).find('.is-invalid').removeClass('is-invalid'); // Remove validation error classes
-            $(this).find('.invalid-feedback').text(''); // Clear error messages
-            $(this).find('.dynamic-outcome-group').remove();
-        });
-
         let outcomeIndex = 1;
-
-
-
-
+       
         $(document).on('click', '.removeOutcomeBtn', function () {
             const index = $(this).data('index');
             $(`#organizational_outcome_group_${index}`).remove();
         });
+
+        $('#createOrgModal').on('hidden.bs.modal', function() {
+            $(this).find('form')[0].reset(); // Reset form fields
+    $(this).find('.is-invalid').removeClass('is-invalid'); // Remove validation error classes
+    $(this).find('.invalid-feedback').text(''); // Clear error messages
+    $('#organizational_outcomes').empty(); // Clear repeated inputs
+    outcomeIndex = 1; // Reset outcome index
+         
+        });
+     
 
     });
 </script>

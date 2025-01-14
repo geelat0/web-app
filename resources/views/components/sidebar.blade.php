@@ -23,13 +23,13 @@
             <div class="text-truncate" data-i18n="Page 1">Dashboard</div>
           </a>
         </li>
-        @if(auth()->user()->can('view-organizational-outcome') || auth()->user()->can('view-indicator') || auth()->user()->can('view-entries'))
+        @if(auth()->user()->can('manage_organizational_outcome') || auth()->user()->can('manage_indicator') || auth()->user()->can('manage_entries'))
           <li class="menu-item">
               <div style="margin-left: 5%; margin-top: 5%; color: #b4b0c4;">Reports</div>
           </li>
        @endif
 
-        @can('view-organizational-outcome')
+        @can('manage_organizational_outcome')
         <li class="menu-item {{ request()->is('outcome') ? 'active' : '' }}">
           <a href="/outcome" class="menu-link" @if( Auth::user()->role->name === 'SuperAdmin' ||  Auth::user()->role->name === 'Admin') title="Permission: manage_organizational_outcome" data-toggle="tooltip" data-placement="right" @endif>
             <i class='menu-icon tf-icons bx bx-archive-in'></i>
@@ -38,7 +38,7 @@
         </li>
         @endcan
 
-        @can('view-indicator')
+        @can('manage_indicator')
         <li class="menu-item {{ request()->is('indicator') ? 'active' : '' }}">
           <a href="/indicator" class="menu-link"@if( Auth::user()->role->name === 'SuperAdmin' ||  Auth::user()->role->name === 'Admin') title="Permission: manage_indicator" data-toggle="tooltip" data-placement="right" @endif>
             <i class='menu-icon tf-icons bx bx-plus-circle'></i>
@@ -47,36 +47,36 @@
         </li>
         @endcan
 
-        @can('view-entries')
+        @can('manage_accomplishments')
         <li class="menu-item {{ request()->is('accomplishment') ? 'active' : '' }}">
-          <a href="/accomplishment" class="menu-link"@if( Auth::user()->role->name === 'SuperAdmin' ||  Auth::user()->role->name === 'Admin') title="Permission: manage_entries" data-toggle="tooltip" data-placement="right" @endif>
+          <a href="/accomplishment" class="menu-link"@if( Auth::user()->role->name === 'SuperAdmin' ||  Auth::user()->role->name === 'Admin') title="Permission: manage_accomplishments" data-toggle="tooltip" data-placement="right" @endif>
             <i class='menu-icon tf-icons bx bx-file'></i>
             <div class="text-truncate" data-i18n="Page 2">Accomplishment</div>
-            @can('view-entries')
+            @can('manage_accomplishments')
             <span class="badge {{ $entriesCount == 0 ? 'bg-info' : 'bg-danger'}}  badge-notifications p-1 fs-8">{{$entriesCount}}</span>
             @endcan
           </a>
         </li>
         @endcan
 
-        @can('generate-reports')
+        @if(auth()->user()->can('generate_report') || auth()->user()->can('generate_report_excel') || auth()->user()->can('generate_report_pdf') || auth()->user()->can('generate_report_doc'))
         <li class="menu-item {{ request()->is('generate') ? 'active' : '' }}">
-          <a href="/generate" class="menu-link" @if( Auth::user()->role->name === 'SuperAdmin' ||  Auth::user()->role->name === 'Admin') title="Permission: generate-reports" data-toggle="tooltip" data-placement="right" @endif>
+          <a href="/generate" class="menu-link" @if( Auth::user()->role->name === 'SuperAdmin' ||  Auth::user()->role->name === 'Admin') title="Permission: generate_report" data-toggle="tooltip" data-placement="right" @endif>
             <i class='menu-icon tf-icons bx bxs-file-export'></i>
             <div class="text-truncate" data-i18n="Page 2">Generate Report</div>
           </a>
         </li>
-        @endcan
+        @endif
 
-        @if(auth()->user()->can('manage-user-management') || auth()->user()->can('manage-roles') || auth()->user()->can('view-history') || auth()->user()->can('view-permissions'))
+        @if(auth()->user()->can('manage_users') || auth()->user()->can('manage_roles') || auth()->user()->can('manage_history') || auth()->user()->can('manage_permissions'))
         <li class="menu-item">
           <div style="margin-left: 5%; margin-top: 5%; color: #b4b0c4;">User Management</div>
         </li>
         @endif
 
-        @can('manage-roles')
+        @can('manage_roles')
         <li class="menu-item {{ request()->is('roles') ? 'active' : '' }}">
-          <a href="/roles" class="menu-link" @if( Auth::user()->role->name === 'SuperAdmin' ||  Auth::user()->role->name === 'Admin') title="Permission: manage-roles" data-toggle="tooltip" data-placement="right" @endif>
+          <a href="/roles" class="menu-link" @if( Auth::user()->role->name === 'SuperAdmin' ||  Auth::user()->role->name === 'Admin') title="Permission: manage_roles" data-toggle="tooltip" data-placement="right" @endif>
             {{-- <i class='menu-icon bx bx-purchase-tag-alt'></i> --}}
             <i class='menu-icon bx bx-shield-plus'></i>
             {{-- <i class='menu-icon tf-icons bx bx-group'></i> --}}
@@ -85,7 +85,7 @@
         </li>
         @endcan
 
-        @can('view-permissions')
+        @can('manage_permissions')
         <li class="menu-item" {{ request()->is('permissions') ? 'active' : '' }}>
           <a href="/permissions" class="menu-link" @if( Auth::user()->role->name === 'SuperAdmin' ||  Auth::user()->role->name === 'Admin') title="Permission: manage_permissions" data-toggle="tooltip" data-placement="right" @endif>
             <i class='menu-icon tf-icons bx bx-key'></i>
@@ -94,7 +94,7 @@
         </li>
         @endcan
 
-        @can('manage-user-management')
+        @can('manage_users')
         <li class="menu-item {{ request()->is('user') ? 'active' : '' }}">
           <a href="/user" class="menu-link" @if( Auth::user()->role->name === 'SuperAdmin' ||  Auth::user()->role->name === 'Admin') title="Permission: manage_users" data-toggle="tooltip" data-placement="right" @endif>
             <i class='menu-icon tf-icons bx bx-group'></i>
@@ -103,7 +103,7 @@
         </li>
         @endcan
 
-        @can('view-history')
+        @can('manage_history')
         <li class="menu-item" {{ request()->is('login_in') ? 'active' : '' }}>
           <a href="/login_in" class="menu-link" @if( Auth::user()->role->name === 'SuperAdmin' ||  Auth::user()->role->name === 'Admin') title="Permission: manage_history" data-toggle="tooltip" data-placement="right" @endif>
             <i class='menu-icon tf-icons bx bx-history' ></i>

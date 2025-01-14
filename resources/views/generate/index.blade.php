@@ -21,18 +21,24 @@
                         <form id="GenerateForm">
                             <div class="form-group mb-3">
                                 <label for="">File Type:</label>
+                                @can('generate_report_excel')
                                 <div class="form-check form-check-inline excel">
                                     <input class="form-check-input" type="radio" name="fileType" id="excel" value="excel">
                                     <label class="form-check-label" for="excel">excel</label>
-                                  </div>
-                                  <div class="form-check form-check-inline pdf">
+                                </div>
+                                @endcan
+                                @can('generate_report_pdf')
+                                <div class="form-check form-check-inline pdf">
                                     <input class="form-check-input" type="radio" name="fileType" id="pdf" value="pdf">
                                     <label class="form-check-label" for="pdf">pdf</label>
-                                  </div>
-                                  <div class="form-check form-check-inline word">
+                                </div>
+                                @endcan
+                                @can('generate_report_doc')
+                                <div class="form-check form-check-inline word">
                                     <input class="form-check-input" type="radio" name="fileType" id="word" value="word">
                                     <label class="form-check-label" for="word">doc</label>
-                                  </div>
+                                </div>
+                                @endcan
                             </div>
 
                             @csrf
@@ -76,9 +82,15 @@
                             </div>
 
                             <div class="d-flex justify-content-end">
+                                @can('generate_report_pdf')
                                 <button type="submit" class="btn btn-primary pdf-button" style="display: none;">Generate PDF</button>
+                                @endcan
+                                @can('generate_report_doc')
                                 <button type="submit" class="btn btn-primary doc-button" style="display: none;">Generate Doc</button>
+                                @endcan
+                                @can('generate_report_excel')
                                 <button type="submit" class="btn btn-primary excel-button" style="display: none;">Generate Excel</button>
+                                @endcan
                             </div>
                         </form>
                     </div>

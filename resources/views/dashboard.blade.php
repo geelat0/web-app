@@ -1,9 +1,8 @@
 @extends('components.app')
 
 @section('content')
-<div class="container">
     
-    @if(auth()->user()->can('view-entries') && Auth::user()->role->name !== 'SuperAdmin')
+    @if(auth()->user()->can('manage_accomplishments') && Auth::user()->role->name !== 'SuperAdmin')
         <div class="row mb-3">
             <div class="col-md-6">
                 <div class="card" style="width: 100%; margin-bottom: 1rem;">
@@ -40,7 +39,6 @@
                 </div>
             </div>
         </div>
-
 
         <div class="row">
             <div class="col">
@@ -129,10 +127,7 @@
             </div>
         </div>
     @endif
-    
-    
 
-</div>
 @endsection
 
 @section('components.specific_page_scripts')
@@ -327,6 +322,5 @@
 
     // Reload table every 1 minute (60000 milliseconds)
     setInterval(reloadTable, 7500);
-    console.log('here');
 </script>
 @endsection

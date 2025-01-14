@@ -172,6 +172,7 @@ class ReportController extends Controller
             $entry = Entries::whereNull('deleted_at')
                         ->where('year', $year)
                         ->where('status','Completed')
+                        ->where('created_by', Auth::user()->user_name)
                         ->when($period, function($query) use ($period) {
                             $months = $this->getMonthsForPeriod($period);
                             $query->whereIn(DB::raw('MONTH(created_at)'), $months);
@@ -328,6 +329,7 @@ class ReportController extends Controller
             $entry = Entries::whereNull('deleted_at')
                         ->where('year', $year)
                         ->where('status','Completed')
+                        ->where('created_by', Auth::user()->user_name)
                         ->when($period, function($query) use ($period) {
                             $months = $this->getMonthsForPeriod($period);
                             $query->whereIn(DB::raw('MONTH(created_at)'), $months);
@@ -552,7 +554,6 @@ class ReportController extends Controller
                     }
                     
                     //END ACTUAL ACCOMPLISHMENT
-
 
                     $table->addCell(80)->addText(''); // Q1 placeholder
                     $table->addCell(80)->addText(''); // Q2 placeholder
