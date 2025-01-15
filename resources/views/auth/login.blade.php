@@ -62,17 +62,28 @@
     <div class="authentication-wrapper authentication-cover">
       <div class="authentication-inner row m-0">
         <!-- /Left Text -->
-        <div class="d-none d-lg-flex col-lg-7 col-xl-8 align-items-center p-5" style="background-color: white">
+        {{-- <div class="d-none d-lg-flex col-lg-7 col-xl-8 align-items-center p-5" style="background-color: #f1f1f1">
           <div class="w-100 d-flex justify-content-center">
             <img
-              src="../../assets/img/illustrations/girl-with-laptop-light.png"
+              src="../../assets/img/illustrations/opcr_login_wall.jpg"
               class="img-fluid"
               alt="Login image"
               width="700"
-              data-app-dark-img="illustrations/girl-with-laptop-dark.png"
-              data-app-light-img="illustrations/girl-with-laptop-light.png" />
+              data-app-dark-img="illustrations/opcr_login_wall.png"
+              data-app-light-img="illustrations/opcr_login_wall.png" />
           </div>
-        </div>
+        </div> --}}
+        <div class="d-none d-lg-flex col-lg-7 col-xl-8 d-flex bg-primary"
+            style=" background-image: url('{{ asset('assets/img/illustrations/opcr_login_wall4.png') }}');
+                    background-size: cover;
+                    background-position: center;
+                    background-repeat: no-repeat;">
+           <div class="w-100 d-flex justify-content-center">
+               <div class="d-flex justify-content-center align-items-center">
+                   <!-- You can add other content here if needed -->
+               </div>
+           </div>
+       </div>
         <!-- /Left Text -->
 
         <!-- Login -->
@@ -123,7 +134,7 @@
               </div>
               <button type="submit" class="btn btn-primary d-grid w-100">Sign in</button>
             </form>
-            
+
           </div>
         </div>
         <!-- /Login -->

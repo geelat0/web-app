@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('middle_name');
+            $table->string('middle_name')->nullable();
             $table->string('user_name');
             $table->string('province');
             $table->string('position');
